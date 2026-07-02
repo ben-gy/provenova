@@ -1,7 +1,16 @@
-# Front the API/web app. Set your domain via the QL_BASE_URL host.
-# For localhost, `:80` serves plain HTTP; for a real domain replace with the
-# hostname and Caddy will provision TLS automatically.
-:80 {
+# QuantumLedger reverse proxy.
+#
+# Serves the real domain with automatic HTTPS. Caddy reads {$QL_DOMAIN} from
+# the environment (set in docker-compose.yml via .env), so the host stays
+# configurable without editing this file.
+{$QL_DOMAIN} {
 	encode gzip
 	reverse_proxy api:8000
 }
+
+# IP-only smoke test (before DNS / TLS is ready):
+# comment out the block above and uncomment this one to serve plain HTTP on
+# port 80 against the VM's public IP, then `docker compose up -d proxy`.
+# :80 {
+# 	reverse_proxy api:8000
+# }

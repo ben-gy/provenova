@@ -1,0 +1,31 @@
+# QuantumLedger — Fly.io app config.
+# Deploy:  fly deploy   (after `fly apps create` + secrets; see deploy/HOSTING-fly.md)
+# App name is global — change it here if "quantumledger" is taken.
+app = "quantumledger-bengy"
+primary_region = "syd"
+
+[build]
+  dockerfile = "deploy/Dockerfile"
+
+# Non-secret config. Secrets (QL_SECRET_KEY, QL_ATTESTATION_KEY_B64,
+# QL_DATABASE_URL) are set with `fly secrets set` — never put them here.
+[env]
+  QL_DEPLOYMENT = "selfhost"
+  QL_PUBLIC_CARDS = "true"
+  QL_ADMIN_EMAIL = "hi@ben.gy"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0      # scale to zero when idle (cheapest)
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 200
+    soft_limit = 150
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"                # qiskit + FastAPI need headroom; 512mb is tight

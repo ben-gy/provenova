@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     base_url: str = "http://localhost:8000"
     secret_key: str = "dev-insecure-change-me"
     attestation_key_path: str = "./data/attestation_ed25519.key"
+    attestation_key_b64: str = ""
     public_cards: bool = True
     admin_email: str = "admin@quantumledger.local"
     enable_doi: bool = False

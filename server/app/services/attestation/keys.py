@@ -86,6 +86,39 @@ def load_or_create_private_key(
     return private_key, kid_for_key(private_key)
 
 
+def private_key_from_b64(b64: str) -> tuple[ed25519.Ed25519PrivateKey, str]:
+    """Load an Ed25519 private key from a base64-encoded PKCS8 PEM.
+
+    ``b64`` is the standard base64 of a PEM-encoded (PKCS8, unencrypted) Ed25519
+    private key — the form emitted by :func:`private_key_to_b64` and by
+    ``scripts/gen_attestation_key.py``. Lets a deployment carry a stable signing
+    key in an env var (``QL_ATTESTATION_KEY_B64``) so redeploys on ephemeral
+    filesystems don't regenerate the key and invalidate prior attestations.
+
+    Returns ``(private_key, kid)``. Raises ``ValueError`` if the decoded material
+    is not an Ed25519 private key.
+    """
+    pem = base64.b64decode(b64)
+    private_key = serialization.load_pem_private_key(pem, password=None)
+    if not isinstance(private_key, ed25519.Ed25519PrivateKey):
+        raise ValueError("QL_ATTESTATION_KEY_B64 is not an Ed25519 private key")
+    return private_key, kid_for_key(private_key)
+
+
+def private_key_to_b64(key: ed25519.Ed25519PrivateKey) -> str:
+    """Serialize an Ed25519 private key to base64-encoded PKCS8 PEM.
+
+    Inverse of :func:`private_key_from_b64`: PKCS8 PEM with no encryption, then
+    standard base64. Suitable for pasting into ``QL_ATTESTATION_KEY_B64``.
+    """
+    pem = key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    return base64.b64encode(pem).decode("ascii")
+
+
 def public_jwk(private_key: ed25519.Ed25519PrivateKey, kid: str | None = None) -> dict:
     """A single JWK (OKP/Ed25519) for the given key's public half."""
     raw = public_raw_bytes(private_key)
@@ -173,6 +206,8 @@ __all__ = [
     "kid_for_key",
     "generate_private_key",
     "load_or_create_private_key",
+    "private_key_from_b64",
+    "private_key_to_b64",
     "public_raw_bytes",
     "public_jwk",
     "jwks_from_keys",

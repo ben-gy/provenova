@@ -1,0 +1,15 @@
+.venv/
+.git/
+__pycache__/
+*.pyc
+*.egg-info/
+*.db
+*.db-wal
+*.db-shm
+data/
+.env
+deploy/.env
+.pytest_cache/
+.claude/
+node_modules/
+*.log

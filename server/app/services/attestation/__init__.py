@@ -14,6 +14,8 @@ from .keys import (
     jwks_from_keys,
     kid_for_key,
     load_or_create_private_key,
+    private_key_from_b64,
+    private_key_to_b64,
     public_jwk,
     public_key_from_jwk,
 )
@@ -38,6 +40,8 @@ __all__ = [
     "kid_for_key",
     "generate_private_key",
     "load_or_create_private_key",
+    "private_key_from_b64",
+    "private_key_to_b64",
     "public_jwk",
     "jwks_from_keys",
     "public_key_from_jwk",

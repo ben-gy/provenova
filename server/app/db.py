@@ -51,10 +51,19 @@ def get_db() -> Iterator[Session]:
 
 @lru_cache
 def attestation_key():
-    from .services.attestation import jwks_from_keys, load_or_create_private_key
+    from .services.attestation import (
+        jwks_from_keys,
+        load_or_create_private_key,
+        private_key_from_b64,
+    )
 
     settings = get_settings()
-    priv, kid = load_or_create_private_key(settings.attestation_key_path)
+    if settings.attestation_key_b64:
+        # Stable signing key supplied via env (QL_ATTESTATION_KEY_B64): keeps the
+        # attestation trust root constant across redeploys on ephemeral disks.
+        priv, kid = private_key_from_b64(settings.attestation_key_b64)
+    else:
+        priv, kid = load_or_create_private_key(settings.attestation_key_path)
     return priv, kid, jwks_from_keys([priv])
 
 
@@ -64,38 +73,45 @@ def default_workspace(session: Session) -> Workspace:
 
 
 def bootstrap(session: Session) -> None:
-    """Idempotent startup seed: frameworks, keys, admin, default org/workspace."""
+    """Idempotent startup seed: frameworks, keys, admin, default org/workspace.
+
+    Serialized with a Postgres advisory lock so concurrent workers/containers
+    don't race on the framework/account unique constraints (no-op on SQLite).
+    """
+    from quantumledger_core.db import advisory_lock
+
     from .services.compliance import load_all_frameworks
 
     settings = get_settings()
 
-    # frameworks-as-data
-    if FRAMEWORKS_DIR.exists():
-        load_all_frameworks(session, directory=FRAMEWORKS_DIR)
+    with advisory_lock(session.get_bind()):
+        # frameworks-as-data
+        if FRAMEWORKS_DIR.exists():
+            load_all_frameworks(session, directory=FRAMEWORKS_DIR)
 
-    # attestation signing key
-    attestation_key()
+        # attestation signing key
+        attestation_key()
 
-    # admin account + default org/workspace
-    admin = session.scalar(select(Account).where(Account.email == settings.admin_email))
-    if admin is None:
-        admin = Account(
-            email=settings.admin_email,
-            display_name="Administrator",
-            email_verified=True,
-            is_superadmin=True,
-        )
-        session.add(admin)
-        session.flush()
-    org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
-    if org is None:
-        org = Org(name="QuantumLedger", slug="quantumledger", plan=PLAN_ENTERPRISE)
-        session.add(org)
-        session.flush()
-        session.add(OrgMembership(account_id=admin.id, org_id=org.id, role="owner"))
-    ws = session.scalar(select(Workspace).where(Workspace.slug == "default"))
-    if ws is None:
-        ws = Workspace(org_id=org.id, name="Default", slug="default", store_mode="hosted")
-        session.add(ws)
-        session.flush()
-    session.commit()
+        # admin account + default org/workspace
+        admin = session.scalar(select(Account).where(Account.email == settings.admin_email))
+        if admin is None:
+            admin = Account(
+                email=settings.admin_email,
+                display_name="Administrator",
+                email_verified=True,
+                is_superadmin=True,
+            )
+            session.add(admin)
+            session.flush()
+        org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
+        if org is None:
+            org = Org(name="QuantumLedger", slug="quantumledger", plan=PLAN_ENTERPRISE)
+            session.add(org)
+            session.flush()
+            session.add(OrgMembership(account_id=admin.id, org_id=org.id, role="owner"))
+        ws = session.scalar(select(Workspace).where(Workspace.slug == "default"))
+        if ws is None:
+            ws = Workspace(org_id=org.id, name="Default", slug="default", store_mode="hosted")
+            session.add(ws)
+            session.flush()
+        session.commit()
