@@ -1,0 +1,7 @@
+# Front the API/web app. Set your domain via the QL_BASE_URL host.
+# For localhost, `:80` serves plain HTTP; for a real domain replace with the
+# hostname and Caddy will provision TLS automatically.
+:80 {
+	encode gzip
+	reverse_proxy api:8000
+}

@@ -1,0 +1,88 @@
+# FAIR data principles, expressed as QuantumLedger compliance controls.
+#
+# Evidence is auto-collected from the immutable core record: published
+# ResultCards (persistent identifiers, licence, retrievability) and the logical
+# circuit format. Each control's `evidence_rules` is interpreted by the predicate
+# DSL in server/app/services/compliance/rule_engine.py.
+key: fair
+name: FAIR Data Principles
+version: "1.0"
+jurisdiction: international
+description: >-
+  Findable, Accessible, Interoperable, Reusable. Applied to quantum result
+  records: every published result carries a persistent identifier, is
+  retrievable, uses an open interoperable circuit format, and declares a licence.
+spec:
+  source: GO FAIR
+  url: https://www.go-fair.org/fair-principles/
+controls:
+  - key: FAIR-F1
+    title: (Meta)data are assigned a globally unique and persistent identifier
+    requirement_text: >-
+      Every published result must be identified by a globally unique, persistent
+      identifier (a DOI or other PID) so it can be found and cited unambiguously.
+    severity: high
+    remediation: >-
+      Mint a DOI (or register a PID) for the published ResultCard and store it on
+      the card before publishing.
+    evidence_rules:
+      - id: FAIR-F1-pid
+        source: card
+        predicate:
+          exists: "card.doi | card.pid"
+        cardinality:
+          min_count: 1
+          scope: per_published_card
+        collect:
+          field: "card.doi | card.pid"
+          label: Persistent identifier
+
+  - key: FAIR-A1
+    title: (Meta)data are retrievable by their identifier via a standard protocol
+    requirement_text: >-
+      The result record must be retrievable — i.e. published as a ResultCard that
+      is publicly accessible.
+    severity: medium
+    remediation: Publish the ResultCard (set visibility=public and a published_at).
+    evidence_rules:
+      - id: FAIR-A1-published
+        source: card
+        predicate:
+          non_empty: "card.published_at"
+        collect:
+          field: "card.slug"
+          label: Retrievable card slug
+
+  - key: FAIR-I1
+    title: (Meta)data use a formal, accessible, shared, broadly applicable language
+    requirement_text: >-
+      The circuit is stored in an open, interoperable representation — QASM3,
+      the QuantumLedger IR (qlir/1.0), or QIR — not a vendor-locked binary.
+    severity: medium
+    remediation: Re-record the run capturing the logical circuit as qasm3, qlir/1.0 or qir.
+    evidence_rules:
+      - id: FAIR-I1-fmt
+        source: circuit
+        predicate:
+          in:
+            field: "circuit.fmt"
+            set: [qasm3, "qlir/1.0", qir]
+        collect:
+          field: "circuit.fmt"
+          label: Interoperable circuit format
+
+  - key: FAIR-R1.1
+    title: (Meta)data are released with a clear and accessible data usage licence
+    requirement_text: >-
+      Every published result must declare a licence so downstream users know the
+      terms of reuse.
+    severity: high
+    remediation: Set a licence (e.g. CC-BY-4.0) on the ResultCard before publishing.
+    evidence_rules:
+      - id: FAIR-R1.1-license
+        source: card
+        predicate:
+          non_empty: "card.license"
+        collect:
+          field: "card.license"
+          label: Data usage licence

@@ -1,0 +1,65 @@
+# Metrology baseline — traceability of measurement to a recorded device state.
+#
+# A metrologically sound quantum measurement is traceable to the calibrated
+# instrument state at the time of measurement and reports its shot count.
+key: metrology
+name: Quantum Metrology Traceability
+version: "1.0"
+jurisdiction: international
+description: >-
+  Measurement traceability for quantum results: every reported result is bound to
+  a recorded calibration snapshot of the measuring device and declares its shot
+  count (measurement sample size).
+spec:
+  source: QuantumLedger metrology baseline
+controls:
+  - key: MET-TRACE
+    title: Measurement is traceable to a calibrated device state
+    requirement_text: >-
+      Each run binds a calibration snapshot recorded within 90 days of the run, so
+      the measurement is traceable to a known instrument state.
+    severity: high
+    remediation: Bind a current calibration snapshot to the run.
+    evidence_rules:
+      - id: MET-TRACE-calib
+        source: run
+        predicate:
+          exists: "run.calibration_snapshot_id"
+        freshness:
+          max_age_hours: 2160
+          relative_to: "run.finished_at"
+        collect:
+          field: "run.calibration_snapshot_id"
+          label: Traceable calibration snapshot
+
+  - key: MET-SHOTS
+    title: Measurement sample size is reported
+    requirement_text: >-
+      Each result reports the number of shots (measurement repetitions) so the
+      statistical uncertainty of the reported distribution is quantifiable.
+    severity: medium
+    remediation: Re-record the run so the result shot count is captured.
+    evidence_rules:
+      - id: MET-SHOTS-present
+        source: result
+        predicate:
+          non_empty: "result.shots"
+        collect:
+          field: "result.shots"
+          label: Reported shots
+
+  - key: MET-INTEGRITY
+    title: Reported counts are content-addressed
+    requirement_text: >-
+      Each result carries a SHA-256 digest of its counts so the reported
+      measurement cannot be silently altered.
+    severity: medium
+    remediation: Re-seal the result so its counts_sha256 is computed.
+    evidence_rules:
+      - id: MET-INTEGRITY-hash
+        source: result
+        predicate:
+          non_empty: "result.counts_sha256"
+        collect:
+          field: "result.counts_sha256"
+          label: Counts digest

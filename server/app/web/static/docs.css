@@ -1,0 +1,136 @@
+/* QuantumLedger documentation — Stripe-inspired reading experience.
+   Loaded only on /docs pages (see docs.html). Tailwind (CDN) handles the app
+   chrome; this file owns the docs shell, prose typography, code blocks,
+   callouts, tabs and the two-pane guide layout. */
+
+:root {
+  --doc-fg: #334155;
+  --doc-heading: #0f172a;
+  --doc-muted: #64748b;
+  --doc-border: #e2e8f0;
+  --doc-accent: #635bff;         /* Stripe-ish indigo */
+  --doc-accent-weak: #eef2ff;
+  --doc-code-bg: #0b1020;
+  --doc-code-fg: #e2e8f0;
+  --doc-radius: 10px;
+}
+
+/* ---- prose ------------------------------------------------------------- */
+.doc-content { color: var(--doc-fg); font-size: 15.5px; line-height: 1.72; }
+.doc-content > *:first-child { margin-top: 0; }
+.doc-content h1 { font-size: 2.05rem; font-weight: 700; letter-spacing: -0.02em; color: var(--doc-heading); margin: 0 0 .6rem; }
+.doc-content h2 { font-size: 1.4rem; font-weight: 680; letter-spacing: -0.01em; color: var(--doc-heading); margin: 2.4rem 0 .7rem; padding-top: 1.4rem; border-top: 1px solid var(--doc-border); }
+.doc-content h3 { font-size: 1.12rem; font-weight: 650; color: #1e293b; margin: 1.6rem 0 .45rem; }
+.doc-content h4 { font-size: 1rem; font-weight: 650; color: #1e293b; margin: 1.2rem 0 .35rem; }
+.doc-content p { margin: .75rem 0; }
+.doc-content a { color: var(--doc-accent); text-decoration: none; font-weight: 500; }
+.doc-content a:hover { text-decoration: underline; }
+.doc-content strong { color: var(--doc-heading); font-weight: 650; }
+.doc-content ul, .doc-content ol { margin: .7rem 0; padding-left: 1.35rem; }
+.doc-content li { margin: .32rem 0; }
+.doc-content li::marker { color: #94a3b8; }
+.doc-content hr { border: 0; border-top: 1px solid var(--doc-border); margin: 2.2rem 0; }
+
+/* inline code */
+.doc-content :not(pre) > code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .85em; background: #f1f5f9; color: #b4318f;
+  padding: .12rem .38rem; border-radius: 5px; border: 1px solid #e9edf3;
+}
+
+/* anchored headings */
+.doc-content .headerlink,
+.doc-content h2 > a.anchor, .doc-content h3 > a.anchor {
+  opacity: 0; margin-left: .4rem; color: #cbd5e1; font-weight: 400; text-decoration: none;
+  transition: opacity .12s ease;
+}
+.doc-content h2:hover .anchor, .doc-content h3:hover .anchor { opacity: 1; }
+
+/* tables (used sparingly — reference matrices) */
+.doc-content table { width: 100%; border-collapse: collapse; margin: 1.1rem 0; font-size: .92rem; }
+.doc-content th, .doc-content td { text-align: left; padding: .55rem .75rem; border-bottom: 1px solid var(--doc-border); vertical-align: top; }
+.doc-content th { color: var(--doc-muted); font-weight: 600; background: #f8fafc; }
+.doc-content tbody tr:hover { background: #fbfcfe; }
+
+/* blockquote (non-callout) */
+.doc-content blockquote { border-left: 3px solid #cbd5e1; color: #475569; margin: 1.1rem 0; padding: .3rem 1rem; }
+
+/* ---- code blocks ------------------------------------------------------- */
+.code-block { margin: 1.1rem 0; border-radius: var(--doc-radius); overflow: hidden; border: 1px solid #1e293b; background: var(--doc-code-bg); box-shadow: 0 1px 2px rgba(2,6,23,.06); }
+.code-block__bar { display: flex; align-items: center; justify-content: space-between; padding: .45rem .7rem .45rem .9rem; background: #111827; border-bottom: 1px solid #1e293b; }
+.code-block__lang { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: #94a3b8; }
+.code-block__copy { font: inherit; font-size: .72rem; color: #cbd5e1; background: #1f2937; border: 1px solid #374151; border-radius: 6px; padding: .18rem .55rem; cursor: pointer; transition: background .12s, color .12s; }
+.code-block__copy:hover { background: #374151; color: #fff; }
+.code-block__copy.copied { color: #6ee7b7; border-color: #065f46; }
+.doc-content pre, .code-block pre { margin: 0; background: var(--doc-code-bg); color: var(--doc-code-fg); padding: 1rem 1.1rem; overflow-x: auto; font-size: .855rem; line-height: 1.65; }
+.doc-content pre code, .code-block pre code { background: transparent; color: inherit; padding: 0; border: 0; font-size: inherit; }
+/* a bare pre not wrapped by JS still looks right */
+.doc-content > pre { border-radius: var(--doc-radius); }
+
+/* ---- callouts ---------------------------------------------------------- */
+.callout { display: flex; gap: .7rem; margin: 1.15rem 0; padding: .8rem 1rem; border-radius: var(--doc-radius); border: 1px solid; font-size: .93rem; line-height: 1.6; }
+.callout__icon { flex: 0 0 auto; font-size: 1rem; line-height: 1.5; }
+.callout__body { min-width: 0; }
+.callout__body > *:first-child { margin-top: 0; }
+.callout__body > *:last-child { margin-bottom: 0; }
+.callout--note { background: #eff6ff; border-color: #bfdbfe; color: #1e3a8a; }
+.callout--tip { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+.callout--warning { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+.callout a { color: inherit; text-decoration: underline; }
+
+/* ---- language tabs ----------------------------------------------------- */
+.doc-tabs { margin: 1.1rem 0; border: 1px solid #1e293b; border-radius: var(--doc-radius); overflow: hidden; background: var(--doc-code-bg); }
+.doc-tabs__nav { display: flex; gap: .25rem; padding: .4rem .5rem 0; background: #111827; border-bottom: 1px solid #1e293b; }
+.doc-tabs__btn { font: inherit; font-size: .78rem; color: #94a3b8; background: transparent; border: 0; border-bottom: 2px solid transparent; padding: .35rem .7rem .5rem; cursor: pointer; }
+.doc-tabs__btn:hover { color: #e2e8f0; }
+.doc-tabs__btn.active { color: #fff; border-bottom-color: var(--doc-accent); }
+.doc-tabs__panel { display: none; }
+.doc-tabs__panel.active { display: block; }
+.doc-tabs .code-block, .doc-tabs pre { margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+.doc-tabs .code-block__bar { display: none; }
+
+/* ---- two-pane guide (prose left, sticky code rail right) --------------- */
+.doc-split { display: block; }
+.doc-split .doc-rail > .code-block:first-child,
+.doc-split .doc-rail > .doc-tabs:first-child { margin-top: 0; }
+@media (min-width: 1024px) {
+  .doc-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr); gap: 2.2rem; align-items: start; }
+  .doc-split .doc-rail { position: sticky; top: 5rem; }
+}
+
+/* ---- endpoint reference (API docs — not swagger) ----------------------- */
+.endpoint { margin: 1.4rem 0 1.8rem; }
+.endpoint__head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.endpoint__method { font-family: ui-monospace, monospace; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: .16rem .5rem; border-radius: 6px; color: #fff; }
+.endpoint__method.get { background: #2563eb; }
+.endpoint__method.post { background: #059669; }
+.endpoint__method.put, .endpoint__method.patch { background: #d97706; }
+.endpoint__method.delete { background: #dc2626; }
+.endpoint__path { font-family: ui-monospace, monospace; font-size: .95rem; color: var(--doc-heading); }
+.endpoint__desc { margin: .4rem 0 .1rem; color: var(--doc-fg); }
+.endpoint__auth { font-size: .78rem; color: var(--doc-muted); }
+
+/* ---- ref cards (CLI / frameworks) -------------------------------------- */
+.ref-card { border: 1px solid var(--doc-border); border-radius: var(--doc-radius); padding: .9rem 1.1rem; margin: .8rem 0; background: #fff; }
+.ref-card__title { font-family: ui-monospace, monospace; font-weight: 650; color: var(--doc-heading); }
+.ref-card__desc { color: var(--doc-fg); margin: .3rem 0 .2rem; font-size: .93rem; }
+.ref-card ul { margin: .3rem 0 0; }
+
+/* ---- sidebar / TOC ----------------------------------------------------- */
+.doc-nav a.active { background: var(--doc-accent-weak); color: #4338ca; font-weight: 600; }
+#doc-filter { width: 100%; font-size: .82rem; padding: .35rem .6rem; border: 1px solid var(--doc-border); border-radius: 7px; background: #fff; }
+#doc-filter:focus { outline: none; border-color: var(--doc-accent); box-shadow: 0 0 0 3px rgba(99,91,255,.12); }
+.doc-toc a { display: block; padding: .18rem 0; color: var(--doc-muted); font-size: .82rem; border-left: 2px solid transparent; padding-left: .7rem; margin-left: -.7rem; }
+.doc-toc a:hover { color: var(--doc-accent); }
+.doc-toc a.active { color: #4338ca; border-left-color: var(--doc-accent); font-weight: 600; }
+.doc-toc ul { list-style: none; padding-left: .8rem; margin: 0; }
+.doc-toc > .toc > ul { padding-left: 0; }
+
+/* ---- docs home --------------------------------------------------------- */
+.doc-home-hero { padding: .5rem 0 1.5rem; }
+.doc-home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.doc-home-card { display: block; border: 1px solid var(--doc-border); border-radius: 12px; padding: 1.1rem 1.2rem; background: #fff; transition: border-color .12s, box-shadow .12s, transform .12s; }
+.doc-home-card:hover { border-color: #c7d2fe; box-shadow: 0 6px 20px -8px rgba(79,70,229,.25); transform: translateY(-1px); text-decoration: none; }
+.doc-home-card__eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--doc-accent); font-weight: 600; }
+.doc-home-card__title { font-weight: 650; color: var(--doc-heading); margin: .2rem 0 .3rem; }
+.doc-home-card__desc { font-size: .88rem; color: var(--doc-muted); line-height: 1.5; }

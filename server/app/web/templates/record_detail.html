@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Run {{ run.id[:10] }} — QuantumLedger{% endblock %}
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+{% endblock %}
+
+{% block content %}
+{% from "_helpers.html" import term %}
+{% set verdict_colors = {
+  'reproducible': 'bg-green-50 text-green-700 border-green-200',
+  'drifted': 'bg-amber-50 text-amber-700 border-amber-200',
+  'divergent': 'bg-orange-50 text-orange-700 border-orange-200',
+  'irreproducible': 'bg-red-50 text-red-700 border-red-200'
+} %}
+
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Run <span class="mono text-slate-500">{{ run.id[:12] }}</span></h1>
+    <p class="text-sm text-slate-500">{{ run.shots }} shots</p>
+  </div>
+  <a href="/app/records" class="text-sm text-indigo-600 hover:underline">&larr; All records</a>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <!-- Provenance panel -->
+  <section class="rounded-xl border border-slate-200 bg-white p-5">
+    <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Provenance</h2>
+    <dl class="mt-4 space-y-3 text-sm">
+      <div>
+        <dt class="text-slate-500">{{ term("run_hash", "Run hash") }}</dt>
+        <dd class="mono break-all text-slate-800">{{ run.run_hash }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Backend</dt>
+        <dd class="text-slate-800">
+          {% if run.backend %}{{ run.backend.vendor }} / {{ run.backend.name }}
+          {% if run.backend.kind %}<span class="text-slate-400">({{ run.backend.kind }})</span>{% endif %}
+          {% else %}—{% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Circuit</dt>
+        <dd class="text-slate-800">
+          {% if run.circuit %}{{ run.circuit.fmt }} · {{ run.circuit.n_qubits }} qubits{% else %}—{% endif %}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">Calibration captured</dt>
+        <dd class="text-slate-800">{{ run.calibration.captured_at if run.calibration else '—' }}</dd>
+      </div>
+      {% if doc and doc.merkle and doc.merkle.inputs_root %}
+      <div>
+        <dt class="text-slate-500">Merkle inputs root</dt>
+        <dd class="mono break-all text-slate-800">{{ doc.merkle.inputs_root }}</dd>
+      </div>
+      {% endif %}
+    </dl>
+    <p class="mt-4 text-xs text-slate-400">Merkle-bound &amp; offline-verifiable.</p>
+  </section>
+
+  <!-- Distribution chart -->
+  <section class="rounded-xl border border-slate-200 bg-white p-5">
+    <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Result distribution</h2>
+    <div id="dist-chart" class="mt-4 h-72"></div>
+  </section>
+</div>
+
+<!-- Reproduce -->
+<section class="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+  <div class="flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Reproduce</h2>
+    <a href="/docs/reproduce-and-drift" class="text-xs text-indigo-600 hover:underline">How reproduction works →</a>
+  </div>
+  <p class="mt-2 max-w-2xl text-sm text-slate-600">Re-run this exact circuit against a device state drifted forward in time, then score how much the result changed. Choose how many days to {{ term("drift profile", "drift") }} and a profile.</p>
+  <form method="post" action="/app/records/{{ run.id }}/reproduce" class="mt-4 flex flex-wrap items-end gap-4">
+    <div>
+      <label class="block text-xs font-medium text-slate-500">Days back</label>
+      <input type="number" name="days" value="30" step="1" min="0" class="mt-1 h-10 w-28 rounded-md border border-slate-300 px-3 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-slate-500">{{ term("drift profile", "Profile") }}</label>
+      <select name="profile" class="mt-1 h-10 rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+        <option value="typical">typical</option>
+        <option value="bad_day">bad_day</option>
+        <option value="recalibrated">recalibrated</option>
+      </select>
+    </div>
+    <button type="submit" class="inline-flex h-10 items-center rounded-md bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700">Run reproduction</button>
+  </form>
+</section>
+
+{% if report %}
+<section class="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+  <div class="flex items-center gap-3">
+    <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Reproduction report</h2>
+    {% set vc = verdict_colors.get(report.verdict, 'bg-slate-100 text-slate-700 border-slate-200') %}
+    <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium {{ vc }}">{{ report.verdict }}</span>
+    <span class="text-xs text-slate-400">{{ term("verdict", "what does this mean?") }}</span>
+  </div>
+
+  {% if report.scores %}
+  <div class="mt-4 grid gap-3 sm:grid-cols-3">
+    <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">{{ term("Hellinger fidelity") }}</div>
+      <div class="text-lg font-semibold text-slate-900">{{ report.scores.hellinger_fidelity | default('—') }}</div>
+    </div>
+    <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">{{ term("TVD") }}</div>
+      <div class="text-lg font-semibold text-slate-900">{{ report.scores.tvd | default('—') }}</div>
+    </div>
+    <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+      <div class="text-xs text-slate-500">Within shot noise</div>
+      <div class="text-lg font-semibold text-slate-900">{{ report.scores.within_shot_noise }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if report.calibration_drift %}
+  <h3 class="mt-6 text-xs font-semibold text-slate-500 uppercase tracking-wide">Calibration drift</h3>
+  <div class="mt-2 overflow-x-auto rounded-lg border border-slate-200">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-slate-500 text-left">
+        <tr>
+          <th class="px-3 py-2 font-medium">Qubit / gate</th>
+          <th class="px-3 py-2 font-medium">Param</th>
+          <th class="px-3 py-2 font-medium">From</th>
+          <th class="px-3 py-2 font-medium">To</th>
+          <th class="px-3 py-2 font-medium">%</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for d in report.calibration_drift %}
+        <tr>
+          <td class="px-3 py-2 mono">{{ d.qubit if d.qubit is defined else d.gate | default('—') }}</td>
+          <td class="px-3 py-2">{{ d.param | default('—') }}</td>
+          <td class="px-3 py-2">{{ d.from | default('—') }}</td>
+          <td class="px-3 py-2">{{ d.to | default('—') }}</td>
+          <td class="px-3 py-2">{{ d.pct | default('—') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if report.transpilation_delta %}
+  <h3 class="mt-6 text-xs font-semibold text-slate-500 uppercase tracking-wide">Transpilation delta</h3>
+  <div class="mt-2 flex flex-wrap gap-2 text-sm">
+    {% for k, v in report.transpilation_delta.items() %}
+    <span class="inline-flex items-center rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1">
+      <span class="text-slate-500 mr-1">{{ k }}:</span> <span class="mono">{{ v }}</span>
+    </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if report.distributions %}
+  <h3 class="mt-6 text-xs font-semibold text-slate-500 uppercase tracking-wide">Original vs reproduced</h3>
+  <div id="diff-chart" class="mt-2 h-80"></div>
+
+  {% if report.distributions.top_shifts %}
+  <h3 class="mt-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">Top shifts</h3>
+  <div class="mt-2 flex flex-wrap gap-2 text-sm">
+    {% for s in report.distributions.top_shifts %}
+    <span class="inline-flex items-center rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1 mono">
+      {{ s.bitstring }} <span class="ml-2 {{ 'text-red-600' if (s.delta | default(0)) < 0 else 'text-green-600' }}">{{ s.delta }}</span>
+    </span>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+</section>
+{% endif %}
+
+<!-- Publish -->
+<section class="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+  <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Publish</h2>
+  {% if card and card.visibility == 'public' %}
+  <p class="mt-2 text-sm text-slate-600">This run is published as a citable result card.</p>
+  <a href="/cards/{{ card.slug }}" class="mt-3 inline-flex rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">View public card &rarr;</a>
+  {% else %}
+  <p class="mt-2 text-sm text-slate-600">Publish a public, citable <a href="/docs/result-cards-and-badges" class="text-indigo-600 hover:underline">result card</a> with provenance and embeddable badges.</p>
+  <form method="post" action="/app/records/{{ run.id }}/publish" class="mt-3">
+    <button type="submit" class="rounded-md bg-indigo-600 text-white px-4 py-2 font-medium hover:bg-indigo-700">Publish result card</button>
+  </form>
+  {% endif %}
+</section>
+
+<script>
+  (function () {
+    var layout = { margin: {t: 10, r: 10, b: 40, l: 40}, showlegend: false,
+      xaxis: {automargin: true}, yaxis: {automargin: true}, font: {family: 'ui-sans-serif, system-ui'} };
+    {% if run.results and run.results[0].distribution %}
+    var dist = {{ run.results[0].distribution | tojson }};
+    var keys = Object.keys(dist);
+    Plotly.newPlot('dist-chart', [{
+      type: 'bar', x: keys, y: keys.map(function (k) { return dist[k]; }),
+      marker: {color: '#4f46e5'}
+    }], layout, {displayModeBar: false, responsive: true});
+    {% endif %}
+
+    {% if report and report.distributions %}
+    var orig = {{ report.distributions.original | default({}) | tojson }};
+    var repro = {{ report.distributions.reproduced | default({}) | tojson }};
+    var allKeys = Array.from(new Set(Object.keys(orig).concat(Object.keys(repro)))).sort();
+    Plotly.newPlot('diff-chart', [
+      { type: 'bar', name: 'original', x: allKeys, y: allKeys.map(function (k) { return orig[k] || 0; }), marker: {color: '#94a3b8'} },
+      { type: 'bar', name: 'reproduced', x: allKeys, y: allKeys.map(function (k) { return repro[k] || 0; }), marker: {color: '#4f46e5'} }
+    ], { barmode: 'group', margin: {t: 10, r: 10, b: 40, l: 40}, legend: {orientation: 'h'},
+        xaxis: {automargin: true}, yaxis: {automargin: true}, font: {family: 'ui-sans-serif, system-ui'} },
+      {displayModeBar: false, responsive: true});
+    {% endif %}
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{
+  "_note": "synthetic representative data for QuantumLedger demo",
+  "name": "ionq_forte",
+  "backend": "qpu.forte-1",
+  "qubits": 8,
+  "connectivity": "all-to-all",
+  "native_gates": ["gpi", "gpi2", "ms"],
+  "snapshots": [
+    {
+      "date": "2026-02-03T12:00:00Z",
+      "characterization": {
+        "id": "char-forte-20260203",
+        "qubits": 8,
+        "connectivity": "all-to-all",
+        "t1": 12.4,
+        "t2": 0.98,
+        "spam": 0.00412,
+        "fidelity": {
+          "1q": { "mean": 0.99971 },
+          "2q": { "mean": 0.9862 }
+        },
+        "timing": {
+          "readout": 1.2e-05,
+          "reset": 2.0e-05,
+          "1q": 1.1e-05,
+          "2q": 0.00021
+        }
+      }
+    },
+    {
+      "date": "2026-04-11T12:00:00Z",
+      "characterization": {
+        "id": "char-forte-20260411",
+        "qubits": 8,
+        "connectivity": "all-to-all",
+        "t1": 11.9,
+        "t2": 0.91,
+        "spam": 0.00473,
+        "fidelity": {
+          "1q": { "mean": 0.99966 },
+          "2q": { "mean": 0.9841 }
+        },
+        "timing": {
+          "readout": 1.2e-05,
+          "reset": 2.0e-05,
+          "1q": 1.1e-05,
+          "2q": 0.00021
+        }
+      }
+    },
+    {
+      "date": "2026-06-19T12:00:00Z",
+      "characterization": {
+        "id": "char-forte-20260619",
+        "qubits": 8,
+        "connectivity": "all-to-all",
+        "t1": 13.1,
+        "t2": 1.04,
+        "spam": 0.00388,
+        "fidelity": {
+          "1q": { "mean": 0.99978 },
+          "2q": { "mean": 0.9887 }
+        },
+        "timing": {
+          "readout": 1.2e-05,
+          "reset": 2.0e-05,
+          "1q": 1.1e-05,
+          "2q": 0.00021
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}QuantumLedger{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-800 antialiased">
+  {% set nav_links = [
+    ('/', 'Home'),
+    ('/app/records', 'Records'),
+    ('/leaderboard', 'Hardware'),
+    ('/app/compliance', 'Compliance'),
+    ('/trust/quantumledger', 'Trust Center'),
+    ('/pricing', 'Pricing'),
+    ('/docs', 'Docs')
+  ] %}
+  <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4">
+      <a href="/" class="flex items-center gap-2 font-semibold text-slate-900 shrink-0">
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-indigo-600 text-white text-xs font-bold">Q</span>
+        <span>QuantumLedger</span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 text-sm text-slate-600">
+        {% for href, label in nav_links %}
+        <a href="{{ href }}" class="px-2 py-1 rounded hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">{{ label }}</a>
+        {% endfor %}
+        {% if principal and principal.is_superadmin %}
+        <a href="/app/admin" class="px-2 py-1 rounded hover:bg-slate-100 hover:text-slate-900">Admin</a>
+        {% endif %}
+      </div>
+      <div class="ml-auto hidden lg:flex items-center gap-3 text-sm">
+        {% if principal %}
+          <a href="/app/settings" class="max-w-[14rem] truncate text-slate-600 hover:text-slate-900" title="Account settings">{{ principal.email }}</a>
+          {% if principal.plan %}
+          <a href="/app/plans" title="View plans & what they unlock" class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium capitalize hover:bg-indigo-100">{{ principal.plan }}</a>
+          {% endif %}
+          <form method="post" action="/logout" class="inline">
+            <button type="submit" class="text-slate-500 hover:text-slate-900">Logout</button>
+          </form>
+        {% else %}
+          <a href="/login" class="text-slate-600 hover:text-slate-900">Login</a>
+          <a href="/register" class="rounded-md bg-indigo-600 text-white px-3 py-1.5 font-medium hover:bg-indigo-700 whitespace-nowrap">Register</a>
+        {% endif %}
+      </div>
+      <button type="button" class="ml-auto lg:hidden inline-flex items-center justify-center rounded p-2 text-slate-600 hover:bg-slate-100"
+              aria-label="Menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+    <!-- mobile menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 py-3">
+      <div class="flex flex-col gap-0.5 text-sm">
+        {% for href, label in nav_links %}
+        <a href="{{ href }}" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ label }}</a>
+        {% endfor %}
+        {% if principal and principal.is_superadmin %}
+        <a href="/app/admin" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">Admin</a>
+        {% endif %}
+        <div class="my-1 border-t border-slate-100"></div>
+        {% if principal %}
+          <a href="/app/settings" class="truncate rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ principal.email }}{% if principal.plan %} · <span class="capitalize">{{ principal.plan }}</span>{% endif %}</a>
+          <form method="post" action="/logout"><button type="submit" class="w-full rounded px-2 py-2 text-left text-slate-600 hover:bg-slate-100">Logout</button></form>
+        {% else %}
+          <a href="/login" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">Login</a>
+          <a href="/register" class="mt-1 rounded-md bg-indigo-600 px-2 py-2 text-center font-medium text-white hover:bg-indigo-700">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 py-10 text-xs text-slate-400 border-t border-slate-200 mt-8">
+    QuantumLedger — the vendor-neutral system of record for quantum.
+    {% if settings and settings.deployment %}<span class="ml-2">· {{ settings.deployment }}</span>{% endif %}
+  </footer>
+</body>
+</html>

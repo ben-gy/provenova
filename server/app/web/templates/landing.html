@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}QuantumLedger — the vendor-neutral system of record for quantum{% endblock %}
+
+{% block content %}
+{% if not principal %}
+{# ---------- Marketing (logged-out only) ---------- #}
+<section class="text-center max-w-3xl mx-auto">
+  <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 text-xs font-medium">Vendor-neutral · Offline-verifiable</span>
+  <h1 class="mt-4 text-4xl md:text-5xl font-bold tracking-tight text-slate-900">The system of record for quantum.</h1>
+  <p class="mt-4 text-lg text-slate-600">
+    QuantumLedger binds every quantum run to the exact calibration and hardware state that produced it —
+    so results are reproducible, diffable, and citable across every vendor.
+  </p>
+  <div class="mt-8 flex items-center justify-center gap-3">
+    <a href="/register" class="rounded-md bg-indigo-600 text-white px-5 py-2.5 font-medium hover:bg-indigo-700">Get started</a>
+    <a href="/login" class="rounded-md border border-slate-300 bg-white px-5 py-2.5 font-medium text-slate-700 hover:bg-slate-50">Login</a>
+  </div>
+  <div class="mt-6 mx-auto max-w-md">
+    <pre class="mono text-left text-sm bg-slate-900 text-slate-100 rounded-lg px-4 py-3 overflow-x-auto"><code>pip install quantumledger</code></pre>
+  </div>
+</section>
+
+<section class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-indigo-600 font-semibold">System of record</div>
+    <p class="mt-2 text-sm text-slate-600">Every run is captured with its circuit, backend, shots, and the calibration snapshot behind it.</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-indigo-600 font-semibold">Reproduce &amp; diff</div>
+    <p class="mt-2 text-sm text-slate-600">Re-run against past or projected calibration, then diff distributions and detect drift.</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-indigo-600 font-semibold">Trust artifacts &amp; badges</div>
+    <p class="mt-2 text-sm text-slate-600">Publish citable result cards with Merkle-bound provenance and shareable badges.</p>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-indigo-600 font-semibold">Vanta-for-quantum compliance</div>
+    <p class="mt-2 text-sm text-slate-600">Map runs to compliance frameworks and issue signed, revocable attestations.</p>
+  </div>
+</section>
+
+{% else %}
+{# ---------- Dashboard (logged-in) ---------- #}
+<section class="flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+    <p class="mt-1 text-sm text-slate-500">{{ principal.email }} · New here? Start with the <a href="/docs/product-tour" class="text-indigo-600 hover:underline">product tour</a>.</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="/leaderboard" class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">State of Quantum Hardware</a>
+    {% if principal.has('compliance_frameworks') %}
+    <a href="/app/compliance" class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Compliance</a>
+    {% endif %}
+    <a href="/app/records" class="rounded-md bg-indigo-600 text-white px-3 py-2 text-sm font-medium hover:bg-indigo-700">All records</a>
+  </div>
+</section>
+
+{% if activation and not activation.complete %}
+<section class="mt-6 rounded-xl border border-indigo-200 bg-white p-5">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h2 class="text-base font-semibold text-slate-900">Get started</h2>
+      <p class="mt-0.5 text-sm text-slate-500">{{ activation.done }} of {{ activation.total }} steps done — finish setup to see QuantumLedger work end-to-end.</p>
+    </div>
+    {% if activation.workspace_empty %}
+    <form method="post" action="/app/demo-seed">
+      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              title="Populate this workspace with sample runs, a reproduction, a published card and an evaluated framework — no CLI needed.">✨ Load demo data</button>
+    </form>
+    {% endif %}
+  </div>
+  <ul class="mt-4 space-y-2.5">
+    {% for s in activation.steps %}
+    <li class="flex items-center gap-3">
+      <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs {{ 'bg-green-500 text-white' if s.done else 'border border-slate-300 text-transparent' }}">✓</span>
+      <a href="{{ s.href }}" class="text-sm font-medium {{ 'text-slate-400 line-through' if s.done else 'text-indigo-600 hover:underline' }}">{{ s.label }}</a>
+      <span class="hidden text-xs text-slate-400 sm:inline">— {{ s.hint }}</span>
+      {% if s.locked %}<a href="/app/plans" class="ml-auto inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 hover:bg-amber-100">Pro+</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500">
+    New here? Read the <a href="/docs/getting-started" class="text-indigo-600 hover:underline">quickstart</a>,
+    take the <a href="/docs/product-tour" class="text-indigo-600 hover:underline">product tour</a>, or
+    <a href="/app/plans" class="text-indigo-600 hover:underline">compare plans</a>.
+  </div>
+</section>
+{% endif %}
+
+<section class="mt-6 grid gap-4 sm:grid-cols-3">
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-3xl font-bold text-slate-900">{{ stats.runs | default(0) }}</div>
+    <div class="mt-1 text-sm text-slate-500">Runs recorded</div>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-3xl font-bold text-slate-900">{{ stats.reproductions | default(0) }}</div>
+    <div class="mt-1 text-sm text-slate-500">Reproductions</div>
+  </div>
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="text-3xl font-bold text-slate-900">{{ stats.public_cards | default(0) }}</div>
+    <div class="mt-1 text-sm text-slate-500">Public result cards</div>
+  </div>
+</section>
+
+<section class="mt-8">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-lg font-semibold text-slate-900">Recent runs</h2>
+    <a href="/app/records" class="text-sm text-indigo-600 hover:underline">View all →</a>
+  </div>
+  <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 text-slate-500 text-left">
+        <tr>
+          <th class="px-4 py-2 font-medium">Run</th>
+          <th class="px-4 py-2 font-medium">Project</th>
+          <th class="px-4 py-2 font-medium">Backend</th>
+          <th class="px-4 py-2 font-medium">Shots</th>
+          <th class="px-4 py-2 font-medium">Status</th>
+          <th class="px-4 py-2 font-medium">Created</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for run in recent %}
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-2">
+            <a href="/app/records/{{ run.id }}" class="mono text-indigo-600 hover:underline">{{ run.id[:10] }}</a>
+          </td>
+          <td class="px-4 py-2">{{ run.project | default('—') }}</td>
+          <td class="px-4 py-2">
+            {% if run.backend %}<span class="text-slate-500">{{ run.backend.vendor }}</span> / {{ run.backend.name }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2">{{ run.shots }}</td>
+          <td class="px-4 py-2">{{ run.status }}</td>
+          <td class="px-4 py-2 text-slate-500">{{ run.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">
+          No runs yet — capture one with <code class="mono">@ql.capture</code> and <code class="mono">ql push</code>, or seed the demo.
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantumledger-core"
+version = "0.1.0"
+description = "QuantumLedger core: provenance data model, canonical hashing, and open schemas."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "QuantumLedger" }]
+dependencies = [
+    "SQLAlchemy>=2.0,<2.1",
+    "pydantic>=2.5,<3",
+    "python-ulid>=2.2",
+    "jsonschema>=4.20",
+]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.1"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quantumledger_core*"]
+
+[tool.setuptools.package-data]
+quantumledger_core = ["schemas/qlprov/*.json"]

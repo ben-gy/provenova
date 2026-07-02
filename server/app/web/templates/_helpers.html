@@ -1,0 +1,103 @@
+{# Reusable explanation primitives. Import with:
+   {% from "_helpers.html" import term, page_intro, empty_state, status_pill, status_legend %} #}
+
+{# A domain term with a CSS-only hover tooltip pulled from the shared glossary. #}
+{% macro term(name, label=None) %}
+<span class="relative inline-block group align-baseline">
+  <span class="cursor-help underline decoration-dotted decoration-slate-400 underline-offset-2">{{ label or name }}</span>
+  {%- set defn = (glossary.get(name) if glossary else None) -%}
+  {% if defn %}
+  <span role="tooltip" class="pointer-events-none absolute left-1/2 top-full z-50 mt-1 hidden w-72 -translate-x-1/2 rounded-md bg-slate-900 px-3 py-2 text-left text-xs font-normal normal-case leading-snug text-white shadow-lg group-hover:block">
+    {{ defn }}
+  </span>
+  {% endif %}
+</span>
+{% endmacro %}
+
+{# Standard page header: bold title, subtitle, optional "Learn more →" docs link. #}
+{% macro page_intro(title, desc, docs_url=None, docs_label="Learn more") %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">{{ title }}</h1>
+  {% if desc %}<p class="mt-1 max-w-3xl text-sm leading-relaxed text-slate-500">{{ desc }}{% if docs_url %} <a href="{{ docs_url }}" class="font-medium text-indigo-600 hover:underline">{{ docs_label }} →</a>{% endif %}</p>{% endif %}
+</div>
+{% endmacro %}
+
+{# Friendly guidance shown in place of an empty list/table, with up to two CTAs. #}
+{% macro empty_state(title, desc, action_label=None, action_url=None, secondary_label=None, secondary_url=None) %}
+<div class="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+  <div class="text-sm font-semibold text-slate-700">{{ title }}</div>
+  {% if desc %}<p class="mx-auto mt-1 max-w-md text-sm leading-relaxed text-slate-500">{{ desc }}</p>{% endif %}
+  {% if action_url or secondary_url %}
+  <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+    {% if action_url %}<a href="{{ action_url }}" class="inline-flex rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">{{ action_label }}</a>{% endif %}
+    {% if secondary_url %}<a href="{{ secondary_url }}" class="inline-flex rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ secondary_label }}</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{# A colored status pill for pass | gap | drift | unknown. #}
+{% macro status_pill(status) %}
+{%- set colors = {
+  'pass': 'bg-green-50 text-green-700 border-green-200',
+  'gap': 'bg-amber-50 text-amber-700 border-amber-200',
+  'drift': 'bg-orange-50 text-orange-700 border-orange-200',
+  'unknown': 'bg-slate-100 text-slate-600 border-slate-200'
+} -%}
+<span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium {{ colors.get(status, colors['unknown']) }}">{{ status }}</span>
+{% endmacro %}
+
+{# Tier → feature comparison matrix, shared by /pricing and /app/plans. #}
+{% macro plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current=None) %}
+<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+  <table class="min-w-full text-sm">
+    <thead>
+      <tr class="border-b border-slate-200">
+        <th class="px-4 py-3 text-left font-medium text-slate-500">Feature</th>
+        {% for pl in plan_order %}
+        <th class="px-4 py-3 text-center align-top {{ 'bg-indigo-50' if pl == current else '' }}">
+          <div class="font-semibold capitalize text-slate-900">{{ pl }}</div>
+          {% if pl == current %}<div class="mt-1 inline-flex items-center rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">Current</div>{% endif %}
+          {% if plan_blurbs %}<div class="mx-auto mt-1 max-w-[10rem] text-[11px] font-normal leading-snug text-slate-400">{{ plan_blurbs.get(pl, '') }}</div>{% endif %}
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for feat, plans in features.items() %}
+      <tr class="hover:bg-slate-50/50">
+        <td class="px-4 py-2 text-slate-700">{{ feature_labels.get(feat, feat) }}</td>
+        {% for pl in plan_order %}
+        <td class="px-4 py-2 text-center {{ 'bg-indigo-50/60' if pl == current else '' }}">
+          {% if pl in plans %}<span class="text-green-600">✓</span>{% else %}<span class="text-slate-300">–</span>{% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+      <tr class="bg-slate-50/60">
+        <td class="px-4 py-2 font-medium text-slate-600">Seats</td>
+        {% for pl in plan_order %}
+        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ quotas.get(pl, {}).get('seats', '—') }}</td>
+        {% endfor %}
+      </tr>
+      <tr class="bg-slate-50/60">
+        <td class="px-4 py-2 font-medium text-slate-600">Frameworks enabled</td>
+        {% for pl in plan_order %}
+        {% set fq = quotas.get(pl, {}).get('frameworks_enabled', 0) %}
+        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ 'Unlimited' if fq >= 9999 else fq }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{# A legend explaining what each compliance status means. #}
+{% macro status_legend() %}
+<div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-600">
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-green-500"></span><b class="font-medium text-slate-700">pass</b> — every control has the evidence it needs.</span>
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span><b class="font-medium text-slate-700">gap</b> — a control is missing required evidence.</span>
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-orange-500"></span><b class="font-medium text-slate-700">drift</b> — evidence exists but aged out of its freshness window.</span>
+  <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-slate-400"></span><b class="font-medium text-slate-700">unknown</b> — not evaluated yet.</span>
+</div>
+{% endmacro %}

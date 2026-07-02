@@ -1,0 +1,236 @@
+{
+  "_note": "synthetic representative data for QuantumLedger demo",
+  "backend_name": "ibm_sherbrooke",
+  "backend_version": "2.1.4",
+  "n_qubits": 5,
+  "snapshots": [
+    {
+      "last_update_date": "2026-01-15T07:11:53Z",
+      "qubits": [
+        {
+          "qubit": 0,
+          "T1": 0.00015782,
+          "T2": 0.00012044,
+          "frequency": 4712905300.0,
+          "anharmonicity": -307811000.0,
+          "readout_error": 0.0104,
+          "prob_meas0_prep1": 0.0129,
+          "prob_meas1_prep0": 0.0071,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 1,
+          "T1": 0.00013905,
+          "T2": 0.00010877,
+          "frequency": 4801237100.0,
+          "anharmonicity": -308402000.0,
+          "readout_error": 0.0156,
+          "prob_meas0_prep1": 0.0188,
+          "prob_meas1_prep0": 0.0121,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 2,
+          "T1": 0.00014411,
+          "T2": 0.00013522,
+          "frequency": 4933110800.0,
+          "anharmonicity": -309554000.0,
+          "readout_error": 0.0113,
+          "prob_meas0_prep1": 0.0141,
+          "prob_meas1_prep0": 0.0084,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 3,
+          "T1": 0.00011283,
+          "T2": 0.00009011,
+          "frequency": 4688742600.0,
+          "anharmonicity": -306998000.0,
+          "readout_error": 0.0221,
+          "prob_meas0_prep1": 0.0268,
+          "prob_meas1_prep0": 0.0173,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 4,
+          "T1": 0.00015001,
+          "T2": 0.00011788,
+          "frequency": 4877300400.0,
+          "anharmonicity": -308977000.0,
+          "readout_error": 0.0138,
+          "prob_meas0_prep1": 0.0169,
+          "prob_meas1_prep0": 0.0107,
+          "readout_length": 1.28e-06
+        }
+      ],
+      "gates": [
+        { "gate": "sx", "qubits": [0], "gate_error": 0.00016, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [1], "gate_error": 0.00022, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [2], "gate_error": 0.00015, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [3], "gate_error": 0.00029, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [4], "gate_error": 0.00019, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [0], "gate_error": 0.00016, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [1], "gate_error": 0.00022, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [2], "gate_error": 0.00015, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [3], "gate_error": 0.00029, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [4], "gate_error": 0.00019, "gate_length": 3.2e-08 },
+        { "gate": "ecr", "qubits": [0, 1], "gate_error": 0.00611, "gate_length": 5.334e-07 },
+        { "gate": "ecr", "qubits": [1, 2], "gate_error": 0.00723, "gate_length": 5.334e-07 },
+        { "gate": "ecr", "qubits": [2, 3], "gate_error": 0.00842, "gate_length": 5.689e-07 },
+        { "gate": "ecr", "qubits": [3, 4], "gate_error": 0.00688, "gate_length": 5.334e-07 }
+      ]
+    },
+    {
+      "last_update_date": "2026-03-24T06:22:19Z",
+      "qubits": [
+        {
+          "qubit": 0,
+          "T1": 0.00014988,
+          "T2": 0.00011503,
+          "frequency": 4712868900.0,
+          "anharmonicity": -307803000.0,
+          "readout_error": 0.0118,
+          "prob_meas0_prep1": 0.0144,
+          "prob_meas1_prep0": 0.0082,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 1,
+          "T1": 0.00013011,
+          "T2": 0.00010334,
+          "frequency": 4801198700.0,
+          "anharmonicity": -308394000.0,
+          "readout_error": 0.0169,
+          "prob_meas0_prep1": 0.0201,
+          "prob_meas1_prep0": 0.0133,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 2,
+          "T1": 0.00013722,
+          "T2": 0.00012844,
+          "frequency": 4933077700.0,
+          "anharmonicity": -309547000.0,
+          "readout_error": 0.0124,
+          "prob_meas0_prep1": 0.0153,
+          "prob_meas1_prep0": 0.0092,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 3,
+          "T1": 0.00010544,
+          "T2": 0.00008502,
+          "frequency": 4688701300.0,
+          "anharmonicity": -306989000.0,
+          "readout_error": 0.0238,
+          "prob_meas0_prep1": 0.0284,
+          "prob_meas1_prep0": 0.0189,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 4,
+          "T1": 0.00014277,
+          "T2": 0.00011155,
+          "frequency": 4877264900.0,
+          "anharmonicity": -308969000.0,
+          "readout_error": 0.0151,
+          "prob_meas0_prep1": 0.0182,
+          "prob_meas1_prep0": 0.0118,
+          "readout_length": 1.28e-06
+        }
+      ],
+      "gates": [
+        { "gate": "sx", "qubits": [0], "gate_error": 0.00018, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [1], "gate_error": 0.00025, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [2], "gate_error": 0.00017, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [3], "gate_error": 0.00033, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [4], "gate_error": 0.00021, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [0], "gate_error": 0.00018, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [1], "gate_error": 0.00025, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [2], "gate_error": 0.00017, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [3], "gate_error": 0.00033, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [4], "gate_error": 0.00021, "gate_length": 3.2e-08 },
+        { "gate": "ecr", "qubits": [0, 1], "gate_error": 0.00674, "gate_length": 5.334e-07 },
+        { "gate": "ecr", "qubits": [1, 2], "gate_error": 0.00801, "gate_length": 5.334e-07 },
+        { "gate": "ecr", "qubits": [2, 3], "gate_error": 0.00921, "gate_length": 5.689e-07 },
+        { "gate": "ecr", "qubits": [3, 4], "gate_error": 0.00742, "gate_length": 5.334e-07 }
+      ]
+    },
+    {
+      "last_update_date": "2026-06-01T05:03:44Z",
+      "qubits": [
+        {
+          "qubit": 0,
+          "T1": 0.00016233,
+          "T2": 0.00012512,
+          "frequency": 4712889100.0,
+          "anharmonicity": -307808000.0,
+          "readout_error": 0.0098,
+          "prob_meas0_prep1": 0.0121,
+          "prob_meas1_prep0": 0.0066,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 1,
+          "T1": 0.00014502,
+          "T2": 0.00011201,
+          "frequency": 4801221400.0,
+          "anharmonicity": -308399000.0,
+          "readout_error": 0.0147,
+          "prob_meas0_prep1": 0.0179,
+          "prob_meas1_prep0": 0.0114,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 2,
+          "T1": 0.00014901,
+          "T2": 0.00013933,
+          "frequency": 4933099200.0,
+          "anharmonicity": -309551000.0,
+          "readout_error": 0.0107,
+          "prob_meas0_prep1": 0.0134,
+          "prob_meas1_prep0": 0.0079,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 3,
+          "T1": 0.00011711,
+          "T2": 0.00009344,
+          "frequency": 4688724800.0,
+          "anharmonicity": -306994000.0,
+          "readout_error": 0.0214,
+          "prob_meas0_prep1": 0.0259,
+          "prob_meas1_prep0": 0.0168,
+          "readout_length": 1.28e-06
+        },
+        {
+          "qubit": 4,
+          "T1": 0.00015388,
+          "T2": 0.00012001,
+          "frequency": 4877289300.0,
+          "anharmonicity": -308974000.0,
+          "readout_error": 0.0131,
+          "prob_meas0_prep1": 0.0162,
+          "prob_meas1_prep0": 0.0101,
+          "readout_length": 1.28e-06
+        }
+      ],
+      "gates": [
+        { "gate": "sx", "qubits": [0], "gate_error": 0.00015, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [1], "gate_error": 0.00020, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [2], "gate_error": 0.00014, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [3], "gate_error": 0.00027, "gate_length": 3.2e-08 },
+        { "gate": "sx", "qubits": [4], "gate_error": 0.00018, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [0], "gate_error": 0.00015, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [1], "gate_error": 0.00020, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [2], "gate_error": 0.00014, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [3], "gate_error": 0.00027, "gate_length": 3.2e-08 },
+        { "gate": "x", "qubits": [4], "gate_error": 0.00018, "gate_length": 3.2e-08 },
+        { "gate": "ecr", "qubits": [0, 1], "gate_error": 0.00567, "gate_length": 5.334e-07 },
+        { "gate": "ecr", "qubits": [1, 2], "gate_error": 0.00681, "gate_length": 5.334e-07 },
+        { "gate": "ecr", "qubits": [2, 3], "gate_error": 0.00798, "gate_length": 5.689e-07 },
+        { "gate": "ecr", "qubits": [3, 4], "gate_error": 0.00644, "gate_length": 5.334e-07 }
+      ]
+    }
+  ]
+}

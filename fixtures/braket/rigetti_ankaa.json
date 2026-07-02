@@ -1,0 +1,86 @@
+{
+  "_note": "synthetic representative data for QuantumLedger demo",
+  "deviceName": "Ankaa-3",
+  "providerName": "Rigetti",
+  "deviceArn": "arn:aws:braket:us-west-1::device/qpu/rigetti/Ankaa-3",
+  "paradigm": {
+    "qubitCount": 6,
+    "nativeGateSet": ["rx", "rz", "iswap"],
+    "connectivity": {
+      "fullyConnected": false,
+      "connectivityGraph": {
+        "0": ["1", "5"],
+        "1": ["0", "2"],
+        "2": ["1", "3"],
+        "3": ["2", "4"],
+        "4": ["3", "5"],
+        "5": ["4", "0"]
+      }
+    }
+  },
+  "snapshots": [
+    {
+      "executionWindowUpdatedAt": "2026-01-20T09:00:00Z",
+      "standardized": {
+        "oneQubitProperties": {
+          "0": { "T1": { "value": 2.11e-05 }, "T2": { "value": 1.82e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99942 }], "READOUT": { "fidelity": 0.9781 } },
+          "1": { "T1": { "value": 1.94e-05 }, "T2": { "value": 1.55e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99918 }], "READOUT": { "fidelity": 0.9702 } },
+          "2": { "T1": { "value": 2.33e-05 }, "T2": { "value": 2.01e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99955 }], "READOUT": { "fidelity": 0.9824 } },
+          "3": { "T1": { "value": 1.78e-05 }, "T2": { "value": 1.41e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99901 }], "READOUT": { "fidelity": 0.9663 } },
+          "4": { "T1": { "value": 2.02e-05 }, "T2": { "value": 1.73e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99933 }], "READOUT": { "fidelity": 0.9755 } },
+          "5": { "T1": { "value": 2.24e-05 }, "T2": { "value": 1.92e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99948 }], "READOUT": { "fidelity": 0.9799 } }
+        },
+        "twoQubitProperties": {
+          "0-1": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9861 }] },
+          "1-2": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9823 }] },
+          "2-3": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9788 }] },
+          "3-4": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9842 }] },
+          "4-5": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9877 }] },
+          "0-5": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9855 }] }
+        }
+      }
+    },
+    {
+      "executionWindowUpdatedAt": "2026-03-28T09:00:00Z",
+      "standardized": {
+        "oneQubitProperties": {
+          "0": { "T1": { "value": 2.03e-05 }, "T2": { "value": 1.74e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99936 }], "READOUT": { "fidelity": 0.9768 } },
+          "1": { "T1": { "value": 1.86e-05 }, "T2": { "value": 1.48e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99911 }], "READOUT": { "fidelity": 0.9688 } },
+          "2": { "T1": { "value": 2.27e-05 }, "T2": { "value": 1.95e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99949 }], "READOUT": { "fidelity": 0.9812 } },
+          "3": { "T1": { "value": 1.71e-05 }, "T2": { "value": 1.36e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99892 }], "READOUT": { "fidelity": 0.9647 } },
+          "4": { "T1": { "value": 1.95e-05 }, "T2": { "value": 1.66e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99926 }], "READOUT": { "fidelity": 0.9741 } },
+          "5": { "T1": { "value": 2.17e-05 }, "T2": { "value": 1.85e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99941 }], "READOUT": { "fidelity": 0.9786 } }
+        },
+        "twoQubitProperties": {
+          "0-1": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9843 }] },
+          "1-2": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9801 }] },
+          "2-3": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9762 }] },
+          "3-4": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9819 }] },
+          "4-5": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9858 }] },
+          "0-5": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9834 }] }
+        }
+      }
+    },
+    {
+      "executionWindowUpdatedAt": "2026-06-05T09:00:00Z",
+      "standardized": {
+        "oneQubitProperties": {
+          "0": { "T1": { "value": 2.19e-05 }, "T2": { "value": 1.88e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99951 }], "READOUT": { "fidelity": 0.9793 } },
+          "1": { "T1": { "value": 2.01e-05 }, "T2": { "value": 1.61e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99924 }], "READOUT": { "fidelity": 0.9714 } },
+          "2": { "T1": { "value": 2.41e-05 }, "T2": { "value": 2.08e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99961 }], "READOUT": { "fidelity": 0.9836 } },
+          "3": { "T1": { "value": 1.84e-05 }, "T2": { "value": 1.47e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99909 }], "READOUT": { "fidelity": 0.9679 } },
+          "4": { "T1": { "value": 2.09e-05 }, "T2": { "value": 1.79e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99939 }], "READOUT": { "fidelity": 0.9767 } },
+          "5": { "T1": { "value": 2.31e-05 }, "T2": { "value": 1.98e-05 }, "oneQubitFidelity": [{ "fidelityType": { "name": "RANDOMIZED_BENCHMARKING" }, "fidelity": 0.99953 }], "READOUT": { "fidelity": 0.9808 } }
+        },
+        "twoQubitProperties": {
+          "0-1": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9879 }] },
+          "1-2": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9848 }] },
+          "2-3": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9811 }] },
+          "3-4": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9865 }] },
+          "4-5": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9891 }] },
+          "0-5": { "twoQubitGateFidelity": [{ "gateName": "iswap", "fidelityType": { "name": "INTERLEAVED_RANDOMIZED_BENCHMARKING" }, "fidelity": 0.9872 }] }
+        }
+      }
+    }
+  ]
+}

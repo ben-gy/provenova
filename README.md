@@ -1,0 +1,124 @@
+# QuantumLedger
+
+**The vendor-neutral system of record for quantum computing.**
+
+QuantumLedger binds every quantum run to the exact calibration and hardware state
+that produced it — so results are **reproducible, comparable, shareable and
+auditable** across QPUs, simulators and vendors. It is the "source of truth" that
+enterprise software provides in every other data-intensive field, applied to the
+noisy, drifting world of quantum.
+
+This repository is a complete, runnable reference implementation of all six
+product areas from the PRD — capture, provenance store, reproduce/analyse, trust
+artifacts, compliance, and the public-corpus crawler.
+
+---
+
+## What's inside
+
+```
+packages/ql-core/      Shared core: SQLAlchemy provenance model, canonical hashing +
+                       Merkle run-hashing, DB-trigger immutability, the deterministic
+                       simulator + drift engine, reproduce/scoring/diff, open qlprov schemas.
+packages/ql-sdk/       Open-source client `quantumledger` (Apache-2.0): the @ql.capture
+                       decorator/context-manager, vendor connectors (plugin system),
+                       offline local store, `ql` CLI, content-hash-idempotent push.
+packages/ql-crawler/   Public-QPU calibration crawler + aggregate corpus + ToS gate.
+server/                FastAPI app: ingestion + read API, server-rendered web UI,
+                       Result Cards + badge service, compliance rule engine,
+                       Ed25519 attestations, accounts/entitlements/RBAC, admin.
+frameworks/            Compliance frameworks as data (FAIR, IEEE P7131, metrology, ...).
+fixtures/              Representative vendor calibration payloads (IBM/IonQ/Braket).
+deploy/                docker-compose (postgres + api + worker + Caddy) for self-host.
+examples/  scripts/    Runnable demos + the end-to-end seed.
+tests/                 pytest suites (determinism, immutability, dedup, drift, rule
+                       engine, attestation, crawler, full end-to-end server flow).
+```
+
+## The four pillars (PRD §1)
+
+1. **Vendor-neutral system of record** — one versioned, immutable, hash-chained record
+   binding every run to the calibration state that produced it (`ql-core`).
+2. **Open-core + freemium** — the client, connectors and provenance schema are Apache-2.0;
+   the hosted record, reproduce/compare engine, analytics and governance are paid.
+3. **Trust artifacts as a growth engine** — public, citable Result Cards and embeddable
+   shields.io-style badges (Recorded → Reproduced → Benchmarked → Compliant → Audit-ready).
+4. **"Vanta for quantum" compliance** — pick a standard; evidence is auto-collected from
+   the runs already in the record; issue signed, revocable attestations.
+
+---
+
+## Quickstart (local, no account, < 5 minutes)
+
+```bash
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -e packages/ql-core -e "packages/ql-sdk[aer]"
+
+python examples/bell.py         # one-line @ql.capture around your job
+ql list                         # see the recorded run
+ql show <run_id>                # circuit + calibration snapshot + result + provenance hash
+ql reproduce <run_id> --days 90 --profile bad_day --html report.html
+```
+
+`ql reproduce` re-runs the stored circuit against a drifted device state and shows
+exactly what changed (calibration drift, transpilation delta) with a Hellinger-fidelity
+score and a verdict — the "aha" demo, fully offline and deterministic.
+
+## Run the full platform
+
+```bash
+pip install -e packages/ql-core -e packages/ql-sdk -e packages/ql-crawler -e server
+PYTHONPATH=server python scripts/seed_demo.py          # seed a walkable demo
+PYTHONPATH=server uvicorn app.main:app --port 8000     # web app + API at :8000
+```
+
+Then browse: `/` (dashboard), `/leaderboard` (State of Quantum Hardware),
+`/cards/<slug>` (public Result Card + badges), `/app/compliance`, `/trust/quantumledger`.
+
+Push local runs to the hosted store:
+
+```bash
+ql login --token <api-key-from-seed> --endpoint http://localhost:8000
+ql push
+```
+
+## Self-host (one command)
+
+```bash
+cd deploy && docker compose up -d      # postgres + api + worker + Caddy
+```
+
+Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment, or
+`QL_PUBLIC_CARDS=false` for a VPC/air-gapped install (badges/cards stay internal).
+
+## Design guarantees
+
+- **Immutable, hash-chained ledger.** `run_hash` is a portable Merkle content identity
+  (stable across the offline and hosted stores — it is the ingest idempotency key);
+  a per-workspace `chain_hash` links runs into a tamper-evident ledger. DB triggers
+  reject any UPDATE/DELETE of sealed records.
+- **Offline-verifiable provenance.** The exported `qlprov/run/1.0` document recomputes
+  its own hash with no server (`quantumledger_core.verify_run_hash`).
+- **Content-addressed dedup.** Calibration snapshots, circuits and compilations are
+  stored once and referenced many times.
+- **Compliance as a byproduct.** `EvidenceItem` points back into the core record; an
+  attestation is an Ed25519 signature over a Merkle root of that evidence — mutate any
+  referenced record and verification fails; revoke and it stops validating.
+- **One schema, two backends.** SQLite (offline / self-host-small) and PostgreSQL (hosted).
+
+## Tests
+
+```bash
+pip install pytest
+python -m pytest        # 31 tests: determinism, immutability, dedup, drift, rule
+                        # engine, attestation, crawler, and the full server flow
+```
+
+## Non-goals (PRD §4)
+
+Not quantum hardware/control electronics, not a circuit IDE or scheduler, not an
+error-mitigation product, not a general MLOps platform, and not an accredited auditor —
+we produce the evidence and attestation. Quantum sensing is a future (O2) expansion.
+
+*Licensing: `ql-core`, `ql-sdk`, connectors, schema and the public Result Cards/badges
+are Apache-2.0 (open core); the hosted server is source-available (BUSL-1.1).*

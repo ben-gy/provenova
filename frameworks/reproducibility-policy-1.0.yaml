@@ -1,0 +1,68 @@
+# Internal reproducibility policy — a lightweight house standard.
+#
+# Every run must be deterministically seeded and hash-bound, and the workspace
+# must demonstrate at least one verified reproduction before results are trusted.
+key: reproducibility-policy
+name: Reproducibility Policy
+version: "1.0"
+jurisdiction: internal
+description: >-
+  Organisation-internal policy: runs are deterministically seeded and
+  cryptographically hashed, and the workspace demonstrates verified reproduction.
+spec:
+  source: QuantumLedger house policy
+controls:
+  - key: REPRO-SEED
+    title: Runs are deterministically seeded
+    requirement_text: >-
+      Each run records a transpiler seed so the compilation is deterministic and
+      reproducible.
+    severity: medium
+    remediation: Re-record the run supplying a transpiler seed.
+    evidence_rules:
+      - id: REPRO-SEED-present
+        source: run
+        predicate:
+          non_empty: "run.seed_transpiler"
+        collect:
+          field: "run.seed_transpiler"
+          label: Transpiler seed
+
+  - key: REPRO-HASH
+    title: Runs are hash-bound to a workspace chain
+    requirement_text: >-
+      Each run carries a run_hash chaining it into the workspace's append-only
+      ledger.
+    severity: high
+    remediation: Seal the run to compute and chain its run_hash.
+    evidence_rules:
+      - id: REPRO-HASH-present
+        source: run
+        predicate:
+          non_empty: "run.run_hash"
+        collect:
+          field: "run.run_hash"
+          label: Run hash
+
+  - key: REPRO-VERIFIED
+    title: Workspace has a verified reproduction
+    requirement_text: >-
+      At least one reproduction in the workspace has been verified before results
+      are trusted.
+    severity: high
+    remediation: Reproduce a run and verify the reproduction.
+    evidence_rules:
+      - id: REPRO-VERIFIED-count
+        source: workspace
+        predicate:
+          count_where:
+            relation: "workspace.reproduction_events"
+            where:
+              equals:
+                field: "reproduction.status"
+                value: verified
+            op: ">="
+            value: 1
+        collect:
+          field: "workspace.id"
+          label: Workspace with verified reproduction

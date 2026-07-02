@@ -1,0 +1,67 @@
+# QuantumLedger self-host stack: `docker compose up -d`
+# One schema, two topologies — set QL_DATABASE_URL to sqlite for a tiny deploy.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: quantumledger
+      POSTGRES_PASSWORD: quantumledger
+      POSTGRES_DB: quantumledger
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quantumledger"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      QL_DEPLOYMENT: selfhost
+      QL_DATABASE_URL: postgresql+psycopg://quantumledger:quantumledger@postgres:5432/quantumledger
+      QL_BASE_URL: ${QL_BASE_URL:-http://localhost:8000}
+      QL_SECRET_KEY: ${QL_SECRET_KEY:-change-me-in-production}
+      QL_ATTESTATION_KEY_PATH: /data/attestation_ed25519.key
+      QL_PUBLIC_CARDS: ${QL_PUBLIC_CARDS:-true}
+      QL_ADMIN_EMAIL: ${QL_ADMIN_EMAIL:-admin@quantumledger.local}
+    volumes:
+      - qldata:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    command: ["python", "-m", "app.worker"]
+    environment:
+      QL_DEPLOYMENT: selfhost
+      QL_DATABASE_URL: postgresql+psycopg://quantumledger:quantumledger@postgres:5432/quantumledger
+      QL_ATTESTATION_KEY_PATH: /data/attestation_ed25519.key
+    volumes:
+      - qldata:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  proxy:
+    image: caddy:2
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddydata:/data
+
+volumes:
+  pgdata:
+  qldata:
+  caddydata:

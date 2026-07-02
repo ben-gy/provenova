@@ -1,0 +1,94 @@
+# IEEE P7131 — Standard for Quantum Computing Reproducibility (draft, 2025).
+#
+# Controls assert that every run captures the execution environment, binds a
+# fresh calibration snapshot, is cryptographically hashed, and that the workspace
+# carries at least one independently verified reproduction. Evidence is
+# auto-collected from Runs, CalibrationSnapshots and ReproductionEvents.
+key: ieee-p7131
+name: IEEE P7131 Quantum Computing Reproducibility
+version: "2025"
+jurisdiction: international
+description: >-
+  Reproducibility of quantum computations: recorded execution environment,
+  time-bounded device calibration, tamper-evident run hashing, and at least one
+  verified reproduction of a result in the workspace.
+spec:
+  source: IEEE Standards Association
+  standard: P7131
+  status: draft
+controls:
+  - key: P7131-ENV
+    title: Execution environment is recorded
+    requirement_text: >-
+      Each run records the backend it executed on and the transpiler seed, so the
+      execution environment can be reconstructed deterministically.
+    severity: high
+    remediation: Re-record the run through the SDK so backend_id and seed_transpiler are captured.
+    evidence_rules:
+      - id: P7131-ENV-present
+        source: run
+        predicate:
+          all_present:
+            - "run.backend_id"
+            - "run.seed_transpiler"
+        collect:
+          field: "run.backend_id"
+          label: Recorded backend
+
+  - key: P7131-CAL
+    title: Device calibration snapshot is bound and fresh
+    requirement_text: >-
+      Each run binds a calibration snapshot captured within 30 days of the run so
+      device state is reproducible; stale calibration is flagged as drift.
+    severity: high
+    remediation: Re-capture a current calibration snapshot and re-run.
+    evidence_rules:
+      - id: P7131-CAL-bound
+        source: run
+        predicate:
+          exists: "run.calibration_snapshot_id"
+        freshness:
+          max_age_hours: 720
+          relative_to: "run.finished_at"
+        collect:
+          field: "run.calibration_snapshot_id"
+          label: Bound calibration snapshot
+
+  - key: P7131-REPRO
+    title: At least one verified reproduction exists
+    requirement_text: >-
+      The workspace contains at least one independently verified reproduction
+      event, demonstrating that a recorded result can be reproduced.
+    severity: high
+    remediation: Reproduce a stored run and have the reproduction verified.
+    evidence_rules:
+      - id: P7131-REPRO-count
+        source: workspace
+        predicate:
+          count_where:
+            relation: "workspace.reproduction_events"
+            where:
+              equals:
+                field: "reproduction.status"
+                value: verified
+            op: ">="
+            value: 1
+        collect:
+          field: "workspace.id"
+          label: Workspace with verified reproductions
+
+  - key: P7131-HASH
+    title: Runs are cryptographically hashed
+    requirement_text: >-
+      Each run carries a Merkle-bound run_hash so any tampering with its inputs is
+      detectable.
+    severity: high
+    remediation: Seal the run so its run_hash is computed and chained.
+    evidence_rules:
+      - id: P7131-HASH-present
+        source: run
+        predicate:
+          non_empty: "run.run_hash"
+        collect:
+          field: "run.run_hash"
+          label: Run hash
