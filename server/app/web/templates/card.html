@@ -26,6 +26,7 @@
 
 {% block content %}
 {% from "_helpers.html" import term %}
+{% from "_brand.html" import mark %}
 <article class="max-w-3xl mx-auto">
   <div class="flex items-center gap-2 text-xs text-slate-500">
     <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 font-medium">Result card</span>
@@ -104,6 +105,21 @@
     <code id="embed-md" class="mono mt-3 block break-all whitespace-pre-wrap rounded bg-slate-900 text-slate-100 p-3 text-xs">{{ embed.markdown }}</code>
   </div>
   {% endif %}
+
+  <!-- Branded backlink — network effect: every shared/embedded card links home and recruits the next user -->
+  <div class="mt-8 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5">
+    <div class="flex items-center gap-3">
+      <a href="{{ settings.base_url }}/" class="shrink-0" aria-label="QuantumLedger">{{ mark(40) }}</a>
+      <div>
+        <a href="{{ settings.base_url }}/" class="font-semibold text-slate-900 hover:underline">QuantumLedger</a>
+        <p class="text-sm text-slate-600">The vendor-neutral system of record for quantum — every run bound to the exact calibration that produced it, reproducible and offline-verifiable.</p>
+      </div>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a href="{{ settings.base_url }}/register" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">Record your own results →</a>
+      <a href="{{ settings.base_url }}/" class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">{{ settings.base_url.replace('https://','').replace('http://','') }}</a>
+    </div>
+  </div>
 </article>
 
 <script>
