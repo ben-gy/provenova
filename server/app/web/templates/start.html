@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_helpers.html" import page_intro %}
+{% from "_helpers.html" import page_intro, icon %}
 {% block title %}Connect the SDK — QuantumLedger{% endblock %}
 
 {% block content %}
@@ -59,7 +59,7 @@ run_bell()</code></pre>
 </section>
 
 <div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-  Just want to look around first? <form method="post" action="/app/demo-seed" class="mt-2 inline"><button class="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700">✨ Load demo data instead</button></form>
+  Just want to look around first? <form method="post" action="/app/demo-seed" class="mt-2 inline"><button class="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700">{{ icon('sparkles', 'h-3.5 w-3.5') }} Load demo data instead</button></form>
 </div>
 </div>
 {% endblock %}

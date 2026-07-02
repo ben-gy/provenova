@@ -2,40 +2,193 @@
 {% block title %}QuantumLedger — the vendor-neutral system of record for quantum{% endblock %}
 
 {% block content %}
+{% from "_helpers.html" import icon %}
 {% if not principal %}
 {# ---------- Marketing (logged-out only) ---------- #}
-<section class="text-center max-w-3xl mx-auto">
-  <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 text-xs font-medium">Vendor-neutral · Offline-verifiable</span>
-  <h1 class="mt-4 text-4xl md:text-5xl font-bold tracking-tight text-slate-900">The system of record for quantum.</h1>
-  <p class="mt-4 text-lg text-slate-600">
-    QuantumLedger binds every quantum run to the exact calibration and hardware state that produced it —
-    so results are reproducible, diffable, and citable across every vendor.
-  </p>
-  <div class="mt-8 flex items-center justify-center gap-3">
-    <a href="/register" class="rounded-md bg-indigo-600 text-white px-5 py-2.5 font-medium hover:bg-indigo-700">Get started</a>
-    <a href="/login" class="rounded-md border border-slate-300 bg-white px-5 py-2.5 font-medium text-slate-700 hover:bg-slate-50">Login</a>
-  </div>
-  <div class="mt-6 mx-auto max-w-md">
-    <pre class="mono text-left text-sm bg-slate-900 text-slate-100 rounded-lg px-4 py-3 overflow-x-auto"><code>pip install quantumledger</code></pre>
+
+<!-- Hero -->
+<section class="-mx-4 rounded-none bg-gradient-to-br from-indigo-50 via-white to-white px-4 py-10 sm:px-8 sm:py-14">
+  <div class="grid items-center gap-10 lg:grid-cols-2">
+    <div>
+      <span class="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white px-3 py-1 text-xs font-medium text-indigo-700">
+        <span class="h-1.5 w-1.5 rounded-full bg-indigo-500"></span> Vendor-neutral · Offline-verifiable · Open-core
+      </span>
+      <h1 class="mt-4 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">
+        The system of record<br class="hidden sm:block"> for quantum computing.
+      </h1>
+      <p class="mt-4 max-w-xl text-lg leading-relaxed text-slate-600">
+        Bind every quantum run to the exact calibration and hardware state that produced it — so results
+        are <b class="font-semibold text-slate-800">reproducible, comparable, citable and auditable</b>
+        across IBM, IonQ, Braket, Azure and simulators.
+      </p>
+      <div class="mt-7 flex flex-wrap items-center gap-3">
+        <a href="/register" class="rounded-md bg-indigo-600 px-5 py-2.5 font-medium text-white hover:bg-indigo-700">Get started free</a>
+        <a href="/docs/getting-started" class="rounded-md border border-slate-300 bg-white px-5 py-2.5 font-medium text-slate-700 hover:bg-slate-50">Read the quickstart</a>
+      </div>
+      <div class="mt-6 max-w-sm">
+        <pre class="mono overflow-x-auto rounded-lg bg-slate-900 px-4 py-3 text-left text-sm text-slate-100"><code>pip install quantumledger</code></pre>
+        <p class="mt-2 text-xs text-slate-500">Capture your first run offline in ~5 minutes — no account required.</p>
+      </div>
+    </div>
+
+    <!-- Example result card (illustrative) -->
+    <div class="lg:pl-6">
+      <div class="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-indigo-100">
+        <div class="flex items-center justify-between text-xs text-slate-500">
+          <span class="rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 font-medium text-indigo-700">Result card</span>
+          <span>Published 2026-06-02</span>
+        </div>
+        <div class="mt-3 text-lg font-bold text-slate-900">GHZ-3 on IBM Kyiv — chem benchmark</div>
+        <div class="mt-3 flex flex-wrap gap-1.5 text-[11px] font-medium">
+          <span class="rounded border border-slate-300 bg-slate-50 px-2 py-0.5 text-slate-600">● Recorded</span>
+          <span class="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-green-700">● Reproduced</span>
+          <span class="rounded border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-indigo-700">● Compliant</span>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div><div class="text-xs text-slate-500">Backend</div><div class="font-medium text-slate-900">ibm / ibm_kyiv</div></div>
+          <div><div class="text-xs text-slate-500">Shots</div><div class="font-medium text-slate-900">4,096</div></div>
+          <div><div class="text-xs text-slate-500">Hellinger fidelity</div><div class="font-medium text-slate-900">0.947</div></div>
+          <div><div class="text-xs text-slate-500">Verdict</div><div class="font-medium text-amber-600">drifted</div></div>
+        </div>
+        <div class="mt-4">
+          <div class="mb-1 text-xs text-slate-500">Result distribution</div>
+          <div class="flex h-16 items-end gap-1.5">
+            {% set bars = [('000', 96), ('001', 8), ('010', 6), ('011', 12), ('100', 7), ('101', 10), ('110', 9), ('111', 88)] %}
+            {% for label, h in bars %}
+            <div class="flex flex-1 flex-col items-center justify-end">
+              <div class="w-full rounded-t bg-indigo-500" style="height: {{ h }}%"></div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="mt-1 flex justify-between text-[9px] text-slate-400"><span>000</span><span>111</span></div>
+        </div>
+        <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+          <div class="text-[11px] text-slate-500">Provenance hash · offline-verifiable</div>
+          <div class="mono break-all text-[11px] text-slate-700">b3f1c2a4…e9 &nbsp;<span class="text-slate-400">(Merkle-bound)</span></div>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-1.5 text-[11px]">
+          <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">DOI</span>
+          <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">BibTeX</span>
+          <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">RIS</span>
+          <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">Embed badge</span>
+        </div>
+      </div>
+      <p class="mt-2 text-center text-xs text-slate-400">An example of a public, citable Result Card.</p>
+    </div>
   </div>
 </section>
 
-<section class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
-    <div class="text-indigo-600 font-semibold">System of record</div>
-    <p class="mt-2 text-sm text-slate-600">Every run is captured with its circuit, backend, shots, and the calibration snapshot behind it.</p>
+<!-- How it works -->
+<section class="mt-16">
+  <h2 class="text-center text-2xl font-bold tracking-tight text-slate-900">From a run to an audit-ready result</h2>
+  <p class="mx-auto mt-2 max-w-2xl text-center text-slate-500">Four steps, all built on one immutable, hash-chained record.</p>
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {% set steps = [
+      ('1', 'Capture', 'Wrap your job with @ql.capture. The circuit, backend, calibration and result are recorded locally — offline, no account.'),
+      ('2', 'Reproduce', 'Re-run against a drifted device state and score how much changed, with a Hellinger fidelity and a plain-language verdict.'),
+      ('3', 'Publish', 'Turn any run into a public, citable Result Card with a DOI, provenance hash and embeddable badges.'),
+      ('4', 'Attest', 'Map runs to standards like FAIR or IEEE P7131 and issue signed, publicly-verifiable attestations.')
+    ] %}
+    {% for n, title, body in steps %}
+    <div class="rounded-xl border border-slate-200 bg-white p-5">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white">{{ n }}</div>
+      <div class="mt-3 font-semibold text-slate-900">{{ title }}</div>
+      <p class="mt-1 text-sm leading-relaxed text-slate-600">{{ body }}</p>
+    </div>
+    {% endfor %}
   </div>
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
-    <div class="text-indigo-600 font-semibold">Reproduce &amp; diff</div>
-    <p class="mt-2 text-sm text-slate-600">Re-run against past or projected calibration, then diff distributions and detect drift.</p>
+</section>
+
+<!-- Features / pillars -->
+<section class="mt-16">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">Everything a result needs to be trusted</h2>
+  <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% set pillars = [
+      ('document-check', 'Immutable provenance', 'A Merkle run-hash binds circuit, backend, calibration and result into a tamper-evident, hash-chained ledger.', '/docs/core-concepts'),
+      ('arrow-path', 'Reproduce & drift', 'Deterministic drift profiles + Hellinger / TVD scoring show exactly why a result changed.', '/docs/reproduce-and-drift'),
+      ('document-text', 'Citable result cards', 'Public cards with DOIs, citations (BibTeX/RIS) and shields.io-style badges.', '/docs/result-cards-and-badges'),
+      ('shield-check', 'Compliance & attestations', 'Evidence auto-collected from your runs; issue Ed25519-signed, revocable attestations.', '/docs/compliance'),
+      ('chart-bar', 'Cross-vendor corpus', 'A longitudinal, public calibration corpus powering the hardware leaderboard.', '/docs/corpus-and-leaderboard'),
+      ('cpu-chip', 'Vendor-neutral SDK', 'One @ql.capture decorator; pluggable connectors for IBM, IonQ, Braket, Azure & simulators.', '/docs/capturing-runs')
+    ] %}
+    {% for ic, title, body, href in pillars %}
+    <a href="{{ href }}" class="group rounded-xl border border-slate-200 bg-white p-5 transition hover:border-indigo-300 hover:shadow-md">
+      <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">{{ icon(ic, 'h-6 w-6') }}</div>
+      <div class="mt-3 font-semibold text-slate-900">{{ title }}</div>
+      <p class="mt-1 text-sm leading-relaxed text-slate-600">{{ body }}</p>
+      <div class="mt-3 text-sm font-medium text-indigo-600 group-hover:underline">Learn more →</div>
+    </a>
+    {% endfor %}
   </div>
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
-    <div class="text-indigo-600 font-semibold">Trust artifacts &amp; badges</div>
-    <p class="mt-2 text-sm text-slate-600">Publish citable result cards with Merkle-bound provenance and shareable badges.</p>
+</section>
+
+<!-- Badge ladder -->
+<section class="mt-16 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+  <h2 class="text-xl font-bold tracking-tight text-slate-900">Earn trust, one rung at a time</h2>
+  <p class="mt-1 text-sm text-slate-500">Every result advances a maturity ladder that others can see at a glance.</p>
+  <div class="mt-5 flex flex-wrap items-center gap-2 text-sm">
+    {% set ladder = ['Recorded', 'Reproduced', 'Benchmarked', 'Compliant', 'Audit-ready'] %}
+    {% for rung in ladder %}
+    <span class="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 font-medium text-indigo-700">{{ rung }}</span>
+    {% if not loop.last %}<span class="text-slate-300">→</span>{% endif %}
+    {% endfor %}
   </div>
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
-    <div class="text-indigo-600 font-semibold">Vanta-for-quantum compliance</div>
-    <p class="mt-2 text-sm text-slate-600">Map runs to compliance frameworks and issue signed, revocable attestations.</p>
+</section>
+
+<!-- Who it's for -->
+<section class="mt-16">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">Built for how you work</h2>
+  <div class="mt-6 grid gap-4 lg:grid-cols-3">
+    {% set personas = [
+      ('Researchers', 'Make results reproducible and citable. Publish a Result Card with a DOI and prove it hasn\'t changed — free for academic email domains.', 'Start free', '/register'),
+      ('Labs & teams', 'Compliance frameworks, continuous monitoring, signed attestations and a public Trust Center to share your posture.', 'See Pro & Lab', '/pricing'),
+      ('Enterprises', 'Self-hosting, SSO/SAML, data residency and an SLA — the vendor-neutral record of every quantum workload.', 'Talk to us', '/pricing')
+    ] %}
+    {% for who, body, cta, href in personas %}
+    <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6">
+      <div class="text-lg font-semibold text-slate-900">{{ who }}</div>
+      <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{{ body }}</p>
+      <a href="{{ href }}" class="mt-4 text-sm font-medium text-indigo-600 hover:underline">{{ cta }} →</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Developer strip -->
+<section class="mt-16 grid items-center gap-8 rounded-2xl bg-slate-900 p-6 sm:p-8 lg:grid-cols-2">
+  <div>
+    <div class="text-xs font-semibold uppercase tracking-wide text-indigo-300">For developers</div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-white">One decorator. Any backend. Fully offline.</h2>
+    <p class="mt-2 max-w-md text-sm leading-relaxed text-slate-300">
+      Capture runs from your existing code with no rewrites, inspect them with the <code class="mono">ql</code>
+      CLI, and push to a hosted or self-hosted server when you're ready. The provenance format is open and
+      verifies its own hash without us.
+    </p>
+    <div class="mt-4 flex flex-wrap gap-3 text-sm">
+      <a href="/docs" class="rounded-md bg-white/10 px-4 py-2 font-medium text-white hover:bg-white/20">Browse the docs</a>
+      <a href="/docs/api" class="rounded-md px-4 py-2 font-medium text-indigo-300 hover:text-indigo-200">API reference →</a>
+    </div>
+  </div>
+  <pre class="mono overflow-x-auto rounded-lg bg-black/40 p-4 text-xs leading-relaxed text-slate-100"><code>import quantumledger as ql
+from qiskit_aer import AerSimulator
+
+@ql.capture(project="bell")
+def run():
+    return AerSimulator().run(qc, shots=4096)
+
+# $ ql list
+# $ ql reproduce &lt;id&gt; --days 90 --profile bad_day
+# $ ql push</code></pre>
+</section>
+
+<!-- Final CTA -->
+<section class="mt-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-8 text-center sm:p-12">
+  <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">Make your next quantum result reproducible.</h2>
+  <p class="mx-auto mt-2 max-w-xl text-indigo-100">Start free — no account needed to try it locally.</p>
+  <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+    <a href="/register" class="rounded-md bg-white px-5 py-2.5 font-semibold text-indigo-700 hover:bg-indigo-50">Get started free</a>
+    <a href="/pricing" class="rounded-md border border-indigo-300 px-5 py-2.5 font-medium text-white hover:bg-indigo-500">See pricing</a>
+    <a href="/docs/getting-started" class="px-3 py-2.5 font-medium text-indigo-100 hover:text-white">Quickstart →</a>
   </div>
 </section>
 
@@ -64,8 +217,8 @@
     </div>
     {% if activation.workspace_empty %}
     <form method="post" action="/app/demo-seed">
-      <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-              title="Populate this workspace with sample runs, a reproduction, a published card and an evaluated framework — no CLI needed.">✨ Load demo data</button>
+      <button type="submit" class="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              title="Populate this workspace with sample runs, a reproduction, a published card and an evaluated framework — no CLI needed.">{{ icon('sparkles', 'h-4 w-4') }} Load demo data</button>
     </form>
     {% endif %}
   </div>

@@ -63,7 +63,7 @@
         <td class="px-4 py-2 mono text-slate-600">{{ a.evidence_root[:16] }}…</td>
         <td class="px-4 py-2 text-slate-500">{{ a.point_in_time | default('—') }}</td>
         <td class="px-4 py-2 text-right">
-          <a href="/api/v1/attestations/{{ a.id }}/verify" target="_blank" class="text-indigo-600 hover:underline">Verify</a>
+          <a href="/verify/{{ a.id }}" class="text-indigo-600 hover:underline">Verify</a>
         </td>
       </tr>
       {% else %}

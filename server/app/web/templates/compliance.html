@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_helpers.html" import page_intro, empty_state, status_pill, status_legend, term %}
+{% from "_helpers.html" import page_intro, empty_state, status_pill, status_legend, term, icon %}
 {% block title %}Compliance — QuantumLedger{% endblock %}
 
 {% block content %}
@@ -50,7 +50,7 @@
   <span>
     Re-evaluated <b>{{ summary.frameworks }}</b> framework{{ '' if summary.frameworks == 1 else 's' }} ·
     <b>{{ summary.controls }}</b> control{{ '' if summary.controls == 1 else 's' }} checked ·
-    {% if summary.gaps %}<b>{{ summary.gaps }}</b> gap{{ '' if summary.gaps == 1 else 's' }} found{% else %}<b>no gaps</b> 🎉{% endif %}
+    {% if summary.gaps %}<b>{{ summary.gaps }}</b> gap{{ '' if summary.gaps == 1 else 's' }} found{% else %}{{ icon('check-circle', 'inline h-4 w-4 text-green-600') }} <b>no gaps</b>{% endif %}
   </span>
   <a href="/app/compliance" class="text-indigo-500 hover:text-indigo-700">✕</a>
 </div>
@@ -154,7 +154,7 @@
           {% endif %}
         </td>
         <td class="px-4 py-2 text-right">
-          <a href="/api/v1/attestations/{{ a.id }}/verify" target="_blank" class="text-indigo-600 hover:underline">Verify</a>
+          <a href="/verify/{{ a.id }}" class="text-indigo-600 hover:underline">Verify</a>
         </td>
       </tr>
       {% endfor %}

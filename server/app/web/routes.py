@@ -684,6 +684,26 @@ def web_attest(request: Request, framework_id: str = Form(...), db: Session = De
     return RedirectResponse("/app/compliance", status_code=303)
 
 
+# -- attestation verification (public, human-readable) ----------------------
+
+@router.get("/verify/{att_id}", response_class=HTMLResponse)
+def verify_attestation_page(att_id: str, request: Request, db: Session = Depends(get_db),
+                            p: Principal | None = Depends(current_principal)):
+    """Human-readable attestation verification (the raw JSON lives at the API)."""
+    from ..api.v1.public import live_hashes_for
+    from ..services.attestation import verify_attestation
+
+    att = db.get(Attestation, att_id)
+    if att is None:
+        raise HTTPException(404, "attestation not found")
+    _priv, _kid, jwks_doc = attestation_key()
+    entries = (att.satisfied_state or {}).get("evidence_entries", [])
+    result = verify_attestation(db, att, jwks_doc, live_content_hashes=live_hashes_for(db, entries))
+    fw = db.get(ComplianceFramework, att.framework_id) if att.framework_id else None
+    return render(request, "verify.html", p, att=att, fw=fw, result=result,
+                  evidence_count=len(entries))
+
+
 # -- trust center -----------------------------------------------------------
 
 @router.get("/trust/{org_slug}", response_class=HTMLResponse)
