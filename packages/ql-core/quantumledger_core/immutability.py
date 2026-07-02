@@ -95,3 +95,27 @@ def install_immutability(engine: Engine) -> None:
     with engine.begin() as conn:
         for stmt in stmts:
             conn.execute(text(stmt))
+
+
+def drop_immutability(engine: Engine) -> None:
+    """Drop the tamper-evidence triggers (controlled maintenance/reset only).
+
+    Re-install with :func:`install_immutability` after the maintenance operation.
+    """
+    dialect = engine.dialect.name
+    stmts: list[str] = []
+    if dialect == "sqlite":
+        for tbl in IMMUTABLE_TABLES:
+            stmts.append(f"DROP TRIGGER IF EXISTS trg_{tbl}_no_update")
+            stmts.append(f"DROP TRIGGER IF EXISTS trg_{tbl}_no_delete")
+        stmts.append("DROP TRIGGER IF EXISTS trg_runs_no_delete")
+        stmts.append("DROP TRIGGER IF EXISTS trg_runs_seal")
+    elif dialect in ("postgresql", "postgres"):
+        for tbl in IMMUTABLE_TABLES:
+            stmts.append(f"DROP TRIGGER IF EXISTS trg_{tbl}_immutable ON {tbl}")
+        stmts.append("DROP TRIGGER IF EXISTS trg_runs_guard ON runs")
+    else:  # pragma: no cover
+        return
+    with engine.begin() as conn:
+        for stmt in stmts:
+            conn.execute(text(stmt))
