@@ -3,13 +3,24 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantumledger-core"
+name = "provenova-core"
 version = "0.1.0"
 description = "Provenova core: provenance data model, canonical hashing, and open schemas."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
-authors = [{ name = "Provenova" }]
+authors = [{ name = "Provenova", email = "hi@ben.gy" }]
+keywords = ["quantum", "provenance", "merkle", "reproducibility", "calibration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
     "SQLAlchemy>=2.0,<2.1",
     "pydantic>=2.5,<3",
@@ -17,12 +28,17 @@ dependencies = [
     "jsonschema>=4.20",
 ]
 
+[project.urls]
+Homepage = "https://provenova.net"
+Documentation = "https://provenova.net/docs/open-schemas"
+Source = "https://github.com/ben-gy/quantumledger"
+
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.1"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["quantumledger_core*"]
+include = ["provenova_core*"]
 
 [tool.setuptools.package-data]
-quantumledger_core = ["schemas/qlprov/*.json"]
+provenova_core = ["schemas/qlprov/*.json"]

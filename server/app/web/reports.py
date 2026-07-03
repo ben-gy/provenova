@@ -16,7 +16,7 @@ from fastapi.responses import HTMLResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Report, ResultCard
+from provenova_core.models import Report, ResultCard
 
 from ..config import get_settings
 from ..db import get_db

@@ -3,13 +3,13 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantumledger-server"
+name = "provenova-server"
 version = "0.1.0"
 description = "Provenova hosted server: ingestion + read API, web app, engines, compliance."
 requires-python = ">=3.10"
 license = { text = "BUSL-1.1" }
 dependencies = [
-    "quantumledger-core",
+    "provenova-core",
     "fastapi>=0.110",
     "uvicorn[standard]>=0.27",
     "jinja2>=3.1",

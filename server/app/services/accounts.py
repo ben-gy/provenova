@@ -7,8 +7,8 @@ import datetime as _dt
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from quantumledger_core import hashing
-from quantumledger_core.models import (
+from provenova_core import hashing
+from provenova_core.models import (
     PLAN_ACADEMIC,
     PLAN_FREE,
     Account,
@@ -140,7 +140,7 @@ def grant_plan(session: Session, org: Org, plan: str, *, source: str = "admin_ov
 
 
 def _highest(session: Session, org: Org, new_plan: str) -> str:
-    from quantumledger_core.models import PLAN_ORDER
+    from provenova_core.models import PLAN_ORDER
 
     plans = [new_plan, org.plan or PLAN_FREE]
     for g in session.scalars(select(Grant).where(Grant.org_id == org.id, Grant.active.is_(True))):

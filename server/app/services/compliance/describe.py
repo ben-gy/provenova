@@ -95,7 +95,7 @@ def describe_rule(rule: dict | None) -> str:
 def rules_view(control) -> list[dict]:
     """Structured per-rule view for a control: ``[{id, description}]``.
 
-    ``control`` is a :class:`~quantumledger_core.models.Control`; its
+    ``control`` is a :class:`~provenova_core.models.Control`; its
     ``evidence_rules`` is the list of rule dicts loaded from the framework YAML.
     """
     out: list[dict] = []

@@ -5,8 +5,8 @@ Pipeline (see the PRD §E7 "public corpus" epic)::
     source.fetch_raw()  ->  normalize.to_snapshot()  ->  hashing.calibration_hash()
                         ->  compliance.gate()        ->  corpus.ingest_snapshot()
 
-Sources are pluggable (:class:`~quantumledger_crawler.sources.base.CalibrationSource`).
-The default :class:`~quantumledger_crawler.sources.fixture_source.FixtureSource`
+Sources are pluggable (:class:`~provenova_crawler.sources.base.CalibrationSource`).
+The default :class:`~provenova_crawler.sources.fixture_source.FixtureSource`
 replays committed vendor-native JSON fixtures — no credentials, no network — and
 iterates every longitudinal timepoint so the corpus is a real time-series.
 """

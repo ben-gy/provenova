@@ -107,7 +107,7 @@ class LiveSource(CalibrationSource):
             import requests  # noqa: F401  (optional 'live' extra)
         except ImportError as exc:  # pragma: no cover
             raise LiveSourceDisabled(
-                "install the 'live' extra (pip install quantumledger-crawler[live]) "
+                "install the 'live' extra (pip install provenova-crawler[live]) "
                 "to enable live polling"
             ) from exc
         raise NotImplementedError(

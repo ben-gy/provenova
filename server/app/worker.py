@@ -12,13 +12,13 @@ from pathlib import Path
 
 from sqlalchemy import select
 
-from quantumledger_core.models import ComplianceFramework, Workspace
+from provenova_core.models import ComplianceFramework, Workspace
 
 from .db import FRAMEWORKS_DIR, SessionLocal, bootstrap
 from .services import compliance as comp
 
 logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("quantumledger.worker")
+log = logging.getLogger("provenova.worker")
 
 REPO = Path(__file__).resolve().parents[2]
 FIXTURES = REPO / "fixtures"
@@ -26,8 +26,8 @@ FIXTURES = REPO / "fixtures"
 
 def crawl_once() -> int:
     try:
-        from quantumledger_crawler.corpus import crawl_all
-        from quantumledger_crawler.sources.fixture_source import FixtureSource
+        from provenova_crawler.corpus import crawl_all
+        from provenova_crawler.sources.fixture_source import FixtureSource
     except Exception as e:  # noqa: BLE001
         log.warning("crawler unavailable: %s", e)
         return 0

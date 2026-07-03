@@ -1,6 +1,6 @@
 # Capturing runs
 
-Capture is how quantum jobs get into the ledger. It happens client-side in the open-source `quantumledger`
+Capture is how quantum jobs get into the ledger. It happens client-side in the open-source `provenova`
 SDK, works offline, and needs no account.
 
 <div class="doc-split" markdown="1">
@@ -28,7 +28,7 @@ immutable run to your local ledger.
 <div data-lang="Decorator" markdown="1">
 
 ```python
-import quantumledger as ql
+import provenova as ql
 
 @ql.capture(project="my-experiment")
 def run():
@@ -44,7 +44,7 @@ is recovered from the returned job.
 <div data-lang="Context manager" markdown="1">
 
 ```python
-import quantumledger as ql
+import provenova as ql
 
 with ql.capture(project="my-experiment") as run:
     job = backend.run(circuit, shots=4096)
@@ -82,10 +82,10 @@ package makes it available automatically.
 
 | Connector | Vendor / SDK | Install extra |
 |-----------|--------------|---------------|
-| `simulator` | Qiskit Aer (local) | `quantumledger[aer]` |
-| `qiskit_runtime` | IBM Quantum | `quantumledger[qiskit_runtime]` |
-| `braket` | Amazon Braket | `quantumledger[braket]` |
-| `azure_quantum` | Azure Quantum | `quantumledger[azure]` |
+| `simulator` | Qiskit Aer (local) | `provenova[aer]` |
+| `qiskit_runtime` | IBM Quantum | `provenova[qiskit_runtime]` |
+| `braket` | Amazon Braket | `provenova[braket]` |
+| `azure_quantum` | Azure Quantum | `provenova[azure]` |
 | `ionq` | IonQ | (bundled) |
 
 ```bash
@@ -94,8 +94,8 @@ ql connectors          # list what's discovered in your environment
 
 ## Writing a custom connector
 
-Subclass `quantumledger.connectors.base.Connector`, implement extraction into a `CaptureBundle`, and register
-it under the `quantumledger.connectors` entry-point group. It's then discoverable by `ql connectors` and
+Subclass `provenova.connectors.base.Connector`, implement extraction into a `CaptureBundle`, and register
+it under the `provenova.connectors` entry-point group. It's then discoverable by `ql connectors` and
 usable by `@ql.capture` with no further wiring.
 
 Next: [Reproduce & drift](/docs/reproduce-and-drift).

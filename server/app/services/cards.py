@@ -8,8 +8,8 @@ import re
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core import hashing
-from quantumledger_core.models import (
+from provenova_core import hashing
+from provenova_core.models import (
     ReproductionEvent,
     Result,
     ResultCard,

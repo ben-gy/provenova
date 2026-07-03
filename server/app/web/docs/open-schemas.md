@@ -1,8 +1,8 @@
 # Open schemas (qlprov)
 
 Provenova's provenance format is an **open, versioned standard** called `qlprov`, not a proprietary
-blob. The schemas are JSON Schema (draft 2020-12) and ship inside `quantumledger-core` at
-`quantumledger_core/schemas/qlprov/`. Because the format is open and self-verifying, a run you export can be
+blob. The schemas are JSON Schema (draft 2020-12) and ship inside `provenova-core` at
+`provenova_core/schemas/qlprov/`. Because the format is open and self-verifying, a run you export can be
 read, validated, and hash-checked by anyone — no Provenova server required.
 
 ## `qlprov/run/1.0`
@@ -14,7 +14,7 @@ and what `GET /api/v1/runs/<id>` returns.
 **Self-verifying.** An exported `qlprov/run/1.0` document **recomputes its own `run_hash`** offline:
 
 ```python
-from quantumledger_core import verify_run_hash
+from provenova_core import verify_run_hash
 assert verify_run_hash(document)   # True iff the leaf hashes still produce run_hash
 ```
 

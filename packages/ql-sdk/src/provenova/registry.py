@@ -7,8 +7,8 @@ from importlib.metadata import entry_points
 
 from .connectors.base import Connector
 
-_log = logging.getLogger("quantumledger.registry")
-GROUP = "quantumledger.connectors"
+_log = logging.getLogger("provenova.registry")
+GROUP = "provenova.connectors"
 
 # connector entry-point name -> the pip extra that provides its vendor SDK
 CONNECTOR_EXTRAS = {

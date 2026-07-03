@@ -17,7 +17,7 @@ def load_schema(name: str) -> dict:
 
     e.g. ``load_schema("run_1_0")`` or ``load_schema("calibration_1_0")``.
     """
-    pkg = resources.files("quantumledger_core.schemas.qlprov")
+    pkg = resources.files("provenova_core.schemas.qlprov")
     return json.loads((pkg / f"{name}.json").read_text(encoding="utf-8"))
 
 

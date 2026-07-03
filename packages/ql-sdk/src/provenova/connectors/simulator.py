@@ -50,13 +50,13 @@ class LocalSimulatorConnector(Connector):
                 bundle.gaps.append(gap("counts", "sdk_version", "could not read counts"))
         bundle.calibration = self.fetch_calibration(backend) if backend is not None else None
         if bundle.calibration is None and n_qubits:
-            from quantumledger_core.simulate.engine import default_simulator_calibration
+            from provenova_core.simulate.engine import default_simulator_calibration
 
             bundle.calibration = default_simulator_calibration(n_qubits, name)
         return bundle
 
     def fetch_calibration(self, backend) -> dict:
-        from quantumledger_core.simulate.engine import default_simulator_calibration
+        from provenova_core.simulate.engine import default_simulator_calibration
 
         n = None
         try:

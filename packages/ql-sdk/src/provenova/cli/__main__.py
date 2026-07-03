@@ -41,7 +41,7 @@ def demo(project: str = "demo", shots: int = 2048, qubits: int = 3):
         from qiskit_aer import AerSimulator
     except ModuleNotFoundError:
         console.print("[red]The demo needs the Aer simulator.[/] Install it with:")
-        console.print('  [bold]pip install "quantumledger[aer]"[/]')
+        console.print('  [bold]pip install "provenova[aer]"[/]')
         raise typer.Exit(1)
 
     ledger = _ledger()
@@ -128,7 +128,7 @@ def reproduce(run_id: str, days: float = 30.0, profile: str = "typical",
     if report.get("calibration_drift"):
         console.print(f"  calibration drift: {len(report['calibration_drift'])} params changed")
     if html:
-        from quantumledger_core.reproduce.report import report_to_html
+        from provenova_core.reproduce.report import report_to_html
 
         with open(html, "w") as f:
             f.write(report_to_html(report))
@@ -144,7 +144,7 @@ def connectors():
         console.print(f"  [green]●[/] [bold]{name}[/] → provider={c.provider} v{c.version}")
     for name in reg.unavailable():
         extra = extra_for(name)
-        tip = f'pip install "quantumledger[{extra}]"' if extra else "install its vendor SDK"
+        tip = f'pip install "provenova[{extra}]"' if extra else "install its vendor SDK"
         console.print(f"  [yellow]○[/] [bold]{name}[/] — unavailable ([dim]{tip}[/])")
     if not reg.available() and not reg.unavailable():
         console.print("  [dim]no connectors discovered[/]")
@@ -224,11 +224,11 @@ def doctor():
             try:
                 from importlib.metadata import version
 
-                cli_v = version("quantumledger")
+                cli_v = version("provenova")
                 sv = str(h.get("version") or "")
                 if sv and cli_v.split(".")[:2] != sv.split(".")[:2]:
                     console.print(f"  [yellow]note[/] client v{cli_v} vs server v{sv} — "
-                                  "consider `pip install -U quantumledger`.")
+                                  "consider `pip install -U provenova`.")
             except Exception:
                 pass
         except SyncError as e:
@@ -255,7 +255,7 @@ def doctor():
     console.print(f"\n[bold]Connectors[/] {', '.join(avail) if avail else 'none'}")
     for name in reg.unavailable():
         extra = extra_for(name)
-        tip = f'pip install "quantumledger[{extra}]"' if extra else "install its vendor SDK"
+        tip = f'pip install "provenova[{extra}]"' if extra else "install its vendor SDK"
         console.print(f"  [yellow]○[/] {name} unavailable — {tip}")
 
     console.print("\n[green]All checks passed.[/]" if ok

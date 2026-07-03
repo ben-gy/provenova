@@ -24,13 +24,13 @@ STALE_DAYS = 30
 
 
 def _metric_registry() -> list[dict]:
-    from quantumledger_crawler.corpus import LEADERBOARD_METRICS
+    from provenova_crawler.corpus import LEADERBOARD_METRICS
 
     return LEADERBOARD_METRICS
 
 
 def _devices(db: Session) -> list[dict]:
-    from quantumledger_crawler.corpus import list_devices
+    from provenova_crawler.corpus import list_devices
 
     return list_devices(db)
 
@@ -125,7 +125,7 @@ def hardware_device(provider: str, backend_id: str, request: Request,
     if d is None:
         raise HTTPException(404, "unknown device")
 
-    from quantumledger_crawler.corpus import comparable_pairs, device_timeseries
+    from provenova_crawler.corpus import comparable_pairs, device_timeseries
 
     series = device_timeseries(db, d["provider"], d["backend_id"])
     # Trend lines: registry metrics with >=2 datapoints across the series.
@@ -181,7 +181,7 @@ def hardware_compare(pa: str, ba: str, pb: str, bb: str, request: Request,
     if (pa, ba) > (pb, bb):
         return RedirectResponse(f"/hardware/{pb}/{bb}/vs/{pa}/{ba}", status_code=301)
 
-    from quantumledger_crawler.corpus import comparable_pairs
+    from provenova_crawler.corpus import comparable_pairs
 
     pair = None
     for cp in comparable_pairs(db):

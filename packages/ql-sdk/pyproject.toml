@@ -3,38 +3,59 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantumledger"
+name = "provenova"
 version = "0.1.0"
 description = "Provenova open-source client: capture quantum runs + their calibration state, reproducibly."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
-authors = [{ name = "Provenova" }]
+authors = [{ name = "Provenova", email = "hi@ben.gy" }]
+keywords = ["quantum", "provenance", "reproducibility", "qiskit", "calibration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
-    "quantumledger-core",
+    "provenova-core>=0.1.0,<0.2",
     "typer>=0.12",
     "rich>=13",
     "httpx>=0.27",
     "qiskit>=1.0,<2",
 ]
 
+[project.urls]
+Homepage = "https://provenova.net"
+Documentation = "https://provenova.net/docs"
+Source = "https://github.com/ben-gy/quantumledger"
+
 [project.optional-dependencies]
 aer = ["qiskit-aer>=0.14"]
 qiskit_runtime = ["qiskit-ibm-runtime>=0.20"]
 braket = ["amazon-braket-sdk>=1.70"]
 azure = ["azure-quantum>=1.0"]
-all = ["qiskit-aer>=0.14"]
+all = [
+    "qiskit-aer>=0.14",
+    "qiskit-ibm-runtime>=0.20",
+    "amazon-braket-sdk>=1.70",
+    "azure-quantum>=1.0",
+]
 
 [project.scripts]
-ql = "quantumledger.cli.__main__:main"
+ql = "provenova.cli.__main__:main"
 
-[project.entry-points."quantumledger.connectors"]
-simulator = "quantumledger.connectors.simulator:LocalSimulatorConnector"
-qiskit_runtime = "quantumledger.connectors.qiskit_runtime:QiskitRuntimeConnector"
-braket = "quantumledger.connectors.braket:BraketConnector"
-azure_quantum = "quantumledger.connectors.azure_quantum:AzureQuantumConnector"
-ionq = "quantumledger.connectors.ionq:IonQConnector"
+[project.entry-points."provenova.connectors"]
+simulator = "provenova.connectors.simulator:LocalSimulatorConnector"
+qiskit_runtime = "provenova.connectors.qiskit_runtime:QiskitRuntimeConnector"
+braket = "provenova.connectors.braket:BraketConnector"
+azure_quantum = "provenova.connectors.azure_quantum:AzureQuantumConnector"
+ionq = "provenova.connectors.ionq:IonQConnector"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["quantumledger*"]
+include = ["provenova*"]

@@ -24,8 +24,8 @@ import math
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from quantumledger_core import hashing
-from quantumledger_core.models import (
+from provenova_core import hashing
+from provenova_core.models import (
     PLAN_LAB,
     Account,
     CardAttribution,
@@ -38,8 +38,8 @@ from quantumledger_core.models import (
     WorkspaceMember,
     new_ulid,
 )
-from quantumledger_core.reproduce import runner
-from quantumledger_core.simulate import bridge
+from provenova_core.reproduce import runner
+from provenova_core.simulate import bridge
 
 from ..config import get_settings
 from . import cards as cards_svc

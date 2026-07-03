@@ -23,8 +23,8 @@ import httpx
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core import hashing
-from quantumledger_core.models import CorpusSnapshot
+from provenova_core import hashing
+from provenova_core.models import CorpusSnapshot
 
 from ..config import get_settings
 
@@ -193,7 +193,7 @@ def refresh_metriq_corpus(session: Session, deadline_s: float = 45.0) -> dict:
     """
     deadline = time.monotonic() + deadline_s
     settings = get_settings()
-    headers = {"User-Agent": "quantumledger-growth/1.0", "Accept": "application/json"}
+    headers = {"User-Agent": "provenova-growth/1.0", "Accept": "application/json"}
     if settings.github_token:
         headers["Authorization"] = f"Bearer {settings.github_token}"
 

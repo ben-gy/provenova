@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import AuditLog, Report
+from provenova_core.models import AuditLog, Report
 
 from ...config import get_settings
 from ...db import get_db
@@ -140,7 +140,7 @@ def research_cards(body: ResearchCardsIn, db: Session = Depends(get_db),
         existing = growth_svc.find_existing(
             db, arxiv_id=item.paper.arxiv_id, doi=item.paper.doi, sha=sha)
         if existing is not None:
-            from quantumledger_core.models import ResultCard
+            from provenova_core.models import ResultCard
 
             card = db.get(ResultCard, existing.card_id)
             results.append({"status": "exists", "slug": card.slug if card else None})

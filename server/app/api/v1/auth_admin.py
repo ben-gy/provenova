@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Account, ApiKey, Org, OrgMembership, Workspace
+from provenova_core.models import Account, ApiKey, Org, OrgMembership, Workspace
 
 from ...db import get_db
 from ...deps import Principal, current_principal, require_principal

@@ -114,8 +114,8 @@ def client():
 
 def _capture_bundle():
     import tempfile
-    import quantumledger as ql
-    from quantumledger.agent import CaptureAgent
+    import provenova as ql
+    from provenova.agent import CaptureAgent
     from qiskit import QuantumCircuit
     from qiskit_aer import AerSimulator
 

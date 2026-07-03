@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import ReproductionEvent, ResultCard, Run, VIS_PUBLIC, Workspace
-from quantumledger_core.provenance import build_run_doc
-from quantumledger_core.reproduce import runner
-from quantumledger_core.reproduce.report import build_report
+from provenova_core.models import ReproductionEvent, ResultCard, Run, VIS_PUBLIC, Workspace
+from provenova_core.provenance import build_run_doc
+from provenova_core.reproduce import runner
+from provenova_core.reproduce.report import build_report
 
 from ...config import get_settings
 from ...db import get_db

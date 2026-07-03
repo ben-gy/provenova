@@ -16,7 +16,7 @@ import datetime as _dt
 import logging
 from typing import NamedTuple
 
-log = logging.getLogger("quantumledger.doi")
+log = logging.getLogger("provenova.doi")
 
 
 class DoiMintError(RuntimeError):

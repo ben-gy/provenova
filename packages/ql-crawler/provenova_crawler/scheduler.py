@@ -16,7 +16,7 @@ import logging
 
 from .corpus import crawl_all
 
-logger = logging.getLogger("quantumledger.crawler.scheduler")
+logger = logging.getLogger("provenova.crawler.scheduler")
 
 
 def run_once(session, sources) -> dict[str, int]:
@@ -60,7 +60,7 @@ def build_scheduler(session_factory, sources, interval_minutes: int = 30):
     session_factory:
         Zero-arg callable returning a new SQLAlchemy ``Session`` per tick.
     sources:
-        Iterable of :class:`~quantumledger_crawler.sources.base.CalibrationSource`.
+        Iterable of :class:`~provenova_crawler.sources.base.CalibrationSource`.
     interval_minutes:
         Minutes between sweeps (default 30).
 
@@ -76,7 +76,7 @@ def build_scheduler(session_factory, sources, interval_minutes: int = 30):
         trigger="interval",
         minutes=interval_minutes,
         args=[session_factory, sources],
-        id="quantumledger-crawl",
+        id="provenova-crawl",
         max_instances=1,
         coalesce=True,
         replace_existing=True,

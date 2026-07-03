@@ -10,7 +10,7 @@ from __future__ import annotations
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     VIS_PUBLIC,
     ReproductionEvent,
     ResultCard,

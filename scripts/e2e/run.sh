@@ -7,7 +7,7 @@
 # multi-tenant security, and interop error handling) and asserts the results.
 #
 # Fully isolated and repeatable: each run uses a fresh temp DB / SDK home /
-# signing key and never touches your real ~/.quantumledger or repo database.
+# signing key and never touches your real ~/.provenova (or legacy ~/.quantumledger) or repo database.
 #
 #   bash scripts/e2e/run.sh          # or: make e2e
 #

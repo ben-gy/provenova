@@ -11,7 +11,7 @@ def build_run_doc(run: Run) -> dict:
     """Assemble the portable provenance record for a sealed Run.
 
     Anyone with this document can recompute ``inputs_root`` and ``run_hash`` and
-    verify integrity offline via :func:`quantumledger_core.verify_run_hash`.
+    verify integrity offline via :func:`provenova_core.verify_run_hash`.
     """
     circuit = run.circuit
     comp = run.compilation

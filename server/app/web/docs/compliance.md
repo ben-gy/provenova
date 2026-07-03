@@ -67,7 +67,7 @@ controls were satisfied at a point in time.
   covers.
 - It signs that root with an **Ed25519** key, producing a signed statement stored with the workspace.
 - Anyone can verify it: `GET /api/v1/attestations/<id>/verify`, using the public keys published at
-  `/.well-known/quantumledger-jwks.json`.
+  `/.well-known/provenova-jwks.json`.
 
 Two properties make attestations trustworthy:
 

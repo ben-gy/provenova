@@ -9,7 +9,14 @@ from pathlib import Path
 
 
 def default_home() -> Path:
-    return Path(os.environ.get("QL_HOME", str(Path.home() / ".quantumledger")))
+    if "QL_HOME" in os.environ:
+        return Path(os.environ["QL_HOME"])
+    new = Path.home() / ".provenova"
+    legacy = Path.home() / ".quantumledger"
+    # Honor a pre-rename home dir so existing local ledgers keep working.
+    if legacy.exists() and not new.exists():
+        return legacy
+    return new
 
 
 @dataclass

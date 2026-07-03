@@ -44,7 +44,7 @@ logical object always hashes the same way across machines and languages.
 ## Offline verifiability
 
 A run exported as a `qlprov/run/1.0` document **recomputes its own hash with no server**
-(`quantumledger_core.verify_run_hash`). Anyone you share it with can confirm it hasn't been altered,
+(`provenova_core.verify_run_hash`). Anyone you share it with can confirm it hasn't been altered,
 without trusting Provenova. See [Open schemas](/docs/open-schemas).
 
 ## Why this matters downstream

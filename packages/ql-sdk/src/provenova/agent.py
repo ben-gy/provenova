@@ -14,7 +14,7 @@ from .config import load_config
 from .registry import registry
 from .store import LocalLedger
 
-_log = logging.getLogger("quantumledger.capture")
+_log = logging.getLogger("provenova.capture")
 
 
 def _is_qiskit_circuit(obj) -> bool:
@@ -48,11 +48,11 @@ class CaptureAgent:
             if shots and not bundle.shots:
                 bundle.shots = shots
             if bundle.circuit is None:
-                _log.warning("quantumledger: no circuit captured; skipping record")
+                _log.warning("provenova: no circuit captured; skipping record")
                 return None
             return self.ledger.record_bundle(bundle, project=project)
         except Exception as e:  # never break the user's workflow
-            _log.warning("quantumledger capture failed (ignored): %s", e)
+            _log.warning("provenova capture failed (ignored): %s", e)
             return None
 
 

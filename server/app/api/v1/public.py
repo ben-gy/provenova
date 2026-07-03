@@ -12,7 +12,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     Attestation,
     CalibrationSnapshot,
     ComplianceFramework,
@@ -54,7 +54,7 @@ def badge_svg(slug: str, badge_type: str, style: str = "flat", db: Session = Dep
     else:
         msg, color = badge_svc.badge_state(db, card, badge_type)
     svg = badge_svc.render_svg(msg, color, style=style)
-    from quantumledger_core import hashing
+    from provenova_core import hashing
 
     etag = 'W/"' + hashing.sha256_hex({"s": slug, "t": badge_type, "m": msg})[:24] + '"'
     return Response(
@@ -105,7 +105,7 @@ def card_embed_html(slug: str, db: Session = Depends(get_db)):
     card = _public_card(db, slug)
     ctx = cards_svc.embed_card_context(card, get_settings().base_url)
     html = _embed_templates.get_template("embed_card.html").render(**ctx)
-    from quantumledger_core import hashing
+    from provenova_core import hashing
 
     etag = 'W/"' + hashing.sha256_hex({"s": slug, "h": card.card_sha256})[:24] + '"'
     return Response(
@@ -154,7 +154,7 @@ def submit_reproduction(slug: str, days: float = 20.0, profile: str = "typical",
                         db: Session = Depends(get_db), p: Principal = Depends(require_principal)):
     """Another user reproduces a public result → records a ReproductionEvent →
     the 'reproduced' badge upgrades to green (E5.3)."""
-    from quantumledger_core.reproduce import runner
+    from provenova_core.reproduce import runner
 
     card = _public_card(db, slug)
     run = db.get(Run, card.run_id)
@@ -170,7 +170,7 @@ def submit_reproduction(slug: str, days: float = 20.0, profile: str = "typical",
 def leaderboard(metric: str = "median_2q_error", period: str | None = None,
                 db: Session = Depends(get_db)):
     try:
-        from quantumledger_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
+        from provenova_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
 
         return {"metric": metric, "metrics": LEADERBOARD_METRICS,
                 "entries": fleet_leaderboard(db, metric=metric, period=period)}
@@ -181,7 +181,7 @@ def leaderboard(metric: str = "median_2q_error", period: str | None = None,
 @router.get("/api/v1/backends/{provider}/{backend_id}/trend")
 def device_trend(provider: str, backend_id: str, db: Session = Depends(get_db)):
     try:
-        from quantumledger_crawler.corpus import device_timeseries
+        from provenova_crawler.corpus import device_timeseries
 
         return {"provider": provider, "backend_id": backend_id,
                 "series": device_timeseries(db, provider, backend_id)}
@@ -189,7 +189,9 @@ def device_trend(provider: str, backend_id: str, db: Session = Depends(get_db)):
         return {"provider": provider, "backend_id": backend_id, "series": [], "note": str(e)}
 
 
-@router.get("/.well-known/quantumledger-jwks.json")
+@router.get("/.well-known/provenova-jwks.json")
+@router.get("/.well-known/quantumledger-jwks.json")  # permanent legacy alias —
+# external verifiers of already-issued attestations may have this URL embedded
 def jwks():
     _priv, _kid, jwks_doc = attestation_key()
     return jwks_doc

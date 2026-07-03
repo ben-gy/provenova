@@ -1,4 +1,4 @@
-# quantumledger-crawler
+# provenova-crawler
 
 Public-QPU calibration crawler for Provenova.
 

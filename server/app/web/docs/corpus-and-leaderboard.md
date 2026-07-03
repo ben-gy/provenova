@@ -12,7 +12,7 @@ content-addressed, so identical captures are stored once and referenced many tim
 
 ## The crawler
 
-The `quantumledger-crawler` package collects vendor calibration data, normalizes it, applies each vendor's
+The `provenova-crawler` package collects vendor calibration data, normalizes it, applies each vendor's
 terms-of-service redistribution policy, deduplicates, and ingests it into the corpus. It has two sources:
 
 - **`FixtureSource`** (default, offline) — reads representative payloads from `fixtures/{vendor}/*.json`.

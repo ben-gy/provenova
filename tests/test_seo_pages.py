@@ -27,7 +27,7 @@ def client():
 def seeded(client):
     """Corpus devices with known metric overlaps + one published, one draft report."""
     from app.db import SessionLocal
-    from quantumledger_core.models import CorpusSnapshot, Report
+    from provenova_core.models import CorpusSnapshot, Report
 
     now = _dt.datetime.now(_dt.timezone.utc)
 

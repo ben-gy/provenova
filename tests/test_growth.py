@@ -22,7 +22,7 @@ def growth_key(client):
     from app.db import SessionLocal
     from app.security import generate_api_key
     from app.services.growth import ensure_research_bot
-    from quantumledger_core.models import ApiKey
+    from provenova_core.models import ApiKey
 
     s = SessionLocal()
     acc, org, ws = ensure_research_bot(s)
@@ -38,7 +38,7 @@ def unscoped_key(client):
     from app.db import SessionLocal
     from app.security import generate_api_key
     from app.services.growth import ensure_research_bot
-    from quantumledger_core.models import ApiKey
+    from provenova_core.models import ApiKey
 
     s = SessionLocal()
     acc, org, ws = ensure_research_bot(s)
@@ -271,7 +271,7 @@ def test_corpus_refresh_incomplete_does_not_throttle(client, growth_key, monkeyp
     immediately 'call once more' (resumable contract)."""
     import app.api.v1.growth as growth_api
     from app.db import SessionLocal
-    from quantumledger_core.models import AuditLog
+    from provenova_core.models import AuditLog
     from sqlalchemy import delete
 
     # clear any prior refresh audit so this test starts clean

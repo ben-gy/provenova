@@ -13,9 +13,9 @@ import json
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Benchmark, BenchmarkEntry, Run
-from quantumledger_core.reproduce.scoring import hellinger_fidelity
-from quantumledger_core.simulate import bridge, engine
+from provenova_core.models import Benchmark, BenchmarkEntry, Run
+from provenova_core.reproduce.scoring import hellinger_fidelity
+from provenova_core.simulate import bridge, engine
 
 BENCHMARK_NAME = "Fidelity vs ideal"
 

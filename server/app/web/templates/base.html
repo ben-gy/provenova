@@ -29,7 +29,7 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased">
   {% from "_brand.html" import mark %}
-  {# Mirrors PLAN_DISPLAY in quantumledger_core.models.accounts — the internal "pro" key is presented as "Team". #}
+  {# Mirrors PLAN_DISPLAY in provenova_core.models.accounts — the internal "pro" key is presented as "Team". #}
   {% set plan_labels = {'free': 'Free', 'academic': 'Academic', 'pro': 'Team', 'lab': 'Lab', 'enterprise': 'Enterprise'} %}
   {% set nav_links = [
     ('/', 'Home'),

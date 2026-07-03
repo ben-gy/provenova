@@ -1,6 +1,6 @@
 """Provenova open-source client.
 
-    import quantumledger as ql
+    import provenova as ql
 
     @ql.capture(project="bell")
     def run():

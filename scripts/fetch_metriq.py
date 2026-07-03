@@ -61,7 +61,7 @@ _HASH = re.compile(r"[0-9a-f]{6,}$")
 
 
 def _get_json(url: str) -> dict | list:
-    req = urllib.request.Request(url, headers={"User-Agent": "quantumledger-fetch/1.0",
+    req = urllib.request.Request(url, headers={"User-Agent": "provenova-fetch/1.0",
                                                "Accept": "application/json"})
     with urllib.request.urlopen(req, timeout=40) as resp:  # noqa: S310 (trusted host)
         return json.loads(resp.read().decode())

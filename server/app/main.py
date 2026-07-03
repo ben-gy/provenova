@@ -74,7 +74,7 @@ def create_app() -> FastAPI:
 
     @app.get("/api/v1/health", tags=["public"])
     def health():
-        return {"status": "ok", "service": "quantumledger", "version": "0.1.0",
+        return {"status": "ok", "service": "provenova", "version": "0.1.0",
                 "deployment": settings.deployment}
 
     @app.on_event("startup")

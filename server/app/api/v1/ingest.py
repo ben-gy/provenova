@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Run, Workspace
+from provenova_core.models import Run, Workspace
 
 from ...db import get_db
 from ...deps import Principal, require_principal

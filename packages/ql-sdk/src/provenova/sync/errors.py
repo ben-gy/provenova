@@ -100,7 +100,7 @@ def raise_for_status(resp: httpx.Response, endpoint: str) -> None:
             "The server rejected the run bundle (422).",
             status=code,
             hint=(detail or "The bundle may be malformed or from an incompatible SDK version. Upgrade "
-                  "`quantumledger` and retry.") ,
+                  "`provenova` and retry.") ,
         )
     if 500 <= code < 600:
         raise SyncError(

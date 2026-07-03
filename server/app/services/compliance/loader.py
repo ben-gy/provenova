@@ -16,7 +16,7 @@ import yaml
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import ComplianceFramework, Control
+from provenova_core.models import ComplianceFramework, Control
 
 # Repo-root ``frameworks/`` directory: this file lives at
 # <repo>/server/app/services/compliance/loader.py -> up 5 parents to <repo>.

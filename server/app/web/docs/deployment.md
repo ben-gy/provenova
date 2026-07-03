@@ -30,7 +30,7 @@ volume — back that file up.
 |----------|---------|
 | `QL_DATABASE_URL` | Connection string. A PostgreSQL URL for hosted, or a SQLite URL for a tiny single-node deployment. |
 | `QL_DEPLOYMENT` | Deployment flavor: `selfhost` or `hosted` (default `hosted`). Shown in the page footer and reported by `/api/v1/health`. |
-| `QL_BASE_URL` | Public base URL (e.g. `https://quantumledger.example.com`). |
+| `QL_BASE_URL` | Public base URL (e.g. `https://provenova.example.com`). |
 | `QL_SECRET_KEY` | Session-cookie secret. **Set a strong value in production.** |
 | `QL_ATTESTATION_KEY_B64` | Base64 of the PKCS8-PEM Ed25519 attestation signing key (generate with `python scripts/gen_attestation_key.py`). This is what the compose stack uses; it must stay stable across redeploys — regenerating it invalidates all previously issued attestations. |
 | `QL_ATTESTATION_KEY_PATH` | Fallback: path to a PEM key file, used only when `QL_ATTESTATION_KEY_B64` is unset (auto-generated on first boot; not durable on ephemeral filesystems). |
@@ -57,7 +57,7 @@ The image builds from `deploy/Dockerfile` (`python:3.12-slim`), installs all pac
 ## Verifying attestations from outside
 
 Consumers verify attestations against the public keys published at
-`/.well-known/quantumledger-jwks.json` — no privileged access needed. See
+`/.well-known/provenova-jwks.json` — no privileged access needed. See
 [Compliance & attestations](/docs/compliance#attestations).
 
 ## Tests

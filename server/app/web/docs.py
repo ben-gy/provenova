@@ -159,7 +159,7 @@ def _h(text: Any) -> str:
 def _gen_frameworks(db) -> tuple[str, str]:
     from sqlalchemy import select
 
-    from quantumledger_core.models import ComplianceFramework, Control
+    from provenova_core.models import ComplianceFramework, Control
 
     from ..services import compliance as comp
 
@@ -272,7 +272,7 @@ _API_META: dict[tuple[str, str], dict] = {
         "curl": "curl {base}/api/v1/attestations/01J.../verify",
         "resp": '{\n  "attestation_id": "01J...",\n  "kid": "ql-att-...",\n  "evidence_root": "9c2a...f0",\n  "valid": true,\n  "checks": { "signature": true, "expired": false, "revoked": false, "tampered": false },\n  "reason": null\n}',
     },
-    ("GET", "/.well-known/quantumledger-jwks.json"): {
+    ("GET", "/.well-known/provenova-jwks.json"): {
         "desc": "Public JWKS for verifying attestation signatures yourself.",
     },
     ("GET", "/api/v1/me"): {
@@ -368,17 +368,17 @@ def _gen_cli() -> tuple[str, str]:
         import typer  # noqa: F401
         from typer.main import get_command
 
-        from quantumledger.cli.__main__ import app as cli_app  # type: ignore
+        from provenova.cli.__main__ import app as cli_app  # type: ignore
 
         group = get_command(cli_app)
         commands = getattr(group, "commands", {})
     except Exception:
-        return ("<p>The <code>ql</code> CLI ships with the <code>quantumledger</code> SDK "
-                "(<code>pip install quantumledger</code>). Install it to see the generated command "
+        return ("<p>The <code>ql</code> CLI ships with the <code>provenova</code> SDK "
+                "(<code>pip install provenova</code>). Install it to see the generated command "
                 "reference here, or run <code>ql --help</code>.</p>", "")
 
     parts = ["<p>The <code>ql</code> command-line tool ships with the open-source "
-             "<code>quantumledger</code> SDK. Generated from the installed CLI.</p>"]
+             "<code>provenova</code> SDK. Generated from the installed CLI.</p>"]
     toc = ['<div class="toc"><ul>']
     for name in sorted(commands):
         cmd = commands[name]

@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     Account,
     ApiKey,
     Org,

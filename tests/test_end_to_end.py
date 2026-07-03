@@ -12,7 +12,7 @@ import tempfile
 import pytest
 from fastapi.testclient import TestClient
 
-import quantumledger as ql
+import provenova as ql
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
@@ -30,7 +30,7 @@ def bundle():
     """Produce a real captured run bundle via the SDK local ledger."""
     home = tempfile.mkdtemp(prefix="ql_sdk_")
     ledger = ql.LocalLedger(f"sqlite:///{home}/ledger.db")
-    from quantumledger.agent import CaptureAgent
+    from provenova.agent import CaptureAgent
 
     agent = CaptureAgent(ledger)
 
@@ -176,7 +176,7 @@ def test_compliance_and_attestation(client, bundle):
     # admin upgrades the org to pro (admin-driven, no payment)
     from app.db import SessionLocal
     from app.services.accounts import grant_plan
-    from quantumledger_core.models import Org
+    from provenova_core.models import Org
     s = SessionLocal()
     grant_plan(s, s.get(Org, org_id), "pro", source="admin_override")
     s.commit(); s.close()

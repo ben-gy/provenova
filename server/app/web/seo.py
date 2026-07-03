@@ -16,7 +16,7 @@ from fastapi.responses import PlainTextResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Report, ResultCard
+from provenova_core.models import Report, ResultCard
 
 from ..config import get_settings
 from ..db import get_db
@@ -64,7 +64,7 @@ def _build_sitemap(db: Session) -> str:
 
     # Hardware device pages + eligible comparison pairs.
     try:
-        from quantumledger_crawler.corpus import comparable_pairs, list_devices
+        from provenova_crawler.corpus import comparable_pairs, list_devices
 
         for d in list_devices(db):
             urls.append((

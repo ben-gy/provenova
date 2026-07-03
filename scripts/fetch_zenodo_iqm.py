@@ -37,13 +37,13 @@ _OPEN_LICENCES = re.compile(r"^(cc-by(-sa)?-\d|cc0-\d|cc-by-4)", re.I)
 
 def _get(url: str) -> dict:
     req = urllib.request.Request(url, headers={"Accept": "application/json",
-                                               "User-Agent": "quantumledger-fetch/1.0"})
+                                               "User-Agent": "provenova-fetch/1.0"})
     with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310 (trusted host)
         return json.loads(resp.read().decode())
 
 
 def _download(url: str) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "quantumledger-fetch/1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "provenova-fetch/1.0"})
     with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
         return resp.read()
 

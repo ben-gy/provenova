@@ -37,16 +37,16 @@ from app.services import cards as cards_svc  # noqa: E402
 from app.services import compliance as comp  # noqa: E402
 from app.services.attestation import create_attestation  # noqa: E402
 
-from quantumledger_core import hashing  # noqa: E402
-from quantumledger_core.immutability import drop_immutability, install_immutability  # noqa: E402
-from quantumledger_core.models import (  # noqa: E402
+from provenova_core import hashing  # noqa: E402
+from provenova_core.immutability import drop_immutability, install_immutability  # noqa: E402
+from provenova_core.models import (  # noqa: E402
     ComplianceFramework,
     Control,
     CorpusSnapshot,
     EvidenceItem,
     Workspace,
 )
-from quantumledger_core.reproduce import runner  # noqa: E402
+from provenova_core.reproduce import runner  # noqa: E402
 
 SIM = {"vendor": "local_sim", "name": "aer_statevector", "kind": "simulator",
        "basis_gates": ["rz", "sx", "x", "cx", "id"], "coupling_map": None}

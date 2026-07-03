@@ -14,8 +14,8 @@ import pytest
 from qiskit import QuantumCircuit
 from sqlalchemy import select
 
-import quantumledger_core as qc
-from quantumledger_core.models import (
+import provenova_core as qc
+from provenova_core.models import (
     ComplianceAlert,
     EvidenceItem,
     ReproductionEvent,
@@ -23,7 +23,7 @@ from quantumledger_core.models import (
     WorkspaceFramework,
     bootstrap_local,
 )
-from quantumledger_core.reproduce import runner
+from provenova_core.reproduce import runner
 
 from app.services import compliance
 from app.services.compliance import loader, rule_engine
@@ -38,7 +38,7 @@ BACKEND_SPEC = {
 
 
 def _fresh_calibration(n_qubits: int, name: str) -> dict:
-    from quantumledger_core.simulate import engine
+    from provenova_core.simulate import engine
 
     cal = engine.default_simulator_calibration(n_qubits, name)
     # Capture "now" so the calibration passes P7131-CAL / metrology freshness.

@@ -93,14 +93,14 @@
     <div class="font-semibold text-slate-700">What this proves</div>
     <p class="mt-1">An {{ term("attestation") }} is an Ed25519 signature over a Merkle root of the compliance
     evidence collected from your runs at a point in time. Anyone can verify it against the issuer's
-    <a href="/.well-known/quantumledger-jwks.json" class="text-indigo-600 hover:underline">public keys</a>
+    <a href="/.well-known/provenova-jwks.json" class="text-indigo-600 hover:underline">public keys</a>
     with no privileged access. If any referenced record is altered after signing, <b>Evidence intact</b>
     fails; if the issuer revokes it, <b>Not revoked</b> fails.</p>
   </div>
 
   <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
     <a href="/api/v1/attestations/{{ att.id }}/verify" target="_blank" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50">Raw JSON</a>
-    <a href="/.well-known/quantumledger-jwks.json" target="_blank" class="text-indigo-600 hover:underline">Public keys (JWKS)</a>
+    <a href="/.well-known/provenova-jwks.json" target="_blank" class="text-indigo-600 hover:underline">Public keys (JWKS)</a>
     <a href="/docs/compliance#attestations" class="text-indigo-600 hover:underline">How verification works</a>
   </div>
 </div>

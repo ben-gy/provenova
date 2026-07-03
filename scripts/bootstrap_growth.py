@@ -23,7 +23,7 @@ from app.db import SessionLocal, engine  # noqa: E402
 from app.security import generate_api_key  # noqa: E402
 from app.services.growth import ensure_research_bot  # noqa: E402
 
-from quantumledger_core.models import ApiKey  # noqa: E402
+from provenova_core.models import ApiKey  # noqa: E402
 
 
 def main() -> None:

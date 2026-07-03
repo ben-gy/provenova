@@ -24,7 +24,7 @@ artifacts, compliance, and the public-corpus crawler.
 packages/ql-core/      Shared core: SQLAlchemy provenance model, canonical hashing +
                        Merkle run-hashing, DB-trigger immutability, the deterministic
                        simulator + drift engine, reproduce/scoring/diff, open qlprov schemas.
-packages/ql-sdk/       Open-source client `quantumledger` (Apache-2.0): the @ql.capture
+packages/ql-sdk/       Open-source client `provenova` (Apache-2.0): the @ql.capture
                        decorator/context-manager, vendor connectors (plugin system),
                        offline local store, `ql` CLI, content-hash-idempotent push.
 packages/ql-crawler/   Public-QPU calibration crawler + aggregate corpus + ToS gate.
@@ -104,7 +104,7 @@ Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment.
   a per-workspace `chain_hash` links runs into a tamper-evident ledger. DB triggers
   reject any UPDATE/DELETE of sealed records.
 - **Offline-verifiable provenance.** The exported `qlprov/run/1.0` document recomputes
-  its own hash with no server (`quantumledger_core.verify_run_hash`).
+  its own hash with no server (`provenova_core.verify_run_hash`).
 - **Content-addressed dedup.** Calibration snapshots, circuits and compilations are
   stored once and referenced many times.
 - **Compliance as a byproduct.** `EvidenceItem` points back into the core record; an

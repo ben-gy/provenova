@@ -13,10 +13,10 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-import quantumledger_core as qc
-from quantumledger_core.models import Run, Workspace, bootstrap_local
-from quantumledger_core.provenance import build_run_doc
-from quantumledger_core.reproduce import runner
+import provenova_core as qc
+from provenova_core.models import Run, Workspace, bootstrap_local
+from provenova_core.provenance import build_run_doc
+from provenova_core.reproduce import runner
 
 from .connectors.base import CaptureBundle
 
@@ -136,7 +136,7 @@ class LocalLedger:
             ws = s.get(Workspace, run.workspace_id)
             new_run, event = runner.reproduce_run(s, run, workspace=ws, days=days, profile=profile)
             s.commit()
-            from quantumledger_core.reproduce.report import build_report
+            from provenova_core.reproduce.report import build_report
 
             report = build_report(run, new_run, event)
             return report

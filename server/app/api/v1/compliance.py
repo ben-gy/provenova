@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     Attestation,
     ComplianceAlert,
     ComplianceFramework,

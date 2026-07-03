@@ -1,6 +1,6 @@
 """End-to-end tests for the public-QPU calibration crawler.
 
-Builds an in-memory DB via ``quantumledger_core.init_db``, replays the committed
+Builds an in-memory DB via ``provenova_core.init_db``, replays the committed
 vendor fixtures through the full ingest pipeline, and asserts:
 
 * corpus snapshots are created for every device across every timepoint,
@@ -18,11 +18,11 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-import quantumledger_core as qc
-from quantumledger_core.models import CorpusSnapshot
+import provenova_core as qc
+from provenova_core.models import CorpusSnapshot
 from sqlalchemy import func, select
 
-from quantumledger_crawler import (
+from provenova_crawler import (
     FixtureSource,
     build_scheduler,
     compliance,
@@ -236,5 +236,5 @@ def test_device_timeseries_is_longitudinal(session, sources):
 def test_build_scheduler_smoke(session, sources):
     # Scheduler must build without starting / making network calls.
     scheduler = build_scheduler(lambda: session, sources, interval_minutes=30)
-    job = scheduler.get_job("quantumledger-crawl")
+    job = scheduler.get_job("provenova-crawl")
     assert job is not None

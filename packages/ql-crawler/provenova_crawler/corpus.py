@@ -3,7 +3,7 @@
 ``ingest_snapshot`` is the heart of the crawler: normalize a vendor-native
 reading, content-hash it, dedup by (provider, backend_id, content_hash), compute
 derived aggregate metrics, apply the ToS gate, and persist a
-:class:`~quantumledger_core.models.CorpusSnapshot`. Because dedup is on the
+:class:`~provenova_core.models.CorpusSnapshot`. Because dedup is on the
 canonical content hash, the corpus only grows when a device's calibration
 actually changes — yielding a compact longitudinal time-series.
 """
@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from quantumledger_core import hashing
-from quantumledger_core.models import CorpusSnapshot
+from provenova_core import hashing
+from provenova_core.models import CorpusSnapshot
 from sqlalchemy import select
 
 from . import compliance

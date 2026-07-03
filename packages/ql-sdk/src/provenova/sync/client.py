@@ -41,7 +41,9 @@ class SyncClient:
                 f"{self.endpoint} responded, but not with Provenova JSON.",
                 hint="The endpoint is probably not a Provenova server. Check `ql config show`.",
             ) from exc
-        if data.get("service") != "quantumledger":
+        # Accept both handshakes so a new SDK syncs with a not-yet-redeployed
+        # server (and vice versa) across the quantumledger -> provenova rename.
+        if data.get("service") not in ("provenova", "quantumledger"):
             raise SyncError(
                 f"{self.endpoint} does not look like a Provenova server.",
                 hint="Point `sync_endpoint` at your Provenova server (`ql config set sync_endpoint <url>`).",

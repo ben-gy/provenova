@@ -10,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     Account,
     ApiKey,
     Attestation,
@@ -25,10 +25,10 @@ from quantumledger_core.models import (
     Workspace,
     WorkspaceFramework,
 )
-from quantumledger_core.reproduce import runner
-from quantumledger_core.reproduce.report import build_report
+from provenova_core.reproduce import runner
+from provenova_core.reproduce.report import build_report
 
-from quantumledger_core.models import PLAN_DISPLAY
+from provenova_core.models import PLAN_DISPLAY
 
 from ..config import get_settings
 from ..db import attestation_key, get_db
@@ -64,7 +64,7 @@ def _card_attribution_ctx(db: Session, card) -> dict:
     Returns {} for ordinary cards. Commentary is rendered with the UNTRUSTED
     markdown sanitizer — it originated from the growth routine, not the repo.
     """
-    from quantumledger_core.models import CardAttribution
+    from provenova_core.models import CardAttribution
 
     from ..services.sanitize import render_untrusted_markdown
 
@@ -181,7 +181,7 @@ def app_plans(request: Request, db: Session = Depends(get_db),
               p: Principal | None = Depends(current_principal)):
     if p is None:
         return RedirectResponse("/login", status_code=303)
-    from quantumledger_core.models import PLAN_ORDER
+    from provenova_core.models import PLAN_ORDER
 
     from ..entitlements import FEATURES, QUOTAS
 
@@ -251,7 +251,7 @@ _PRICING = {
 @router.get("/pricing", response_class=HTMLResponse)
 def pricing(request: Request, p: Principal | None = Depends(current_principal)):
     """Public pricing page — no login required."""
-    from quantumledger_core.models import PLAN_ORDER
+    from provenova_core.models import PLAN_ORDER
 
     from ..entitlements import FEATURES, QUOTAS
 
@@ -491,7 +491,7 @@ def record_detail(run_id: str, request: Request, db: Session = Depends(get_db),
     if p is None:
         return RedirectResponse("/login", status_code=303)
     run = _owned_run(db, run_id, p)
-    from quantumledger_core.provenance import build_run_doc
+    from provenova_core.provenance import build_run_doc
 
     doc = build_run_doc(run)
     ev = db.scalar(select(ReproductionEvent).where(ReproductionEvent.original_run_id == run_id)
@@ -578,7 +578,7 @@ def leaderboard(request: Request, metric: str = "median_2q_error", db: Session =
     metrics = []
     metric_label = metric
     try:
-        from quantumledger_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
+        from provenova_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
 
         metrics = LEADERBOARD_METRICS
         metric_label = next((m["label"] for m in metrics if m["key"] == metric), metric)
