@@ -26,6 +26,24 @@ def create_app() -> FastAPI:
                   docs_url=None, redoc_url=None)
     app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, same_site="lax")
 
+    # Canonical-host 301s: fold the legacy public host + www onto the canonical
+    # host (from QL_BASE_URL). No-op until QL_BASE_URL is the new domain — the
+    # host==canonical guard prevents any redirect loop before the cutover.
+    from urllib.parse import urlparse
+
+    from fastapi.responses import RedirectResponse
+
+    _canonical_host = (urlparse(settings.base_url).hostname or "").lower()
+    _legacy_hosts = {"quantumledger.ben.gy", f"www.{_canonical_host}"}
+
+    @app.middleware("http")
+    async def _canonical_host_redirect(request, call_next):
+        host = (request.headers.get("host") or "").split(":")[0].lower()
+        if _canonical_host and host != _canonical_host and host in _legacy_hosts:
+            target = request.url.replace(scheme="https", netloc=_canonical_host)
+            return RedirectResponse(str(target), status_code=301)
+        return await call_next(request)
+
     from .api.v1 import auth_admin, compliance, growth, ingest, public, runs
     from .web import hardware as web_hardware
     from .web import reports as web_reports
