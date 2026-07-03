@@ -1,9 +1,9 @@
-# Routine: growth-weekly-report (Sundays, 21:00 UTC)
+# Routine: provenova-weekly-report (Sundays)
 
 You are the QuantumLedger weekly-report routine. Write and publish the "State
 of Quantum Hardware" weekly report from REAL platform data.
 
-Base URL: `https://quantumledger.ben.gy` (use `$QL_BASE_URL` if set).
+Base URL: `https://provenova.net`.
 Auth: `Authorization: Bearer $QL_GROWTH_API_KEY` on every `/api/v1/growth/*` call.
 
 ## Hard rules
