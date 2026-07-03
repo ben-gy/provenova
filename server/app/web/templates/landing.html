@@ -3,6 +3,7 @@
 
 {% block content %}
 {% from "_helpers.html" import icon %}
+{% from "_brand.html" import mark %}
 {% if not principal %}
 {# ---------- Marketing (logged-out only) ---------- #}
 
@@ -34,8 +35,12 @@
     <!-- Example result card (illustrative) -->
     <div class="lg:pl-6">
       <div class="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-indigo-100">
+        <div class="mb-3 flex items-center gap-2 border-b border-slate-100 pb-3">
+          <a href="/" class="shrink-0 inline-flex" aria-label="Provenova">{{ mark(22) }}</a>
+          <a href="/" class="text-sm font-semibold text-slate-900 hover:underline">Provenova</a>
+          <span class="ml-auto rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">Result card</span>
+        </div>
         <div class="flex items-center justify-between text-xs text-slate-500">
-          <span class="rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 font-medium text-indigo-700">Result card</span>
           <span>Published 2026-06-02</span>
         </div>
         <div class="mt-3 text-lg font-bold text-slate-900">GHZ-3 on IBM Kyiv — chem benchmark</div>
@@ -52,7 +57,7 @@
         </div>
         <div class="mt-4">
           <div class="mb-1 text-xs text-slate-500">Result distribution</div>
-          <div class="flex h-16 items-end gap-1.5">
+          <div class="flex h-16 gap-1.5">
             {% set bars = [('000', 96), ('001', 8), ('010', 6), ('011', 12), ('100', 7), ('101', 10), ('110', 9), ('111', 88)] %}
             {% for label, h in bars %}
             <div class="flex flex-1 flex-col items-center justify-end">

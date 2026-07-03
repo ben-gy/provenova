@@ -1,9 +1,14 @@
-"""Public, cache-friendly endpoints: badges, cards, citations, leaderboard,
-Trust Center, JWKS, attestation verification, reproduction submission."""
+"""Public, cache-friendly endpoints: badges, cards, citations, embeds,
+oEmbed, leaderboard, Trust Center, JWKS, attestation verification,
+reproduction submission."""
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -27,6 +32,11 @@ from ...services import badges as badge_svc
 from ...services import cards as cards_svc
 
 router = APIRouter(tags=["public"])
+
+# Standalone Jinja env for the embeddable card (a web↔api import of the main
+# templates object would be a cycle; the embed template extends nothing).
+_TEMPLATES_DIR = Path(__file__).resolve().parents[2] / "web" / "templates"
+_embed_templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
 
 
 def _public_card(db: Session, slug: str) -> ResultCard:
@@ -83,6 +93,60 @@ def card_citation(slug: str, format: str = "bibtex", db: Session = Depends(get_d
 def card_embed(slug: str, badge_type: str = "recorded", db: Session = Depends(get_db)):
     card = _public_card(db, slug)
     return cards_svc.embed_snippets(card, get_settings().base_url, badge_type)
+
+
+@router.api_route("/cards/{slug}/embed.html", methods=["GET", "HEAD"])
+def card_embed_html(slug: str, db: Session = Depends(get_db)):
+    """Self-contained, iframe-embeddable Result Card (logo + backlink baked in).
+
+    Explicitly framable by third parties; cached like the badge SVGs with an
+    ETag bound to the card hash so republish/unpublish invalidates caches.
+    """
+    card = _public_card(db, slug)
+    ctx = cards_svc.embed_card_context(card, get_settings().base_url)
+    html = _embed_templates.get_template("embed_card.html").render(**ctx)
+    from quantumledger_core import hashing
+
+    etag = 'W/"' + hashing.sha256_hex({"s": slug, "h": card.card_sha256})[:24] + '"'
+    return Response(
+        content=html,
+        media_type="text/html; charset=utf-8",
+        headers={
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
+            "ETag": etag,
+            "Content-Security-Policy": "frame-ancestors *",
+        },
+    )
+
+
+_CARD_URL_RE = re.compile(r"/cards/([a-z0-9-]+)/?$")
+
+
+@router.get("/api/v1/oembed")
+def oembed(url: str = Query(...), maxwidth: int = 400, maxheight: int = 420,
+           format: str = "json", db: Session = Depends(get_db)):
+    """oEmbed provider for Result Cards (rich type, JSON only)."""
+    if format != "json":
+        raise HTTPException(501, "only json format is supported")
+    m = _CARD_URL_RE.search(url.split("?")[0])
+    if not m:
+        raise HTTPException(404, "not a result card url")
+    card = _public_card(db, m.group(1))
+    base = get_settings().base_url
+    snippets = cards_svc.embed_snippets(card, base)
+    width, height = min(maxwidth, 400), min(maxheight, 420)
+    iframe = snippets["iframe"].replace('width="400"', f'width="{width}"') \
+                               .replace('height="420"', f'height="{height}"')
+    return {
+        "version": "1.0",
+        "type": "rich",
+        "provider_name": "Provenova",
+        "provider_url": base,
+        "title": card.title,
+        "width": width,
+        "height": height,
+        "html": iframe,
+    }
 
 
 @router.post("/api/v1/cards/{slug}/reproductions")

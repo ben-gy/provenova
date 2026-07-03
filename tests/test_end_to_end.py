@@ -114,6 +114,35 @@ def test_full_flow(client, bundle):
     assert page.status_code == 200 and slug in page.text
     assert meta["summary"]["verdict"] in page.text
 
+    # embeddable card: framable, cached, branded, linking back
+    emb = client.get(f"/cards/{slug}/embed.html")
+    assert emb.status_code == 200
+    assert emb.headers["content-type"].startswith("text/html")
+    assert emb.headers["content-security-policy"] == "frame-ancestors *"
+    assert emb.headers["cache-control"].startswith("public, max-age=300")
+    assert emb.headers.get("etag")
+    assert "Provenova" in emb.text and f"/cards/{slug}" in emb.text
+    assert f"/badge/{slug}/recorded.svg" in emb.text
+    assert client.get("/cards/nonexistent/embed.html").status_code == 404
+
+    # embed snippets include the iframe variant
+    snip = client.get(f"/api/v1/cards/{slug}/embed").json()
+    assert "iframe" in snip and f"/cards/{slug}/embed.html" in snip["iframe"]
+
+    # oEmbed: discovery tag on the card page + provider endpoint
+    assert "application/json+oembed" in page.text
+    oe = client.get("/api/v1/oembed", params={"url": f"http://localhost:8000/cards/{slug}"})
+    assert oe.status_code == 200
+    body = oe.json()
+    assert body["type"] == "rich" and "<iframe" in body["html"]
+    assert client.get("/api/v1/oembed", params={"url": "http://localhost:8000/pricing"}).status_code == 404
+
+    # unpublished cards must not be embeddable
+    client.post(f"/api/v1/runs/{run_id}/card/unpublish")
+    assert client.get(f"/cards/{slug}/embed.html").status_code == 404
+    client.post(f"/api/v1/runs/{run_id}/card/publish")
+    assert client.get(f"/cards/{slug}/embed.html").status_code == 200
+
 
 def test_compliance_and_attestation(client, bundle):
     # a fresh workspace-bearing user; upgrade via bootstrap superadmin

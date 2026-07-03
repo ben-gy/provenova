@@ -140,10 +140,31 @@ def citation(card: ResultCard, base_url: str, fmt: str = "bibtex") -> tuple[str,
 
 
 def embed_snippets(card: ResultCard, base_url: str, badge_type: str = "recorded") -> dict:
+    import html as _html
+
     card_url = f"{base_url}/cards/{card.slug}"
     badge_url = f"{base_url}/badge/{card.slug}/{badge_type}.svg"
+    embed_url = f"{base_url}/cards/{card.slug}/embed.html"
+    title = _html.escape(card.title, quote=True)
+    iframe = (
+        f'<iframe src="{embed_url}" width="400" height="420" '
+        f'style="border:0;overflow:hidden" loading="lazy" '
+        f'title="{title} — Provenova"></iframe>'
+    )
     return {
         "markdown": f"[![Provenova: {badge_type}]({badge_url})]({card_url})",
         "html": f'<a href="{card_url}"><img src="{badge_url}" alt="Provenova: {badge_type}"></a>',
         "rst": f".. image:: {badge_url}\n   :target: {card_url}",
+        "iframe": iframe,
+        "embed_url": embed_url,
+    }
+
+
+def embed_card_context(card: ResultCard, base_url: str) -> dict:
+    """Render context for the standalone iframe-embeddable card."""
+    return {
+        "card": card,
+        "base_url": base_url,
+        "card_url": f"{base_url}/cards/{card.slug}",
+        "badge_types": ["recorded", "reproduced", "compliant"],
     }
