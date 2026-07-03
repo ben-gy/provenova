@@ -101,6 +101,14 @@ def _maybe_mint_doi(session: Session, card: ResultCard, *, plan: str,
         card.pid = local_pid(card)
     if provider.scheme != "doi":
         return {"status": "pid_only", "pid": card.pid}
+    # Serialize concurrent publishes of the same card so two requests can't both
+    # pass the doi-None check and register two permanent DOIs. FOR UPDATE locks
+    # the row on Postgres and is a harmless no-op on SQLite (writes serialize).
+    if session is not None:
+        session.execute(select(ResultCard.id).where(ResultCard.id == card.id).with_for_update())
+        session.refresh(card, attribute_names=["doi"])
+        if card.doi:  # another request minted while we waited on the lock
+            return {"status": "exists", "doi": card.doi}
     usage = limits.doi_usage(session, plan, card.workspace_id)
     if usage["at_cap"]:
         return {"status": "quota_exceeded", "pid": card.pid,

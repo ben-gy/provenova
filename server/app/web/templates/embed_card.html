@@ -45,7 +45,7 @@
 <body>
 <div class="pv-card">
   <div class="pv-head">
-    <a href="{{ base_url }}/" target="_blank" rel="noopener" aria-label="Provenova">{{ mark(24) }}</a>
+    <a href="{{ base_url }}/" target="_blank" rel="noopener" aria-label="Provenova">{{ mark(24, 'h') }}</a>
     <a class="pv-brand" href="{{ base_url }}/" target="_blank" rel="noopener">Provenova</a>
     <span class="pv-pill">Result card</span>
   </div>
@@ -59,13 +59,15 @@
   </div>
 
   {% if card.summary %}
+  {% set hf = card.summary.get('hellinger_fidelity') %}
+  {% set vd = card.summary.get('verdict') %}
   <div class="pv-grid">
     {% if card.summary.backend %}
     <div><div class="pv-k">Backend</div><div class="pv-v">{{ card.summary.backend.vendor }} / {{ card.summary.backend.name }}</div></div>
     {% endif %}
     <div><div class="pv-k">Shots</div><div class="pv-v">{{ card.summary.shots | default('—') }}</div></div>
-    <div><div class="pv-k">Hellinger fidelity</div><div class="pv-v">{{ card.summary.hellinger_fidelity | default('—') }}</div></div>
-    <div><div class="pv-k">Verdict</div><div class="pv-v {{ card.summary.verdict | default('') }}">{{ card.summary.verdict | default('—') }}</div></div>
+    <div><div class="pv-k">Hellinger fidelity</div><div class="pv-v">{{ hf if hf is not none else '—' }}</div></div>
+    <div><div class="pv-k">Verdict</div><div class="pv-v {{ vd if vd is not none else '' }}">{{ vd if vd is not none else '—' }}</div></div>
   </div>
   <div class="pv-hash">
     <span class="pv-k">Provenance hash · offline-verifiable</span><br>
@@ -74,7 +76,7 @@
   {% endif %}
 
   <div class="pv-foot">
-    {{ mark(16) }}
+    {{ mark(16, 'f') }}
     <span>Verified on</span>
     <a href="{{ card_url }}" target="_blank" rel="noopener">Provenova →</a>
   </div>

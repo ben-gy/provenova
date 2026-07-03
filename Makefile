@@ -10,10 +10,10 @@ e2e:
 test:
 	PYTHONPATH=server .venv/bin/python -m pytest
 
-# Editable install of every package into .venv.
+# Editable install of every package into .venv (+ the release toolchain).
 install:
 	.venv/bin/python -m pip install -e packages/ql-core -e "packages/ql-sdk[aer]" \
-	  -e packages/ql-crawler -e server
+	  -e packages/ql-crawler -e server build twine
 
 # Build sdists+wheels for the three published packages and twine-check them.
 build:

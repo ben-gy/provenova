@@ -50,6 +50,8 @@ from . import docs as docs_mod  # noqa: E402
 from .glossary import register as _register_glossary  # noqa: E402
 
 _register_glossary(templates)
+# Plan display names available to every template (base.html renders on all pages).
+templates.env.globals["plan_labels"] = PLAN_DISPLAY
 
 
 def render(request: Request, name: str, p: Principal | None = None, **ctx) -> HTMLResponse:

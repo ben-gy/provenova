@@ -11,8 +11,9 @@ check:
      no stray legacy imports, README/LICENSE present per package
   2. python -m build each package into dist/
   3. twine check dist/*
-  4. fresh venv: install from the built wheels (--find-links dist) and run an
-     offline smoke test (capture a Bell run on Aer, ql list, ql --version)
+  4. fresh temp venv (removed after): install the pinned built wheels
+     (--find-links dist), then an offline smoke test — import all three
+     packages, capture a Bell run on Aer, verify its hash offline, boot the ql CLI
 
 publish (runs check first):
   uploads provenova-core, waits for it to appear on the index, then uploads
@@ -61,9 +62,11 @@ def _version_of(pkg_dir: Path) -> str:
 
 def preflight():
     print("== preflight ==")
-    dirty = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT,
-                           capture_output=True, text=True).stdout.strip()
-    if dirty:
+    git = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT,
+                         capture_output=True, text=True)
+    if git.returncode != 0:
+        die(f"git status failed: {git.stderr.strip()}")
+    if git.stdout.strip():
         die("git tree is not clean — commit or stash first")
 
     versions = {p: _version_of(ROOT / p) for p in PACKAGES}
@@ -72,13 +75,15 @@ def preflight():
     print(f"  version lockstep: {next(iter(versions.values()))}")
 
     # No legacy import/install references may survive in the shipped packages.
-    bad = subprocess.run(
-        ["grep", "-rnE",
+    grep = subprocess.run(
+        ["grep", "-rnE", "--include=*.py", "--include=*.toml", "--include=*.md",
          r"^\s*(from|import)\s+quantumledger|pip install .?quantumledger|name = .quantumledger",
          *[str(ROOT / p) for p in PACKAGES]],
-        capture_output=True, text=True).stdout.strip()
-    if bad:
-        die(f"stray legacy references in package sources:\n{bad}")
+        capture_output=True, text=True)
+    if grep.returncode > 1:  # 0 = matches found, 1 = none, >1 = grep error
+        die(f"guard grep failed (rc={grep.returncode}): {grep.stderr.strip()}")
+    if grep.stdout.strip():
+        die(f"stray legacy references in package sources:\n{grep.stdout.strip()}")
 
     for p in PACKAGES:
         for f in ("README.md", "LICENSE", "pyproject.toml"):
@@ -98,40 +103,46 @@ def build():
     run([sys.executable, "-m", "twine", "check", *map(str, DIST.glob("*"))])
 
 
-def smoke():
+def smoke(version):
     print("== venv smoke test (offline, from built wheels) ==")
     tmp = Path(tempfile.mkdtemp(prefix="pv_release_"))
-    venv.create(tmp / "venv", with_pip=True)
-    py = tmp / "venv" / "bin" / "python"
-    run([py, "-m", "pip", "install", "-q", "--find-links", str(DIST),
-         "provenova[aer]", "provenova-crawler"])
-    env = {**os.environ, "QL_HOME": str(tmp / "qlhome")}
-    script = (
-        "import provenova as ql\n"
-        "from provenova_core import verify_run_hash\n"
-        "from qiskit import QuantumCircuit\n"
-        "from qiskit_aer import AerSimulator\n"
-        "import tempfile\n"
-        "ledger = ql.LocalLedger(f'sqlite:///{tempfile.mkdtemp()}/l.db')\n"
-        "from provenova.agent import CaptureAgent\n"
-        "agent = CaptureAgent(ledger)\n"
-        "@ql.capture(project='smoke', agent=agent, shots=256)\n"
-        "def _run():\n"
-        "    qc = QuantumCircuit(2); qc.h(0); qc.cx(0,1); qc.measure_all()\n"
-        "    return AerSimulator().run(qc, shots=256)\n"
-        "_run()\n"
-        "rid = ledger.list_runs(limit=1)[0]['id']\n"
-        "doc = ledger.get_run_doc(rid)\n"
-        "assert verify_run_hash(doc), 'offline hash verification failed'\n"
-        "print('smoke OK:', rid)\n"
-    )
-    run([py, "-c", script], env=env)
-    run([tmp / "venv" / "bin" / "ql", "--help"], env=env,
-        stdout=subprocess.DEVNULL)  # entry point resolves + CLI boots
-    run([py, "-c",
-         "from importlib.metadata import version; print('dist:', version('provenova'))"],
-        env=env)
-    print("  smoke OK")
+    try:
+        venv.create(tmp / "venv", with_pip=True)
+        py = tmp / "venv" / "bin" / "python"
+        # Pin to the just-built version so we validate the wheels in dist/, not
+        # whatever the resolver might find for the bare name on the index.
+        run([py, "-m", "pip", "install", "-q", "--find-links", str(DIST),
+             f"provenova[aer]=={version}", f"provenova-crawler=={version}"])
+        env = {**os.environ, "QL_HOME": str(tmp / "qlhome")}
+        script = (
+            "import provenova as ql\n"
+            "import provenova_crawler  # crawler imports cleanly\n"
+            "from provenova_core import verify_run_hash\n"
+            "from qiskit import QuantumCircuit\n"
+            "from qiskit_aer import AerSimulator\n"
+            "import tempfile\n"
+            "ledger = ql.LocalLedger(f'sqlite:///{tempfile.mkdtemp()}/l.db')\n"
+            "from provenova.agent import CaptureAgent\n"
+            "agent = CaptureAgent(ledger)\n"
+            "@ql.capture(project='smoke', agent=agent, shots=256)\n"
+            "def _run():\n"
+            "    qc = QuantumCircuit(2); qc.h(0); qc.cx(0,1); qc.measure_all()\n"
+            "    return AerSimulator().run(qc, shots=256)\n"
+            "_run()\n"
+            "rid = ledger.list_runs(limit=1)[0]['id']\n"
+            "doc = ledger.get_run_doc(rid)\n"
+            "assert verify_run_hash(doc), 'offline hash verification failed'\n"
+            "print('smoke OK:', rid)\n"
+        )
+        run([py, "-c", script], env=env)
+        run([tmp / "venv" / "bin" / "ql", "--help"], env=env,
+            stdout=subprocess.DEVNULL)  # entry point resolves + CLI boots
+        run([py, "-c",
+             "from importlib.metadata import version; print('dist:', version('provenova'))"],
+            env=env)
+        print("  smoke OK")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)  # ~0.5 GB of qiskit — don't leak it
 
 
 def _on_index(name: str, version: str, test: bool) -> bool:
@@ -150,16 +161,19 @@ def publish(test: bool):
         die(f"{env_var} not set — refuse to publish")
     version = preflight()
     build()
-    smoke()
+    smoke(version)
     print(f"== publish to {'TestPyPI' if test else 'PyPI'} ==")
     env = {**os.environ, "TWINE_USERNAME": "__token__", "TWINE_PASSWORD": token}
     repo_args = ["--repository-url", "https://test.pypi.org/legacy/"] if test else []
     for dist_name in UPLOAD_ORDER:
-        files = [f for f in DIST.glob("*")
-                 if f.name.startswith(dist_name.replace("-", "_") + "-")]
+        prefix = dist_name.replace("-", "_") + "-"
+        files = [f for f in DIST.glob("*") if f.name.startswith(prefix)]
         if not files:
             die(f"no built artifacts for {dist_name}")
-        run([sys.executable, "-m", "twine", "upload", *repo_args, *map(str, files)], env=env)
+        # --skip-existing makes a re-run after a partial failure safe (PyPI
+        # rejects re-uploading an identical filename otherwise).
+        run([sys.executable, "-m", "twine", "upload", "--skip-existing",
+             *repo_args, *map(str, files)], env=env)
         if dist_name == "provenova-core":
             print("  waiting for provenova-core to appear on the index …")
             for _ in range(30):
@@ -178,9 +192,9 @@ def main():
     ap.add_argument("--test-pypi", action="store_true")
     args = ap.parse_args()
     if args.command == "check":
-        preflight()
+        version = preflight()
         build()
-        smoke()
+        smoke(version)
         print("\nrelease check PASSED")
     else:
         publish(test=args.test_pypi)

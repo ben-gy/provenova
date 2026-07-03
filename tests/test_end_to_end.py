@@ -129,17 +129,24 @@ def test_full_flow(client, bundle):
     assert f"/badge/{slug}/recorded.svg" in emb.text
     assert client.get("/cards/nonexistent/embed.html").status_code == 404
 
-    # embed snippets include the iframe variant
+    # embed snippets include the iframe variant; badge_type is constrained
     snip = client.get(f"/api/v1/cards/{slug}/embed").json()
     assert "iframe" in snip and f"/cards/{slug}/embed.html" in snip["iframe"]
+    assert client.get(f"/api/v1/cards/{slug}/embed",
+                      params={"badge_type": '"><script>'}).status_code == 400
 
     # oEmbed: discovery tag on the card page + provider endpoint
+    from app.config import get_settings
+    base = get_settings().base_url
     assert "application/json+oembed" in page.text
-    oe = client.get("/api/v1/oembed", params={"url": f"http://localhost:8000/cards/{slug}"})
+    oe = client.get("/api/v1/oembed", params={"url": f"{base}/cards/{slug}"})
     assert oe.status_code == 200
     body = oe.json()
     assert body["type"] == "rich" and "<iframe" in body["html"]
-    assert client.get("/api/v1/oembed", params={"url": "http://localhost:8000/pricing"}).status_code == 404
+    # a non-card path and a foreign host are both rejected
+    assert client.get("/api/v1/oembed", params={"url": f"{base}/pricing"}).status_code == 404
+    assert client.get("/api/v1/oembed",
+                      params={"url": f"https://evil.example/cards/{slug}"}).status_code == 404
 
     # unpublished cards must not be embeddable
     client.post(f"/api/v1/runs/{run_id}/card/unpublish")

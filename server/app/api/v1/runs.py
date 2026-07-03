@@ -101,6 +101,8 @@ def publish(run_id: str, db: Session = Depends(get_db),
 @router.post("/runs/{run_id}/card/unpublish")
 def unpublish(run_id: str, db: Session = Depends(get_db),
               p: Principal = Depends(require_principal)):
+    if not p.can("publish"):  # mirror publish — retracting a card has side effects
+        raise HTTPException(403, "forbidden")
     run = owned_run(db, run_id, p)
     card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
     if card is None:

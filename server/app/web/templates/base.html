@@ -29,8 +29,7 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased">
   {% from "_brand.html" import mark %}
-  {# Mirrors PLAN_DISPLAY in provenova_core.models.accounts — the internal "pro" key is presented as "Team". #}
-  {% set plan_labels = {'free': 'Free', 'academic': 'Academic', 'pro': 'Team', 'lab': 'Lab', 'enterprise': 'Enterprise'} %}
+  {# plan_labels is a Jinja global from PLAN_DISPLAY (provenova_core.models.accounts) — internal "pro" shows as "Team". #}
   {% set nav_links = [
     ('/', 'Home'),
     ('/app/records', 'Records'),

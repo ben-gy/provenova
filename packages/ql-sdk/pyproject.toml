@@ -39,12 +39,8 @@ aer = ["qiskit-aer>=0.14"]
 qiskit_runtime = ["qiskit-ibm-runtime>=0.20"]
 braket = ["amazon-braket-sdk>=1.70"]
 azure = ["azure-quantum>=1.0"]
-all = [
-    "qiskit-aer>=0.14",
-    "qiskit-ibm-runtime>=0.20",
-    "amazon-braket-sdk>=1.70",
-    "azure-quantum>=1.0",
-]
+# Reference the connector extras so they stay the single source of truth.
+all = ["provenova[aer,qiskit_runtime,braket,azure]"]
 
 [project.scripts]
 ql = "provenova.cli.__main__:main"

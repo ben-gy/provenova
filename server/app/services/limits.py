@@ -47,16 +47,27 @@ def private_run_usage(session: Session, plan: str, workspace_id: str) -> dict:
 
 
 def doi_minted_this_month(session: Session, workspace_id: str) -> int:
-    """Real DOIs minted this calendar month (local PIDs are free/unlimited)."""
+    """Real DOIs minted this calendar month (local PIDs are free/unlimited).
+
+    Counted from the append-only audit trail rather than ``ResultCard`` state:
+    a card's ``published_at`` is nulled on unpublish and reset on republish, so
+    counting cards would let publish/unpublish cycling bypass the cap and would
+    miscount across months. Mint audit rows are immutable, so they can't.
+    """
+    from provenova_core.models import AuditLog
+
     from .doi import month_start
 
-    return session.scalar(
-        select(func.count(ResultCard.id)).where(
-            ResultCard.workspace_id == workspace_id,
-            ResultCard.doi.is_not(None),
-            ResultCard.published_at >= month_start(),
+    rows = session.scalars(
+        select(AuditLog).where(
+            AuditLog.workspace_id == workspace_id,
+            AuditLog.action == "card.doi.mint",
+            AuditLog.created_at >= month_start(),
         )
-    ) or 0
+    ).all()
+    # Filter on the outcome in Python to stay portable across SQLite/Postgres
+    # JSON; volume is tiny (at most a workspace's monthly mints + failures).
+    return sum(1 for r in rows if (r.detail or {}).get("status") == "minted")
 
 
 def doi_usage(session: Session, plan: str, workspace_id: str) -> dict:

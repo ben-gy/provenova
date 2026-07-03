@@ -91,8 +91,9 @@ def seed_workspace(session: Session, workspace: Workspace, *, attest: bool = Tru
                                         account_id=account_id)
     summary["reproduction"] = {"verdict": ev.verdict, "score": ev.reproducibility_score}
 
-    # 3) publish a Result Card for r1 (identifier minted honestly — the local
-    # PID by default, a real DOI when DataCite is configured)
+    # 3) publish a Result Card for r1. The demo always uses the default local
+    # PID minter (no provider passed) — seeding must never register a permanent
+    # DataCite DOI, even where DataCite is configured.
     card = cards_svc.get_or_create_card(session, r1, title="GHZ-3 on IBM Kyiv — chem benchmark")
     card.license = card.license or "CC-BY-4.0"
     cards_svc.publish_card(session, card)

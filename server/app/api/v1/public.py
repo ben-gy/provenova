@@ -89,8 +89,15 @@ def card_citation(slug: str, format: str = "bibtex", db: Session = Depends(get_d
     return Response(content=body, media_type=media)
 
 
+_BADGE_TYPES = {"recorded", "reproduced", "benchmarked", "compliant", "audit-ready"}
+
+
 @router.get("/api/v1/cards/{slug}/embed")
 def card_embed(slug: str, badge_type: str = "recorded", db: Session = Depends(get_db)):
+    # badge_type lands in copy-pasteable snippets; constrain it to the known
+    # ladder so a crafted value can't poison the markup a user pastes elsewhere.
+    if badge_type not in _BADGE_TYPES:
+        raise HTTPException(400, "unknown badge_type")
     card = _public_card(db, slug)
     return cards_svc.embed_snippets(card, get_settings().base_url, badge_type)
 
@@ -112,7 +119,10 @@ def card_embed_html(slug: str, db: Session = Depends(get_db)):
         content=html,
         media_type="text/html; charset=utf-8",
         headers={
-            "Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
+            # No stale-while-revalidate here: the embed reveals card content, so
+            # after an unpublish a shared cache must not keep serving it. (Badge
+            # SVGs keep the long SWR — they only ever show a state, not content.)
+            "Cache-Control": "public, max-age=300, must-revalidate",
             "ETag": etag,
             "Content-Security-Policy": "frame-ancestors *",
         },
@@ -128,13 +138,17 @@ def oembed(url: str = Query(...), maxwidth: int = 400, maxheight: int = 420,
     """oEmbed provider for Result Cards (rich type, JSON only)."""
     if format != "json":
         raise HTTPException(501, "only json format is supported")
-    m = _CARD_URL_RE.search(url.split("?")[0])
+    base = get_settings().base_url
+    # Only embed our own cards — reject foreign hosts outright.
+    clean = url.split("?")[0]
+    if not clean.startswith(base + "/"):
+        raise HTTPException(404, "not a result card url")
+    m = _CARD_URL_RE.search(clean)
     if not m:
         raise HTTPException(404, "not a result card url")
     card = _public_card(db, m.group(1))
-    base = get_settings().base_url
     snippets = cards_svc.embed_snippets(card, base)
-    width, height = min(maxwidth, 400), min(maxheight, 420)
+    width, height = max(180, min(maxwidth, 400)), max(180, min(maxheight, 420))
     iframe = snippets["iframe"].replace('width="400"', f'width="{width}"') \
                                .replace('height="420"', f'height="{height}"')
     return {
