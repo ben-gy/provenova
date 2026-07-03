@@ -126,7 +126,11 @@ def smoke():
         "print('smoke OK:', rid)\n"
     )
     run([py, "-c", script], env=env)
-    run([tmp / "venv" / "bin" / "ql", "--version"], env=env)
+    run([tmp / "venv" / "bin" / "ql", "--help"], env=env,
+        stdout=subprocess.DEVNULL)  # entry point resolves + CLI boots
+    run([py, "-c",
+         "from importlib.metadata import version; print('dist:', version('provenova'))"],
+        env=env)
     print("  smoke OK")
 
 
