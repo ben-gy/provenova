@@ -11,9 +11,11 @@ from quantumledger_core.provenance import build_run_doc
 from quantumledger_core.reproduce import runner
 from quantumledger_core.reproduce.report import build_report
 
+from ...config import get_settings
 from ...db import get_db
 from ...deps import Principal, current_principal, owned_run, require_feature, require_principal
 from ...services import cards as cards_svc
+from ...services import doi as doi_svc
 from ...services.accounts import audit
 
 router = APIRouter(prefix="/api/v1", tags=["runs"])
@@ -81,11 +83,19 @@ def publish(run_id: str, db: Session = Depends(get_db),
         raise HTTPException(403, "forbidden")
     run = owned_run(db, run_id, p)
     card = cards_svc.get_or_create_card(db, run)
-    cards_svc.publish_card(db, card)
+    settings = get_settings()
+    card, mint = cards_svc.publish_card(
+        db, card, plan=p.plan, provider=doi_svc.provider_for(settings),
+        base_url=settings.base_url)
     audit(db, workspace_id=run.workspace_id, account_id=p.account_id, action="card.publish",
           resource_type="card", resource_id=card.id)
+    if mint["status"] in ("minted", "mint_failed", "quota_exceeded"):
+        audit(db, workspace_id=run.workspace_id, account_id=p.account_id,
+              action="card.doi.mint", resource_type="card", resource_id=card.id,
+              detail=mint)
     db.commit()
-    return {"slug": card.slug, "visibility": card.visibility, "pid": card.pid}
+    return {"slug": card.slug, "visibility": card.visibility, "pid": card.pid,
+            "doi": card.doi, "doi_status": mint["status"]}
 
 
 @router.post("/runs/{run_id}/card/unpublish")
@@ -95,7 +105,7 @@ def unpublish(run_id: str, db: Session = Depends(get_db),
     card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
     if card is None:
         raise HTTPException(404, "no card")
-    cards_svc.unpublish_card(db, card)
+    cards_svc.unpublish_card(db, card, provider=doi_svc.provider_for(get_settings()))
     audit(db, workspace_id=run.workspace_id, account_id=p.account_id, action="card.unpublish",
           resource_type="card", resource_id=card.id)
     db.commit()

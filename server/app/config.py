@@ -19,8 +19,18 @@ class Settings(BaseSettings):
     attestation_key_b64: str = ""
     public_cards: bool = True
     admin_email: str = "admin@quantumledger.local"
-    enable_doi: bool = False
     data_dir: str = "./data"
+
+    # DOI minting. "local" (default) mints stable offline PIDs; "datacite"
+    # registers real DOIs (permanent — prefix/repository must stay stable
+    # across redeploys); "off" disables. enable_doi is the legacy toggle:
+    # honored as "datacite" when doi_provider is unset.
+    doi_provider: str = ""  # datacite | local | off ("" -> legacy enable_doi)
+    enable_doi: bool = False
+    datacite_endpoint: str = "https://api.datacite.org"  # test: https://api.test.datacite.org
+    datacite_repository_id: str = ""
+    datacite_password: str = ""
+    datacite_prefix: str = ""  # e.g. "10.82521"
 
     # Growth engine (autonomous content pipeline)
     indexnow_key: str = ""  # serves /<key>.txt + enables IndexNow pings when set

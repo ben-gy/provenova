@@ -75,29 +75,71 @@ def get_or_create_card(session: Session, run: Run, *, title: str | None = None) 
     return card
 
 
-def publish_card(session: Session, card: ResultCard) -> ResultCard:
+def publish_card(session: Session, card: ResultCard, *, plan: str = "free",
+                 provider=None, base_url: str = "") -> tuple[ResultCard, dict]:
     run = session.get(Run, card.run_id)
     card.summary = build_summary(session, run)
     card.card_sha256 = hashing.sha256_hex(card.summary)
     card.visibility = VIS_PUBLIC
     card.published_at = _dt.datetime.now(_dt.timezone.utc)
+    mint_info = _maybe_mint_doi(session, card, plan=plan, provider=provider, base_url=base_url)
     session.flush()
-    return card
+    return card, mint_info
 
 
-def unpublish_card(session: Session, card: ResultCard) -> ResultCard:
+def _maybe_mint_doi(session: Session, card: ResultCard, *, plan: str,
+                    provider, base_url: str) -> dict:
+    """Mint an identifier on first publish. Never blocks publishing:
+    over-quota and provider failures degrade to the free local PID."""
+    from . import limits
+    from .doi import DoiMintError, LocalPidProvider, local_pid
+
+    if card.doi:
+        return {"status": "exists", "doi": card.doi}
+    provider = provider or LocalPidProvider()
+    if not card.pid:
+        card.pid = local_pid(card)
+    if provider.scheme != "doi":
+        return {"status": "pid_only", "pid": card.pid}
+    usage = limits.doi_usage(session, plan, card.workspace_id)
+    if usage["at_cap"]:
+        return {"status": "quota_exceeded", "pid": card.pid,
+                "used": usage["used"], "cap": usage["cap"]}
+    try:
+        result = provider.mint(card, base_url)
+    except DoiMintError as e:
+        return {"status": "mint_failed", "pid": card.pid, "error": str(e)}
+    card.doi = result.identifier
+    return {"status": "minted", "doi": card.doi, "provider": result.provider}
+
+
+def unpublish_card(session: Session, card: ResultCard, *, provider=None) -> ResultCard:
     card.visibility = VIS_PRIVATE
     card.published_at = None
+    # DOIs are permanent — keep card.doi; best-effort de-list the landing URL.
+    if card.doi and provider is not None:
+        provider.hide(card.doi)
     session.flush()
     return card
 
 
 # -- citation export --------------------------------------------------------
 
+def citation_fields(card: ResultCard, base_url: str) -> dict:
+    """Shared citation metadata (BibTeX/CSL/RIS exports + DataCite payload)."""
+    return {
+        "identifier": card.doi or card.pid or f"ql:card:{card.slug}",
+        "url": f"{base_url}/cards/{card.slug}",
+        "year": (card.published_at or _dt.datetime.now(_dt.timezone.utc)).year,
+        "title": card.title,
+        "author": "Provenova contributor",
+        "publisher": "Provenova",
+    }
+
+
 def citation(card: ResultCard, base_url: str, fmt: str = "bibtex") -> tuple[str, str]:
-    ident = card.doi or card.pid or f"ql:card:{card.slug}"
-    url = f"{base_url}/cards/{card.slug}"
-    year = (card.published_at or _dt.datetime.now(_dt.timezone.utc)).year
+    cf = citation_fields(card, base_url)
+    ident, url, year = cf["identifier"], cf["url"], cf["year"]
     key = f"ql_{card.slug.replace('-', '_')}"
     if fmt == "bibtex":
         body = (

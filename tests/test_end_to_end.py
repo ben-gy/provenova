@@ -92,6 +92,10 @@ def test_full_flow(client, bundle):
     pub = client.post(f"/api/v1/runs/{run_id}/card/publish")
     assert pub.status_code == 200, pub.text
     slug = pub.json()["slug"]
+    # default (no DataCite creds): a free local PID, no DOI, publish unblocked
+    assert pub.json()["doi_status"] == "pid_only"
+    assert pub.json()["pid"].startswith("ql:card:")
+    assert pub.json()["doi"] is None
     svg = client.get(f"/badge/{slug}/recorded.svg")
     assert svg.status_code == 200 and svg.headers["content-type"].startswith("image/svg")
     assert "recorded" in svg.text

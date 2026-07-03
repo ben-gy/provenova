@@ -46,6 +46,32 @@ def private_run_usage(session: Session, plan: str, workspace_id: str) -> dict:
     }
 
 
+def doi_minted_this_month(session: Session, workspace_id: str) -> int:
+    """Real DOIs minted this calendar month (local PIDs are free/unlimited)."""
+    from .doi import month_start
+
+    return session.scalar(
+        select(func.count(ResultCard.id)).where(
+            ResultCard.workspace_id == workspace_id,
+            ResultCard.doi.is_not(None),
+            ResultCard.published_at >= month_start(),
+        )
+    ) or 0
+
+
+def doi_usage(session: Session, plan: str, workspace_id: str) -> dict:
+    cap = quota_for(plan, "doi_monthly_cap")
+    used = doi_minted_this_month(session, workspace_id)
+    unlimited = is_unlimited(cap)
+    return {
+        "used": used,
+        "cap": cap,
+        "unlimited": unlimited,
+        "at_cap": (not unlimited) and used >= cap,
+        "pct": 0 if unlimited or cap == 0 else min(100, round(used * 100 / cap)),
+    }
+
+
 def frameworks_enabled_count(session: Session, workspace_id: str) -> int:
     return session.scalar(
         select(func.count(WorkspaceFramework.id)).where(

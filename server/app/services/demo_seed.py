@@ -91,9 +91,9 @@ def seed_workspace(session: Session, workspace: Workspace, *, attest: bool = Tru
                                         account_id=account_id)
     summary["reproduction"] = {"verdict": ev.verdict, "score": ev.reproducibility_score}
 
-    # 3) publish a Result Card for r1
+    # 3) publish a Result Card for r1 (identifier minted honestly — the local
+    # PID by default, a real DOI when DataCite is configured)
     card = cards_svc.get_or_create_card(session, r1, title="GHZ-3 on IBM Kyiv — chem benchmark")
-    card.doi = "10.5281/zenodo.demo1234"
     card.license = card.license or "CC-BY-4.0"
     cards_svc.publish_card(session, card)
     summary["card"] = card.slug

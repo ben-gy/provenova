@@ -38,6 +38,7 @@ from ..security import generate_api_key
 from ..services import accounts as acc_svc
 from ..services import cards as cards_svc
 from ..services import compliance as comp
+from ..services import doi as doi_svc
 from ..services import limits as limits_svc
 from ..services import settings as settings_svc
 from ..services.attestation import create_attestation
@@ -539,9 +540,16 @@ def web_publish(run_id: str, request: Request, db: Session = Depends(get_db),
         return RedirectResponse("/login", status_code=303)
     run = _owned_run(db, run_id, p)
     card = cards_svc.get_or_create_card(db, run)
-    cards_svc.publish_card(db, card)
+    settings = get_settings()
+    card, mint = cards_svc.publish_card(
+        db, card, plan=p.plan, provider=doi_svc.provider_for(settings),
+        base_url=settings.base_url)
     acc_svc.audit(db, workspace_id=run.workspace_id, account_id=p.account_id, action="card.publish",
                   resource_type="card", resource_id=card.id)
+    if mint["status"] in ("minted", "mint_failed", "quota_exceeded"):
+        acc_svc.audit(db, workspace_id=run.workspace_id, account_id=p.account_id,
+                      action="card.doi.mint", resource_type="card", resource_id=card.id,
+                      detail=mint)
     db.commit()
     return RedirectResponse(f"/cards/{card.slug}", status_code=303)
 
