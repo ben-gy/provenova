@@ -143,20 +143,8 @@ def _robust_metrics(payload):
     }
 
 
-def _insert_snapshot(session, *, provider, backend_id, captured_at, content_hash,
-                     snapshot_json, derived_metrics, license_ref, redistributable_raw,
-                     raw_ref=None):
-    exists = session.scalar(select(CorpusSnapshot).where(
-        CorpusSnapshot.provider == provider, CorpusSnapshot.backend_id == backend_id,
-        CorpusSnapshot.content_hash == content_hash))
-    if exists:
-        return False
-    session.add(CorpusSnapshot(
-        provider=provider, backend_id=backend_id, captured_at=captured_at,
-        content_hash=content_hash, snapshot_json=snapshot_json,
-        derived_metrics=derived_metrics, license_ref=license_ref,
-        redistributable_raw=redistributable_raw, raw_ref=raw_ref))
-    return True
+# Single shared corpus upsert path (also used by the server-side Metriq refresh).
+from app.services.metriq import insert_snapshot as _insert_snapshot  # noqa: E402
 
 
 def _load_ibm_raw(session):

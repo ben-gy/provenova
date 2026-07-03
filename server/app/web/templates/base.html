@@ -4,6 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}QuantumLedger{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}QuantumLedger is the vendor-neutral system of record for quantum computing: reproducible runs, verified hardware benchmarks, citable result cards and signed compliance attestations.{% endblock %}">
+  {%- if canonical_path %}
+  <link rel="canonical" href="{{ settings.base_url }}{{ canonical_path }}">
+  {%- endif %}
+  {%- if noindex %}
+  <meta name="robots" content="noindex">
+  {%- endif %}
+  <meta property="og:site_name" content="QuantumLedger">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.meta_description() }}">
+  {%- if canonical_path %}
+  <meta property="og:url" content="{{ settings.base_url }}{{ canonical_path }}">
+  {%- endif %}
+  <meta name="twitter:card" content="summary">
+  <link rel="alternate" type="application/atom+xml" title="QuantumLedger reports & result cards" href="/reports/feed.xml">
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -16,7 +32,8 @@
   {% set nav_links = [
     ('/', 'Home'),
     ('/app/records', 'Records'),
-    ('/leaderboard', 'Hardware'),
+    ('/hardware', 'Hardware'),
+    ('/leaderboard', 'Leaderboard'),
     ('/app/compliance', 'Compliance'),
     ('/trust/quantumledger', 'Trust Center'),
     ('/pricing', 'Pricing'),
@@ -81,8 +98,14 @@
   </main>
 
   <footer class="max-w-6xl mx-auto px-4 py-10 text-xs text-slate-400 border-t border-slate-200 mt-8">
-    QuantumLedger — the vendor-neutral system of record for quantum.
-    {% if settings and settings.deployment %}<span class="ml-2">· {{ settings.deployment }}</span>{% endif %}
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span>QuantumLedger — the vendor-neutral system of record for quantum.</span>
+      <a href="/hardware" class="hover:text-slate-600">Hardware</a>
+      <a href="/reports" class="hover:text-slate-600">Reports</a>
+      <a href="/reports/feed.xml" class="hover:text-slate-600">RSS</a>
+      <a href="/docs" class="hover:text-slate-600">Docs</a>
+      {% if settings and settings.deployment %}<span>· {{ settings.deployment }}</span>{% endif %}
+    </div>
   </footer>
 </body>
 </html>

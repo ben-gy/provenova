@@ -17,6 +17,17 @@
 <svg class="{{ cls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="{{ paths.get(name, '') }}"/></svg>
 {% endmacro %}
 
+{# Provenance badge: colour + label keyed off a corpus snapshot's source. #}
+{% macro source_badge(src, license_ref) %}
+{% set s = (src or '')|lower %}
+{% if s == 'ibm' %}{% set cls, txt = 'bg-emerald-50 text-emerald-700 border-emerald-200', 'IBM · Apache-2.0' %}
+{% elif s == 'metriq' %}{% set cls, txt = 'bg-indigo-50 text-indigo-700 border-indigo-200', 'Metriq · CC-BY-4.0' %}
+{% elif s in ('iqm', 'iqm-zenodo', 'zenodo') %}{% set cls, txt = 'bg-violet-50 text-violet-700 border-violet-200', 'Zenodo · CC-BY' %}
+{% elif s == 'vendor-reported' %}{% set cls, txt = 'bg-amber-50 text-amber-700 border-amber-200', 'Vendor-reported' %}
+{% else %}{% set cls, txt = 'bg-slate-50 text-slate-600 border-slate-200', s or 'unknown' %}{% endif %}
+<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium {{ cls }}" title="{{ license_ref or '' }}">{{ txt }}</span>
+{% endmacro %}
+
 {# A domain term with a CSS-only hover tooltip pulled from the shared glossary. #}
 {% macro term(name, label=None) %}
 <span class="relative inline-block group align-baseline">

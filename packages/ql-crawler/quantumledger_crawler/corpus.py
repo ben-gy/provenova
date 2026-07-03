@@ -158,11 +158,24 @@ def _latest_per_device(session, period: tuple | None = None) -> list[CorpusSnaps
             stmt = stmt.where(CorpusSnapshot.captured_at <= end)
     rows = session.execute(stmt).scalars().all()
 
+    _MIN = _dt.datetime.min.replace(tzinfo=_dt.timezone.utc)
+
+    def _aware(dt):
+        if dt is None:
+            return _MIN
+        return dt if dt.tzinfo else dt.replace(tzinfo=_dt.timezone.utc)
+
+    def _rank(r: CorpusSnapshot):
+        # Deterministic winner on equal capture time: prefer the richer metric
+        # set (so a deadline-truncated/partial row can't shadow a complete one),
+        # then the most-recently-inserted row (ULID ids are time-sortable).
+        return (_aware(r.captured_at), len(r.derived_metrics or {}), r.id or "")
+
     latest: dict[tuple[str, str], CorpusSnapshot] = {}
     for row in rows:
         key = (row.provider, row.backend_id)
         cur = latest.get(key)
-        if cur is None or (row.captured_at or _dt.datetime.min) > (cur.captured_at or _dt.datetime.min):
+        if cur is None or _rank(row) > _rank(cur):
             latest[key] = row
     return list(latest.values())
 
@@ -202,6 +215,58 @@ def fleet_leaderboard(
     for i, e in enumerate(entries, start=1):
         e["rank"] = i
     return entries
+
+
+def list_devices(session) -> list[dict]:
+    """Latest snapshot summary for every (provider, backend_id) — public pages.
+
+    One dict per device: provider, backend_id, captured_at, derived_metrics,
+    source, license_ref, redistributable_raw. Sorted by (provider, backend_id).
+    """
+    out = []
+    for row in _latest_per_device(session):
+        dm = row.derived_metrics or {}
+        out.append(
+            {
+                "provider": row.provider,
+                "backend_id": row.backend_id,
+                "captured_at": row.captured_at.isoformat() if row.captured_at else None,
+                "derived_metrics": dm,
+                "source": dm.get("source") or row.provider,
+                "license_ref": row.license_ref,
+                "redistributable_raw": row.redistributable_raw,
+            }
+        )
+    # Lowercase sort key: pair canonical ordering (compare pages use lowercase
+    # URLs) must agree with this ordering for any letter-case of backend ids.
+    out.sort(key=lambda d: (d["provider"].lower(), d["backend_id"].lower()))
+    return out
+
+
+# Metric keys that count toward compare-page eligibility (from the registry,
+# excluding n_qubits/n_gaps which alone don't make a meaningful comparison).
+_COMPARE_METRICS = {m["key"] for m in LEADERBOARD_METRICS if m["key"] not in {"n_qubits"}}
+MIN_COMPARE_OVERLAP = 2
+
+
+def comparable_pairs(session, min_overlap: int = MIN_COMPARE_OVERLAP) -> list[dict]:
+    """Canonically-ordered device pairs sharing >= min_overlap ranked metrics.
+
+    Powers the /hardware compare pages and the sitemap; pairs below the
+    overlap threshold are never rendered (thin-page guard).
+    """
+    devices = list_devices(session)
+    pairs = []
+    for i, a in enumerate(devices):
+        a_keys = {k for k, v in (a["derived_metrics"] or {}).items()
+                  if k in _COMPARE_METRICS and v is not None}
+        for b in devices[i + 1:]:
+            b_keys = {k for k, v in (b["derived_metrics"] or {}).items()
+                      if k in _COMPARE_METRICS and v is not None}
+            shared = sorted(a_keys & b_keys)
+            if len(shared) >= min_overlap:
+                pairs.append({"a": a, "b": b, "shared_metrics": shared})
+    return pairs
 
 
 def device_timeseries(session, provider: str, backend_id: str) -> list[dict]:

@@ -34,6 +34,14 @@ from .compliance import (
     WorkspaceFramework,
 )
 from .corpus import CorpusSnapshot
+from .growth import (
+    ATTRIBUTION_RELATIONS,
+    REL_INSPIRED_BY,
+    REL_REFERENCES,
+    REPORT_KIND_WEEKLY,
+    CardAttribution,
+    Report,
+)
 from .provenance import (
     IMMUTABLE_TABLES,
     SEALABLE_TABLE,
@@ -139,6 +147,13 @@ __all__ = [
     "AuditLog",
     # corpus
     "CorpusSnapshot",
+    # growth
+    "Report",
+    "CardAttribution",
+    "REPORT_KIND_WEEKLY",
+    "REL_INSPIRED_BY",
+    "REL_REFERENCES",
+    "ATTRIBUTION_RELATIONS",
     # registry
     "SchemaVersion",
     "CheckpointAnchor",

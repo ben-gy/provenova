@@ -35,6 +35,9 @@ class Principal:
     ws_role: str | None = None
     plan: str = "free"
     features: set[str] = field(default_factory=set)
+    # API-key scopes (empty for session/JWT principals). Privileged endpoints
+    # gate on require_scope(); superadmins bypass.
+    scopes: set[str] = field(default_factory=set)
 
     def has(self, feature: str) -> bool:
         return feature in self.features
@@ -44,7 +47,7 @@ class Principal:
                         is_superadmin=self.is_superadmin)
 
 
-def _resolve_from_api_key(db: Session, token: str) -> tuple[Account, Org] | None:
+def _resolve_from_api_key(db: Session, token: str) -> tuple[Account, Org, ApiKey] | None:
     prefix = token[:16]
     keys = db.scalars(select(ApiKey).where(ApiKey.prefix == prefix, ApiKey.revoked.is_(False))).all()
     for k in keys:
@@ -52,12 +55,12 @@ def _resolve_from_api_key(db: Session, token: str) -> tuple[Account, Org] | None
             acc = db.get(Account, k.account_id)
             org = db.get(Org, k.org_id)
             if acc and org:
-                return acc, org
+                return acc, org, k
     return None
 
 
 def _build_principal(db: Session, account: Account, org: Org | None,
-                     workspace_id: str | None) -> Principal:
+                     workspace_id: str | None, scopes: set[str] | None = None) -> Principal:
     org_role = None
     if org is not None:
         m = db.scalar(
@@ -98,6 +101,7 @@ def _build_principal(db: Session, account: Account, org: Org | None,
         ws_role=ws_role,
         plan=plan,
         features=features_for(plan),
+        scopes=scopes or set(),
     )
 
 
@@ -123,8 +127,9 @@ def current_principal(request: Request, db: Session = Depends(get_db)) -> Princi
         if token.startswith("ql_live_"):
             resolved = _resolve_from_api_key(db, token)
             if resolved:
-                acc, org = resolved
-                return _build_principal(db, acc, org, workspace_id)
+                acc, org, key = resolved
+                return _build_principal(db, acc, org, workspace_id,
+                                        scopes=set(key.scopes or []))
         else:
             from .security import decode_access_token
 
@@ -180,5 +185,21 @@ def require_action(action: str):
         if not p.can(action):
             raise HTTPException(status_code=403, detail=f"forbidden: {action}")
         return p
+
+    return _dep
+
+
+def require_scope(scope: str):
+    """Gate an endpoint on an API-key scope (superadmins bypass).
+
+    Session/JWT principals carry no scopes, so scoped endpoints are effectively
+    API-key-only for non-superadmins — the right posture for automation surfaces
+    like the Growth API.
+    """
+
+    def _dep(p: Principal = Depends(require_principal)) -> Principal:
+        if p.is_superadmin or scope in p.scopes:
+            return p
+        raise HTTPException(status_code=403, detail=f"scope required: {scope}")
 
     return _dep

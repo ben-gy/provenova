@@ -84,6 +84,11 @@ for _section in DOCS_MANIFEST:
         _PAGES[_pg["slug"]] = _pg
         _ORDER.append(_pg["slug"])
 
+
+def all_slugs() -> list[str]:
+    """Every docs page slug, in manifest order (used by the sitemap)."""
+    return list(_ORDER)
+
 # --------------------------------------------------------------------------- #
 # Markdown rendering (mtime-cached) + callouts
 # --------------------------------------------------------------------------- #

@@ -1,16 +1,9 @@
 {% extends "base.html" %}
 {% set card_url = settings.base_url + '/cards/' + card.slug %}
 {% block title %}{{ card.title }} — QuantumLedger{% endblock %}
+{% block meta_description %}Citable, offline-verifiable quantum result card on QuantumLedger: {{ card.title }}.{% endblock %}
 {% block head %}
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="{{ card.title }}">
-<meta property="og:description" content="Citable, offline-verifiable quantum result card on QuantumLedger.">
-<meta property="og:url" content="{{ card_url }}">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="{{ card.title }}">
-<meta name="twitter:description" content="Citable, offline-verifiable quantum result card on QuantumLedger.">
 
 <script type="application/ld+json">
 {
@@ -33,6 +26,25 @@
     {% if card.published_at %}<span>Published {{ card.published_at }}</span>{% endif %}
   </div>
   <h1 class="mt-3 text-3xl font-bold text-slate-900">{{ card.title }}</h1>
+
+  {% if attribution %}
+  <!-- Paper attribution: fixed server-rendered framing (honesty banner). -->
+  <div class="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-slate-700">
+    <div class="font-medium text-slate-900">
+      References:
+      <a href="{{ attribution.url }}" rel="noopener" class="text-indigo-700 hover:underline">{{ attribution.title }}</a>
+      {% if attribution.authors %}({{ attribution.authors[:3] | join(', ') }}{% if attribution.authors | length > 3 %} et al.{% endif %}{% if attribution.year %}, {{ attribution.year }}{% endif %}){% endif %}
+      {% if attribution.arxiv_id %}<span class="mono text-xs text-slate-500">arXiv:{{ attribution.arxiv_id }}</span>{% endif %}
+    </div>
+    <p class="mt-1 text-xs leading-relaxed text-slate-600">
+      This card records a <b>deterministic simulator run on QuantumLedger</b> inspired by this paper.
+      It does <b>not</b> reproduce the paper's hardware results, and does not imply any endorsement by its authors.
+    </p>
+    {% if attribution_html %}
+    <div class="prose prose-sm mt-3 max-w-none text-slate-700">{{ attribution_html | safe }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
 
   <!-- Badges -->
   <div class="mt-5 flex flex-wrap items-center gap-2">

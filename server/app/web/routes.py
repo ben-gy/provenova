@@ -57,6 +57,25 @@ def render(request: Request, name: str, p: Principal | None = None, **ctx) -> HT
     return templates.TemplateResponse(request, name, base)
 
 
+def _card_attribution_ctx(db: Session, card) -> dict:
+    """Paper-attribution context for auto-published research cards.
+
+    Returns {} for ordinary cards. Commentary is rendered with the UNTRUSTED
+    markdown sanitizer — it originated from the growth routine, not the repo.
+    """
+    from quantumledger_core.models import CardAttribution
+
+    from ..services.sanitize import render_untrusted_markdown
+
+    attr = db.scalar(select(CardAttribution).where(CardAttribution.card_id == card.id))
+    if attr is None:
+        return {}
+    return {
+        "attribution": attr,
+        "attribution_html": render_untrusted_markdown(attr.commentary_md) if attr.commentary_md else None,
+    }
+
+
 @router.get("/", response_class=HTMLResponse)
 def landing(request: Request, db: Session = Depends(get_db),
             p: Principal | None = Depends(current_principal)):
@@ -84,7 +103,7 @@ def landing(request: Request, db: Session = Depends(get_db),
     activation = _activation_state(db, p) if p else None
     usage = limits_svc.private_run_usage(db, p.plan, p.workspace_id) if p else None
     return render(request, "landing.html", p, recent=recent, stats=stats, activation=activation,
-                  usage=usage)
+                  usage=usage, canonical_path="/")
 
 
 def _activation_state(db: Session, p: Principal) -> dict:
@@ -234,7 +253,7 @@ def pricing(request: Request, p: Principal | None = Depends(current_principal)):
 
     from ..entitlements import FEATURES, QUOTAS
 
-    return render(request, "pricing.html", p, plan_order=PLAN_ORDER, features=FEATURES,
+    return render(request, "pricing.html", p, canonical_path="/pricing", plan_order=PLAN_ORDER, features=FEATURES,
                   quotas=QUOTAS, feature_labels=_FEATURE_LABELS, plan_blurbs=_PLAN_BLURBS,
                   pricing=_PRICING, current=(p.plan if p else None), plan_display=PLAN_DISPLAY)
 
@@ -537,7 +556,8 @@ def public_card(slug: str, request: Request, db: Session = Depends(get_db),
         raise HTTPException(404, "card not found")
     run = db.get(Run, card.run_id)
     embed = cards_svc.embed_snippets(card, get_settings().base_url)
-    return render(request, "card.html", p, card=card, run=run, embed=embed)
+    return render(request, "card.html", p, card=card, run=run, embed=embed,
+                  canonical_path=f"/cards/{card.slug}", **_card_attribution_ctx(db, card))
 
 
 # -- leaderboard ------------------------------------------------------------
@@ -557,7 +577,7 @@ def leaderboard(request: Request, metric: str = "median_2q_error", db: Session =
     except Exception:
         entries = []
     return render(request, "leaderboard.html", p, entries=entries, metric=metric,
-                  metrics=metrics, metric_label=metric_label)
+                  metrics=metrics, metric_label=metric_label, canonical_path="/leaderboard")
 
 
 # -- docs -------------------------------------------------------------------
@@ -565,7 +585,7 @@ def leaderboard(request: Request, metric: str = "median_2q_error", db: Session =
 @router.get("/docs", response_class=HTMLResponse)
 def docs_index(request: Request, p: Principal | None = Depends(current_principal)):
     return render(request, "docs.html", p, home=docs_mod.home_context(),
-                  manifest=docs_mod.DOCS_MANIFEST, active_slug=None)
+                  manifest=docs_mod.DOCS_MANIFEST, active_slug=None, canonical_path="/docs")
 
 
 @router.get("/docs/{slug}", response_class=HTMLResponse)
@@ -575,7 +595,8 @@ def docs_page(slug: str, request: Request, db: Session = Depends(get_db),
     if doc is None:
         raise HTTPException(404, "unknown docs page")
     return render(request, "docs.html", p, doc=doc,
-                  manifest=docs_mod.DOCS_MANIFEST, active_slug=slug)
+                  manifest=docs_mod.DOCS_MANIFEST, active_slug=slug,
+                  canonical_path=f"/docs/{slug}")
 
 
 # -- compliance console -----------------------------------------------------
@@ -776,7 +797,8 @@ def trust_center(org_slug: str, request: Request, db: Session = Depends(get_db),
             frameworks.append({"name": fw.name if fw else "?", "status": wf.status})
         attestations = db.scalars(select(Attestation).where(
             Attestation.workspace_id.in_(ws_ids), Attestation.revoked.is_(False))).all()
-    return render(request, "trust.html", p, org=org, frameworks=frameworks, attestations=attestations)
+    return render(request, "trust.html", p, org=org, frameworks=frameworks, attestations=attestations,
+                  canonical_path=f"/trust/{org_slug}")
 
 
 # -- admin ------------------------------------------------------------------

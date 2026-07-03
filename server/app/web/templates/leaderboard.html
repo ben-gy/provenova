@@ -1,17 +1,7 @@
 {% extends "base.html" %}
-{% from "_helpers.html" import page_intro, term %}
+{% from "_helpers.html" import page_intro, term, source_badge %}
 {% block title %}State of Quantum Hardware — QuantumLedger{% endblock %}
-
-{# Provenance badge: colour + label keyed off the snapshot's source. #}
-{% macro source_badge(src, license_ref) %}
-{% set s = (src or '')|lower %}
-{% if s == 'ibm' %}{% set cls, txt = 'bg-emerald-50 text-emerald-700 border-emerald-200', 'IBM · Apache-2.0' %}
-{% elif s == 'metriq' %}{% set cls, txt = 'bg-indigo-50 text-indigo-700 border-indigo-200', 'Metriq · CC-BY-4.0' %}
-{% elif s in ('iqm', 'iqm-zenodo', 'zenodo') %}{% set cls, txt = 'bg-violet-50 text-violet-700 border-violet-200', 'Zenodo · CC-BY' %}
-{% elif s == 'vendor-reported' %}{% set cls, txt = 'bg-amber-50 text-amber-700 border-amber-200', 'Vendor-reported' %}
-{% else %}{% set cls, txt = 'bg-slate-50 text-slate-600 border-slate-200', s or 'unknown' %}{% endif %}
-<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium {{ cls }}" title="{{ license_ref or '' }}">{{ txt }}</span>
-{% endmacro %}
+{% block meta_description %}Live cross-vendor quantum hardware leaderboard: 2-qubit fidelity, EPLG, CLOPS, T1/T2 and benchmark rankings across IBM, IonQ, Quantinuum, IQM, Rigetti and Origin — every row labelled by source and licence.{% endblock %}
 
 {% block content %}
 {% set lb_desc %}A cross-vendor ranking of quantum devices, built from the {{ term("public corpus") }} of {{ term("calibration snapshot") }}s and openly-licensed benchmarks. Switch the ranking metric below. Rows are labelled by source & licence — <b>vendor-reported</b> rows are manufacturer claims, not independently reproduced here.{% endset %}
@@ -43,7 +33,7 @@
       <tr class="hover:bg-slate-50">
         <td class="px-4 py-2 font-semibold text-slate-900">#{{ e.rank }}</td>
         <td class="px-4 py-2 capitalize">{{ e.provider }}</td>
-        <td class="px-4 py-2 mono text-slate-600">{{ e.backend_id }}</td>
+        <td class="px-4 py-2 mono"><a href="/hardware/{{ e.provider | lower }}/{{ e.backend_id | lower }}" class="text-indigo-600 hover:underline">{{ e.backend_id }}</a></td>
         <td class="px-4 py-2 font-medium">{{ e.value | round(4) if e.value is number else e.value }}</td>
         <td class="px-4 py-2">{{ source_badge(e.source, e.license_ref) }}</td>
         <td class="px-4 py-2 text-slate-500">{{ e.captured_at[:10] if e.captured_at else '—' }}</td>
