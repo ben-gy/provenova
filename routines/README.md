@@ -3,6 +3,9 @@
 The autonomous content pipeline that scans new quantum-computing research and publishes
 faithful, attributed reproduction cards + a weekly report to [provenova.net](https://provenova.net).
 
+> **Setting this up on a new computer?** See **[HANDOFF.md](HANDOFF.md)** — a self-contained
+> guide with the ready-to-paste routine prompts for the Claude-subscription path.
+
 There are **two ways to run it** — pick one (don't run both, or you double the work; the
 server's idempotency + daily caps keep it safe either way):
 
