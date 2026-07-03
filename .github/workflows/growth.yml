@@ -1,0 +1,55 @@
+name: growth
+
+# Autonomous Provenova content pipeline. Runs headlessly on GitHub's runners —
+# no server, no always-on machine. Times are UTC (GitHub cron is always UTC).
+#   research-cards: Mon/Wed/Fri 21:00 UTC   weekly-report: Sun 22:00 UTC
+# Use "Run workflow" (workflow_dispatch) to trigger a run manually / test.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   PROVENOVA_GROWTH_KEY  — the ql_live_… key with the `growth` scope
+#   ANTHROPIC_API_KEY     — an Anthropic API key (billed to your account)
+
+on:
+  schedule:
+    - cron: "0 21 * * 1,3,5"   # research-cards
+    - cron: "0 22 * * 0"       # weekly-report
+  workflow_dispatch:
+    inputs:
+      command:
+        description: Which task to run
+        required: true
+        default: research-cards
+        type: choice
+        options: [research-cards, weekly-report, status]
+
+concurrency:
+  group: provenova-growth
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r scripts/requirements-agent.txt
+      - name: Select command
+        id: cmd
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.command }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 22 * * 0" ]; then
+            echo "value=weekly-report" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=research-cards" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run growth agent
+        env:
+          PROVENOVA_GROWTH_KEY: ${{ secrets.PROVENOVA_GROWTH_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROVENOVA_BASE_URL: https://provenova.net
+        run: python scripts/growth_agent.py "${{ steps.cmd.outputs.value }}"
