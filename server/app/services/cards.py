@@ -32,6 +32,11 @@ def build_summary(session: Session, run: Run) -> dict:
             ReproductionEvent.original_run_id == run.id, ReproductionEvent.status == "verified"
         )
     )
+    hellinger = None
+    if repro:
+        scores = (repro.diff or {}).get("scores") or {}
+        hf = scores.get("hellinger_fidelity", repro.reproducibility_score)
+        hellinger = round(hf, 3) if hf is not None else None
     return {
         "backend": {"vendor": run.backend.vendor, "name": run.backend.name, "kind": run.backend.kind},
         "calibration_captured_at": run.calibration.captured_at.isoformat() if run.calibration.captured_at else None,
@@ -40,6 +45,8 @@ def build_summary(session: Session, run: Run) -> dict:
         "distribution": res.distribution if res else {},
         "run_hash": run.run_hash,
         "reproducibility_score": repro.reproducibility_score if repro else None,
+        "hellinger_fidelity": hellinger,
+        "verdict": repro.verdict if repro else None,
         "reproductions": session.scalar(
             select(ReproductionEvent).where(ReproductionEvent.original_run_id == run.id)
         )

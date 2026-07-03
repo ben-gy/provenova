@@ -104,9 +104,15 @@ def test_full_flow(client, bundle):
     bib = client.get(f"/api/v1/cards/{slug}/citation?format=bibtex")
     assert bib.status_code == 200 and "@misc" in bib.text
 
-    # public card page renders
+    # card summary surfaces Hellinger fidelity + verdict (reproduction ran above)
+    meta = client.get(f"/api/v1/cards/{slug}").json()
+    assert isinstance(meta["summary"]["hellinger_fidelity"], float)
+    assert meta["summary"]["verdict"] in ("reproducible", "drifted", "divergent", "irreproducible")
+
+    # public card page renders, including the verdict
     page = client.get(f"/cards/{slug}")
     assert page.status_code == 200 and slug in page.text
+    assert meta["summary"]["verdict"] in page.text
 
 
 def test_compliance_and_attestation(client, bundle):
