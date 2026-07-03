@@ -124,7 +124,7 @@
         {% endfor %}
       </tr>
       <tr class="bg-slate-50/60">
-        <td class="px-4 py-2 font-medium text-slate-600">DOIs / mo <span class="text-[10px] font-normal text-slate-400">(roadmap)</span></td>
+        <td class="px-4 py-2 font-medium text-slate-600">DOIs / mo</td>
         {% for pl in plan_order %}
         <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('doi_monthly_cap')) }}</td>
         {% endfor %}

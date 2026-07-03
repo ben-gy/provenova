@@ -48,7 +48,7 @@ redistribution policies, deduplicates, and ingests it into the public corpus. Sh
 
 ## `quantumledger-server` — the hosted platform
 
-**Install:** `pip install quantumledger-server` (or use the docker-compose in `deploy/`) ·
+**Install:** clone the repo and use the docker-compose in `deploy/` (not distributed on PyPI) ·
 **License:** BUSL-1.1 (source-available) · **Package dir:** `server`
 
 The FastAPI application: ingestion + read API, the server-rendered web UI, Result Cards + badge service, the
@@ -61,7 +61,7 @@ See [Deployment & self-hosting](/docs/deployment) and the [API reference](/docs/
 |------|---------|
 | Record & reproduce locally | `quantumledger[aer]` (pulls in `quantumledger-core`) |
 | Contribute to / crawl the corpus | `quantumledger-crawler` |
-| Run your own server | `quantumledger-server` + core, or the `deploy/` docker-compose |
+| Run your own server | clone the repo → `deploy/` docker-compose |
 | Just verify a shared `qlprov` document | `quantumledger-core` |
 
 Next: [CLI reference](/docs/cli).

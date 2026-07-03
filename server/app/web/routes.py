@@ -210,7 +210,7 @@ _FEATURE_LABELS = {
 
 _PLAN_BLURBS = {
     "free": "Everything you need to capture, reproduce, benchmark & publish — private by default.",
-    "academic": "Free for verified academic domains — unlimited private records & signed FAIR attestations.",
+    "academic": "Free for verified academic domains — unlimited private records & signed attestations.",
     "pro": "For teams — compliance frameworks, continuous monitoring & signed attestations.",
     "lab": "For labs — SSO, a public Trust Center & a self-hostable signing service.",
     "enterprise": "Everything, plus data residency, custom controls & an SLA.",
@@ -227,10 +227,11 @@ _PRICING = {
              "cta": ("Get started", "/register"), "highlight": False},
     "academic": {"price": "$0", "cadence": "for verified academia", "tagline": "Free for .edu / .ac.* domains",
                  "highlights": ["Everything in Free", "Unlimited private records",
-                                "Signed FAIR attestations", "15 seats"],
+                                "Signed attestations (all frameworks)", "15 seats"],
                  "cta": ("Sign up with your academic email", "/register"), "highlight": False},
     "pro": {"price": "$199", "cadence": "per month · $1,990/yr", "tagline": "For research teams",
-            "highlights": ["Everything in Academic", "All compliance frameworks", "Signed attestations",
+            "highlights": ["Everything in Free", "Unlimited private records",
+                           "Up to 10 concurrent compliance frameworks", "Signed attestations",
                            "Continuous monitoring & alerts", "10 seats"],
             "cta": ("Request access", _CONTACT + "?subject=Provenova%20Team"),
             "highlight": True},

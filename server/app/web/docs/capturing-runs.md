@@ -11,7 +11,8 @@ SDK, works offline, and needs no account.
 Pick whichever fits your code:
 
 - **Decorator** — wrap the function that submits the job. Cleanest for scripts.
-- **Context manager** — wrap just the submission block when you can't decorate.
+- **Context manager** — wrap the submission block when you can't decorate; bind it with `as run` and
+  pass what you ran to `run.record(...)`.
 - **CLI** — run an existing callable under capture without editing its source.
 
 When the wrapped code returns, the SDK intercepts the circuit, backend, calibration and result and writes an
@@ -31,8 +32,13 @@ import quantumledger as ql
 
 @ql.capture(project="my-experiment")
 def run():
+    circuit = build_circuit()  # construct (or assign) the circuit inside the function
     return backend.run(circuit, shots=4096)
 ```
+
+The decorator discovers the circuit by inspecting the wrapped function's local variables at return —
+construct the circuit (or assign it to a local) inside the function. The backend may live outside; it
+is recovered from the returned job.
 
 </div>
 <div data-lang="Context manager" markdown="1">
@@ -40,8 +46,9 @@ def run():
 ```python
 import quantumledger as ql
 
-with ql.capture(project="my-experiment"):
-    result = backend.run(circuit, shots=4096)
+with ql.capture(project="my-experiment") as run:
+    job = backend.run(circuit, shots=4096)
+    run.record(circuit=circuit, backend=backend, job=job)
 ```
 
 </div>

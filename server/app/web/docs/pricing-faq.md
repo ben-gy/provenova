@@ -6,12 +6,15 @@ Straight answers to the questions we get most about tiers, caps and what's free.
 
 The whole core loop, forever, at no cost:
 
-- **Capture, reproduce and benchmark** runs — including the **Compare vs. the fleet** action that
-  lights the **Benchmarked** badge. No upgrade is required to earn any badge rung on your own runs.
+- **Capture, reproduce and benchmark** runs — including the **Benchmark vs fleet** action that
+  lights the **Benchmarked** badge. Every rung up to **Compliant** is earnable on Free; the top
+  **Audit-ready** rung needs a signed attestation, included from Academic (free for verified
+  academic domains) and up.
 - **Unlimited public result cards and badges** — publishing is never capped.
 - **250 private records** — private by default, capped by *volume*, not by privacy.
 - **A FAIR compliance checklist** — enable the FAIR framework, evaluate it and watch your completion
-  percentage. (Issuing a *signed* attestation is a paid feature — see below.)
+  percentage. (Issuing a *signed* attestation requires the Academic plan — free for verified
+  academic domains — or a paid tier; see below.)
 - **Full `qlprov` export** — the open, portable provenance format is never gated, on any tier.
 
 ## What happens when I hit the 250 private-record cap?
@@ -24,15 +27,15 @@ Nothing is deleted, ever. When a workspace reaches its private-record cap:
 - To capture *new private* records beyond the cap, publish some existing ones or move to a plan with
   an unlimited private cap (Academic and up).
 
-A usage meter ("187 / 250 private records") is shown on your dashboard and records page so there are
-no surprises.
+A usage meter ("187 / 250 private records") is shown on your dashboard so there are no surprises.
 
 ## Is fleet comparison really free?
 
-Yes. **Compare vs. the fleet** is available on Free. It scores a run by the Hellinger fidelity of its
-measured distribution against the noiseless ideal for the same circuit, ranks it within your
-workspace benchmark, and records the `BenchmarkEntry` that earns the **Benchmarked** badge. The badge
-ladder is fully reachable on Free for your own runs.
+Yes. Fleet comparison — the **Benchmark vs fleet** button on a record — is available on Free. It
+scores a run by the Hellinger fidelity of its measured distribution against the noiseless ideal for
+the same circuit, ranks it within your workspace benchmark, and records the `BenchmarkEntry` that
+earns the **Benchmarked** badge. Every rung up to **Compliant** is reachable on Free;
+**Audit-ready** additionally needs a signed attestation (Academic and up).
 
 ## Compliance — what's free vs. paid?
 
@@ -44,15 +47,17 @@ ladder is fully reachable on Free for your own runs.
 
 ## Do you issue DOIs?
 
-Every record already gets a **free, citable internal PID** on every tier — that never costs anything.
-Minting external **DOIs via Zenodo is on the roadmap** and will be metered per month; the caps shown
-on the pricing matrix are indicative for that future feature and don't affect the always-free PID.
+Every published result card already gets a **free, citable internal PID** on every tier — that never
+costs anything. External **DOIs are minted via DataCite** when the server is configured with
+DataCite credentials, metered per month (Free: 5/month; unlimited on Academic and paid tiers).
+Hitting the cap never blocks publishing — the card simply keeps its always-free PID.
 
 ## Can I self-host?
 
-A free **community single-node** deployment is on the roadmap. The **Lab** tier adds the hosted
-**attestation signing service** and a hosted **Trust Center** on top of self-hosting, which is what
-most labs actually need for auditable, signed artifacts.
+Yes — clone the repo and use the docker-compose in `deploy/`; a single-node SQLite deployment works
+out of the box. See [Deployment & self-hosting](/docs/deployment). The **Lab** tier adds a
+**self-hostable attestation signing service**, SSO/SAML and a public **Trust Center** on top of
+self-hosting, which is what most labs actually need for auditable, signed artifacts.
 
 ## How does academic verification work?
 

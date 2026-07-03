@@ -29,6 +29,8 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased">
   {% from "_brand.html" import mark %}
+  {# Mirrors PLAN_DISPLAY in quantumledger_core.models.accounts — the internal "pro" key is presented as "Team". #}
+  {% set plan_labels = {'free': 'Free', 'academic': 'Academic', 'pro': 'Team', 'lab': 'Lab', 'enterprise': 'Enterprise'} %}
   {% set nav_links = [
     ('/', 'Home'),
     ('/app/records', 'Records'),
@@ -57,7 +59,7 @@
         {% if principal %}
           <a href="/app/settings" class="max-w-[14rem] truncate text-slate-600 hover:text-slate-900" title="Account settings">{{ principal.email }}</a>
           {% if principal.plan %}
-          <a href="/app/plans" title="View plans & what they unlock" class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium capitalize hover:bg-indigo-100">{{ principal.plan }}</a>
+          <a href="/app/plans" title="View plans & what they unlock" class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium hover:bg-indigo-100">{{ plan_labels.get(principal.plan, principal.plan|capitalize) }}</a>
           {% endif %}
           <form method="post" action="/logout" class="inline">
             <button type="submit" class="text-slate-500 hover:text-slate-900">Logout</button>
@@ -83,7 +85,7 @@
         {% endif %}
         <div class="my-1 border-t border-slate-100"></div>
         {% if principal %}
-          <a href="/app/settings" class="truncate rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ principal.email }}{% if principal.plan %} · <span class="capitalize">{{ principal.plan }}</span>{% endif %}</a>
+          <a href="/app/settings" class="truncate rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ principal.email }}{% if principal.plan %} · <span>{{ plan_labels.get(principal.plan, principal.plan|capitalize) }}</span>{% endif %}</a>
           <form method="post" action="/logout"><button type="submit" class="w-full rounded px-2 py-2 text-left text-slate-600 hover:bg-slate-100">Logout</button></form>
         {% else %}
           <a href="/login" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">Login</a>

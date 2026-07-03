@@ -1,4 +1,4 @@
-.PHONY: e2e test install
+.PHONY: e2e test install build release-check publish
 
 # Full mock end-to-end test: installs packages, starts the server on a throwaway
 # DB, and drives every layer (SDK/CLI, API, reproduce, cards, compliance,
@@ -14,3 +14,13 @@ test:
 install:
 	.venv/bin/python -m pip install -e packages/ql-core -e "packages/ql-sdk[aer]" \
 	  -e packages/ql-crawler -e server
+
+# Build sdists+wheels for the three published packages and twine-check them.
+build:
+	.venv/bin/python scripts/release.py check
+
+release-check: build
+
+# Upload to PyPI. Refuses without PYPI_API_TOKEN; runs the full check first.
+publish:
+	.venv/bin/python scripts/release.py publish

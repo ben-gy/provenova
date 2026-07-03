@@ -28,8 +28,8 @@ The corpus is genuinely multi-vendor and every row is labelled by **source and l
 provenance is transparent:
 
 - **IBM** — real device calibration snapshots from Qiskit's `fake_provider` (**Apache-2.0**).
-- **Metriq** — community benchmark submissions (Algorithmic Qubits, CLOPS, Quantum Volume, 2Q
-  fidelity) from [metriq.info](https://metriq.info), **CC-BY-4.0**.
+- **Metriq** — community benchmark submissions (EPLG, CLOPS, BSEQ, QFT accuracy, QAOA
+  approximation ratio) from [metriq.info](https://metriq.info), **CC-BY-4.0**.
 - **Zenodo** — a ready slot for openly-licensed raw calibration datasets, loaded only when a
   record's licence is verified **CC-BY / CC0** (none published for the tracked devices yet; IQM
   hardware currently appears via the Metriq and vendor-reported rows).
@@ -47,7 +47,8 @@ metrics (median two-qubit gate error, T1 / T2 coherence, best 2Q fidelity) it al
 cross-vendor benchmark metrics where published:
 
 - **Algorithmic qubits (#AQ)**, **Quantum Volume**, **CLOPS** (higher is better),
-- **2-qubit gate fidelity** (higher is better), **EPLG** (error per layered gate — lower is better).
+- **2-qubit gate fidelity** (higher is better), **EPLG** (error per layered gate — lower is better),
+- **BSEQ** (Bell-state effective qubits), **QFT accuracy**, **QAOA approximation ratio** (all higher is better).
 
 Devices that don't report the selected metric are dropped from that ranking, and each remaining row
 carries its **source / licence** badge.

@@ -11,11 +11,10 @@ From a run at `/app/records/<run_id>`, use **Publish** to create a Result Card. 
 - a **title** and summary,
 - the run's **provenance** (backend, calibration, `run_hash`),
 - the **result distribution**,
-- **visibility** — `private`, `org`, or `public`,
+- **visibility** — `private` or `public`,
 - an optional **DOI** (or other persistent identifier) and license.
 
-Cards can be unpublished (retracted) later. On a self-hosted install you can disable public cards entirely
-(`QL_PUBLIC_CARDS=false`) for a VPC/air-gapped deployment, keeping cards and badges internal.
+Cards can be unpublished (retracted) later.
 
 ## Citing a result
 
@@ -26,8 +25,8 @@ The card page and API offer ready-made citations:
 - `GET /api/v1/cards/<slug>` — machine-readable metadata (JSON).
 - `GET /api/v1/cards/<slug>/embed` — an embeddable HTML snippet.
 
-Minting a DOI/PID for a card is also what satisfies several FAIR compliance controls — see
-[Compliance](/docs/compliance).
+Minting a DOI/PID for a card is also what satisfies the FAIR persistent-identifier control
+(FAIR-F1) — see [Compliance](/docs/compliance).
 
 ## Badges
 
@@ -42,16 +41,18 @@ Badges reflect a result's maturity as a ladder — each rung is a stronger claim
 
 1. **Recorded** — the run is in the ledger with full provenance.
 2. **Reproduced** — it has been re-run and scored.
-3. **Benchmarked** — compared across backends/vendors via **Compare vs. the fleet**.
+3. **Benchmarked** — scored against the noiseless ideal and ranked within your workspace via
+   **Benchmark vs fleet**.
 4. **Compliant** — it satisfies an enabled compliance framework.
 5. **Audit-ready** — backed by a signed attestation.
 
 Rungs 1–3 are reachable on the **Free** plan for your own runs — capture, reproduce, then hit
-**Compare vs. the fleet** on the record page to record a benchmark entry and light the
+**Benchmark vs fleet** on the record page to record a benchmark entry and light the
 **Benchmarked** badge, no upgrade required. Rung 4 needs an enabled framework and rung 5 needs a
 signed attestation (a paid feature — see the [pricing FAQ](/docs/pricing-faq)).
 
 External parties can even submit their own reproductions of a public card
-(`POST /api/v1/cards/<slug>/reproductions`), feeding independent verification into the leaderboard.
+(`POST /api/v1/cards/<slug>/reproductions`) — independent verification that upgrades the card's
+**Reproduced** badge.
 
 Next: [Compliance & attestations](/docs/compliance).
