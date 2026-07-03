@@ -1,4 +1,4 @@
-"""End-to-end assertions across every moving part of QuantumLedger.
+"""End-to-end assertions across every moving part of Provenova.
 
 Runs after the server is up (see run.sh). Exercises, with real data:
   A. offline SDK/CLI        (ql init/demo/list/show/reproduce/connectors/config)

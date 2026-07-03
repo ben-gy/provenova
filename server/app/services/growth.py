@@ -125,13 +125,13 @@ def ensure_research_bot(session: Session) -> tuple[Account, Org, Workspace]:
     """
     acc = session.scalar(select(Account).where(Account.email == BOT_EMAIL))
     if acc is None:
-        acc = Account(email=BOT_EMAIL, display_name="QuantumLedger Research Bot",
+        acc = Account(email=BOT_EMAIL, display_name="Provenova Research Bot",
                       password_hash=None, email_verified=True, is_superadmin=False)
         session.add(acc)
         session.flush()
     org = session.scalar(select(Org).where(Org.slug == BOT_ORG_SLUG))
     if org is None:
-        org = Org(name="QuantumLedger Research", slug=BOT_ORG_SLUG, plan="free")
+        org = Org(name="Provenova Research", slug=BOT_ORG_SLUG, plan="free")
         session.add(org)
         session.flush()
         grant_plan(session, org, PLAN_LAB, source="internal", granted_by=acc.id)

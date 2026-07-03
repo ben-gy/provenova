@@ -67,7 +67,7 @@ def reports_feed(db: Session = Depends(get_db)):
     ns = "http://www.w3.org/2005/Atom"
     ET.register_namespace("", ns)
     feed = ET.Element(f"{{{ns}}}feed")
-    ET.SubElement(feed, f"{{{ns}}}title").text = "QuantumLedger — reports & result cards"
+    ET.SubElement(feed, f"{{{ns}}}title").text = "Provenova — reports & result cards"
     ET.SubElement(feed, f"{{{ns}}}id").text = f"{base}/reports/feed.xml"
     link = ET.SubElement(feed, f"{{{ns}}}link")
     link.set("href", f"{base}/reports/feed.xml")
@@ -77,7 +77,7 @@ def reports_feed(db: Session = Depends(get_db)):
     updated = entries[0]["updated"] if entries else _dt.datetime.now(_dt.timezone.utc)
     ET.SubElement(feed, f"{{{ns}}}updated").text = _iso(updated)
     author = ET.SubElement(feed, f"{{{ns}}}author")
-    ET.SubElement(author, f"{{{ns}}}name").text = "QuantumLedger"
+    ET.SubElement(author, f"{{{ns}}}name").text = "Provenova"
 
     for e in entries:
         entry = ET.SubElement(feed, f"{{{ns}}}entry")

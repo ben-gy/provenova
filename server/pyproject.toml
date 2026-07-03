@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "quantumledger-server"
 version = "0.1.0"
-description = "QuantumLedger hosted server: ingestion + read API, web app, engines, compliance."
+description = "Provenova hosted server: ingestion + read API, web app, engines, compliance."
 requires-python = ">=3.10"
 license = { text = "BUSL-1.1" }
 dependencies = [

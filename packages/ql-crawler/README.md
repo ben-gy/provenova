@@ -1,6 +1,6 @@
 # quantumledger-crawler
 
-Public-QPU calibration crawler for QuantumLedger.
+Public-QPU calibration crawler for Provenova.
 
 Collects vendor-native calibration data (IBM `BackendProperties`, IonQ
 characterization, Amazon Braket device properties), normalizes it into the open

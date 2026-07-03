@@ -1,20 +1,20 @@
-# What is QuantumLedger?
+# What is Provenova?
 
-**QuantumLedger is the vendor-neutral system of record for quantum computing.**
+**Provenova is the vendor-neutral system of record for quantum computing.**
 
 A quantum result is only meaningful alongside the exact hardware state that produced it. Devices drift
 hour to hour, transpilers change circuits, and every vendor reports calibration differently — so a raw
-bitstring histogram, on its own, is not reproducible, comparable, or auditable. QuantumLedger binds every
+bitstring histogram, on its own, is not reproducible, comparable, or auditable. Provenova binds every
 run to the circuit, backend, and **calibration snapshot** that produced it, into one immutable,
 hash-chained record. That record is the "source of truth" that mature software has in every other
 data-intensive field, applied to the noisy, drifting world of quantum.
 
 > If you can't say *which device state* produced a result, you can't reproduce it, cite it, or attest to it.
-> QuantumLedger makes that state a first-class, tamper-evident part of every result.
+> Provenova makes that state a first-class, tamper-evident part of every result.
 
 ## The six pillars
 
-QuantumLedger is one product with six connected areas. Each has its own guide:
+Provenova is one product with six connected areas. Each has its own guide:
 
 1. **Capture** — a one-line `@ql.capture` decorator records your job locally, with no account required.
    → [Capturing runs](/docs/capturing-runs)
@@ -35,7 +35,7 @@ QuantumLedger is one product with six connected areas. Each has its own guide:
 your quantum job
    │  @ql.capture                         (open-source SDK, runs anywhere)
    ▼
-local ledger (SQLite, offline)  ──ql push──►  hosted QuantumLedger
+local ledger (SQLite, offline)  ──ql push──►  hosted Provenova
    │                                              │
    │ ql reproduce                                 ├─ Records + provenance
    ▼                                              ├─ Reproduce engine
@@ -44,7 +44,7 @@ local ledger (SQLite, offline)  ──ql push──►  hosted QuantumLedger
                                                   └─ Public corpus + leaderboard
 ```
 
-You can use QuantumLedger entirely offline (capture, list, reproduce), or push your runs to a hosted or
+You can use Provenova entirely offline (capture, list, reproduce), or push your runs to a hosted or
 self-hosted server to publish cards, run compliance, and compare across the public corpus.
 
 ## Open core
@@ -53,7 +53,7 @@ The client SDK, vendor connectors, provenance schema, and the public Result Card
 **Apache-2.0**. The hosted server (reproduce engine, analytics, compliance rule engine, governance) is
 source-available under **BUSL-1.1**. See [Libraries & downloads](/docs/libraries).
 
-## What QuantumLedger is *not*
+## What Provenova is *not*
 
 It is not quantum hardware or control electronics, not a circuit IDE or scheduler, not an error-mitigation
 product, and not a general MLOps platform. It is **not an accredited auditor** — it produces the evidence

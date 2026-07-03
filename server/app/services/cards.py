@@ -96,9 +96,9 @@ def citation(card: ResultCard, base_url: str, fmt: str = "bibtex") -> tuple[str,
         body = (
             f"@misc{{{key},\n"
             f"  title = {{{card.title}}},\n"
-            f"  author = {{QuantumLedger contributor}},\n"
+            f"  author = {{Provenova contributor}},\n"
             f"  year = {{{year}}},\n"
-            f"  howpublished = {{QuantumLedger Result Card}},\n"
+            f"  howpublished = {{Provenova Result Card}},\n"
             f"  note = {{provenance-hash: {(card.summary or {}).get('run_hash','')}}},\n"
             f"  doi = {{{card.doi or ''}}},\n"
             f"  url = {{{url}}}\n}}\n"
@@ -113,9 +113,9 @@ def citation(card: ResultCard, base_url: str, fmt: str = "bibtex") -> tuple[str,
             "title": card.title,
             "DOI": card.doi,
             "URL": url,
-            "publisher": "QuantumLedger",
+            "publisher": "Provenova",
             "issued": {"date-parts": [[year]]},
-            "author": [{"literal": "QuantumLedger contributor"}],
+            "author": [{"literal": "Provenova contributor"}],
         }
         return json.dumps(obj, indent=2), "application/vnd.citationstyles.csl+json"
     if fmt == "ris":
@@ -123,7 +123,7 @@ def citation(card: ResultCard, base_url: str, fmt: str = "bibtex") -> tuple[str,
             "TY  - DATA\n"
             f"TI  - {card.title}\n"
             f"PY  - {year}\n"
-            f"PB  - QuantumLedger\n"
+            f"PB  - Provenova\n"
             f"UR  - {url}\n"
             + (f"DO  - {card.doi}\n" if card.doi else "")
             + "ER  - \n"
@@ -136,7 +136,7 @@ def embed_snippets(card: ResultCard, base_url: str, badge_type: str = "recorded"
     card_url = f"{base_url}/cards/{card.slug}"
     badge_url = f"{base_url}/badge/{card.slug}/{badge_type}.svg"
     return {
-        "markdown": f"[![QuantumLedger: {badge_type}]({badge_url})]({card_url})",
-        "html": f'<a href="{card_url}"><img src="{badge_url}" alt="QuantumLedger: {badge_type}"></a>',
+        "markdown": f"[![Provenova: {badge_type}]({badge_url})]({card_url})",
+        "html": f'<a href="{card_url}"><img src="{badge_url}" alt="Provenova: {badge_type}"></a>',
         "rst": f".. image:: {badge_url}\n   :target: {card_url}",
     }

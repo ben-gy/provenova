@@ -1,4 +1,4 @@
-"""QuantumLedger public-QPU calibration crawler.
+"""Provenova public-QPU calibration crawler.
 
 Pipeline (see the PRD §E7 "public corpus" epic)::
 

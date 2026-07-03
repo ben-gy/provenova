@@ -1,6 +1,6 @@
 # Libraries & downloads
 
-QuantumLedger ships as four Python packages. The client side is open source (Apache-2.0); the hosted server
+Provenova ships as four Python packages. The client side is open source (Apache-2.0); the hosted server
 is source-available (BUSL-1.1). You only need the pieces relevant to what you're doing.
 
 ## `quantumledger` — the SDK & CLI

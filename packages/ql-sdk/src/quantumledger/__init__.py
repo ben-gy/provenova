@@ -1,4 +1,4 @@
-"""QuantumLedger open-source client.
+"""Provenova open-source client.
 
     import quantumledger as ql
 

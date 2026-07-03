@@ -28,7 +28,7 @@ def utcnow() -> _dt.datetime:
 
 
 class Base(DeclarativeBase):
-    """Shared declarative base for every QuantumLedger table.
+    """Shared declarative base for every Provenova table.
 
     ``list``/``dict`` annotations map to the generic :class:`~sqlalchemy.JSON`
     type (JSONB on Postgres, JSON-in-TEXT on SQLite) so one model set runs on

@@ -1,4 +1,4 @@
-"""QuantumLedger FastAPI application."""
+"""Provenova FastAPI application."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ def create_app() -> FastAPI:
     # Disable FastAPI's built-in Swagger UI / ReDoc so /docs and /redoc are free
     # for our own, human-friendly documentation site. (OpenAPI JSON stays at
     # /openapi.json for tooling.)
-    app = FastAPI(title="QuantumLedger", version="0.1.0",
+    app = FastAPI(title="Provenova", version="0.1.0",
                   description="The vendor-neutral system of record for quantum.",
                   docs_url=None, redoc_url=None)
     app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, same_site="lax")

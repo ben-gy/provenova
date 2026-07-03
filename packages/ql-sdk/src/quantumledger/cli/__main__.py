@@ -15,7 +15,7 @@ from ..config import default_home, load_config, save_config
 from ..registry import extra_for, registry
 from ..store import LocalLedger
 
-app = typer.Typer(add_completion=False, help="QuantumLedger client — capture, reproduce, publish.")
+app = typer.Typer(add_completion=False, help="Provenova client — capture, reproduce, publish.")
 console = Console()
 
 
@@ -29,7 +29,7 @@ def init():
     cfg = load_config()
     LocalLedger(cfg.db_url)  # init_db
     save_config(cfg)
-    console.print(f"[green]Initialized[/] QuantumLedger at [bold]{default_home()}[/]")
+    console.print(f"[green]Initialized[/] Provenova at [bold]{default_home()}[/]")
     console.print(f"  store: {cfg.store_path}")
 
 
@@ -219,7 +219,7 @@ def doctor():
     try:
         try:
             h = client.health()
-            console.print(f"[green]✓[/] server reachable — QuantumLedger v{h.get('version', '?')} "
+            console.print(f"[green]✓[/] server reachable — Provenova v{h.get('version', '?')} "
                           f"({h.get('deployment', '?')})")
             try:
                 from importlib.metadata import version

@@ -65,7 +65,7 @@ PAPER = {"title": "Entanglement distribution over long distances with Bell pairs
          "authors": ["A. Researcher", "B. Scientist"], "year": 2026,
          "arxiv_id": "2606.01234", "url": "https://arxiv.org/abs/2606.01234"}
 
-COMMENT = ("This card records a deterministic Bell-pair run on the QuantumLedger "
+COMMENT = ("This card records a deterministic Bell-pair run on the Provenova "
            "simulator, inspired by the referenced paper's study of entanglement "
            "distribution. The run below is our own execution; it does not reproduce "
            "the paper's hardware results.")
@@ -125,7 +125,7 @@ def test_research_card_happy_path(client, growth_key):
     # public card page renders with the fixed honesty banner + arXiv link
     page = client.get(f"/cards/{item['slug']}")
     assert page.status_code == 200
-    assert "deterministic simulator run on QuantumLedger" in page.text
+    assert "deterministic simulator run on Provenova" in page.text
     assert "arXiv:2606.01234" in page.text
     assert "does <b>not</b> reproduce" in page.text
 

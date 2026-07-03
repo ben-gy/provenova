@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}QuantumLedger — the vendor-neutral system of record for quantum{% endblock %}
+{% block title %}Provenova — the vendor-neutral system of record for quantum{% endblock %}
 
 {% block content %}
 {% from "_helpers.html" import icon %}
@@ -213,7 +213,7 @@ def run():
   <div class="flex flex-wrap items-start justify-between gap-3">
     <div>
       <h2 class="text-base font-semibold text-slate-900">Get started</h2>
-      <p class="mt-0.5 text-sm text-slate-500">{{ activation.done }} of {{ activation.total }} steps done — finish setup to see QuantumLedger work end-to-end.</p>
+      <p class="mt-0.5 text-sm text-slate-500">{{ activation.done }} of {{ activation.total }} steps done — finish setup to see Provenova work end-to-end.</p>
     </div>
     {% if activation.workspace_empty %}
     <form method="post" action="/app/demo-seed">

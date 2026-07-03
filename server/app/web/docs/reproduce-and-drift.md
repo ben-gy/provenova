@@ -1,6 +1,6 @@
 # Reproduce & drift
 
-Reproduction is QuantumLedger's "aha": take a run you recorded, re-run its exact circuit against a device
+Reproduction is Provenova's "aha": take a run you recorded, re-run its exact circuit against a device
 state that has **drifted** over time, and measure how much the result changed — with a single score and a
 plain-language verdict.
 

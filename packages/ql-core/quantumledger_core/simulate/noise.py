@@ -1,4 +1,4 @@
-"""Build a Qiskit-Aer NoiseModel from a QuantumLedger calibration snapshot.
+"""Build a Qiskit-Aer NoiseModel from a Provenova calibration snapshot.
 
 Only used on the optional Aer execution path. The pure-Python engine applies its
 own (simpler) calibration-driven noise directly. Either way, the calibration

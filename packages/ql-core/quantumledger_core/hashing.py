@@ -1,6 +1,6 @@
 """Canonical JSON hashing + Merkle run-hashing.
 
-Everything hashed in QuantumLedger passes through :func:`canonical_bytes` so that
+Everything hashed in Provenova passes through :func:`canonical_bytes` so that
 SQLite and PostgreSQL — and any external verifier — produce byte-identical input
 to SHA-256. This is what makes the ``run_hash`` reproducible and the exported
 ``qlprov/run/1.0`` document verifiable offline.

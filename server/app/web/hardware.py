@@ -97,7 +97,7 @@ def _meta_description(d: dict) -> str:
     parts = ", ".join(bits) if bits else "calibration & benchmark provenance"
     return (f"{provider_display(d['provider'])} {d['backend_id']}: {parts}"
             f"{f' (captured {when})' if when else ''}. Trends, provenance and citations "
-            f"on QuantumLedger.")[:300]
+            f"on Provenova.")[:300]
 
 
 @router.get("/hardware", response_class=HTMLResponse)
@@ -152,10 +152,10 @@ def hardware_device(provider: str, backend_id: str, request: Request,
     desc = _meta_description(d)
     today = _dt.date.today().isoformat()
     bibtex = (
-        f"@misc{{quantumledger_{d['provider']}_{d['backend_id'].replace('-', '_').replace(' ', '_')},\n"
+        f"@misc{{provenova_{d['provider']}_{d['backend_id'].replace('-', '_').replace(' ', '_')},\n"
         f"  title        = {{{provider_display(d['provider'])} {d['backend_id']} — calibration & benchmark history}},\n"
         f"  howpublished = {{\\url{{{{BASE}}/hardware/{d['provider'].lower()}/{d['backend_id'].lower()}}}}},\n"
-        f"  publisher    = {{QuantumLedger}},\n"
+        f"  publisher    = {{Provenova}},\n"
         f"  note         = {{accessed {today}}}\n"
         f"}}"
     )
@@ -209,7 +209,7 @@ def hardware_compare(pa: str, ba: str, pb: str, bb: str, request: Request,
     stale = _is_stale(a["captured_at"]) or _is_stale(b["captured_at"])
     desc = (f"{provider_display(a['provider'])} {a['backend_id']} vs {provider_display(b['provider'])} "
             f"{b['backend_id']}: {', '.join(r['label'] for r in rows[:4])} compared side by side "
-            f"with source & licence provenance on QuantumLedger.")[:300]
+            f"with source & licence provenance on Provenova.")[:300]
     return render(request, "hardware_compare.html", p, a=a, b=b, rows=rows,
                   pname_a=provider_display(a["provider"]), pname_b=provider_display(b["provider"]),
                   meta_description=desc, noindex=stale,

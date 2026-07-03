@@ -1,4 +1,4 @@
-"""QuantumLedger client sync package."""
+"""Provenova client sync package."""
 from .client import SyncClient
 from .errors import SyncError
 from .pusher import Pusher

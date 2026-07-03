@@ -1,6 +1,6 @@
 # Datasets
 
-Real, openly-licensed data used to populate QuantumLedger — no fabricated numbers.
+Real, openly-licensed data used to populate Provenova — no fabricated numbers.
 
 ## `ibm/` — IBM Quantum device calibration snapshots
 

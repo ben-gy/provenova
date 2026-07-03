@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://quantumledger.io/schemas/qlprov/run/1.0",
-  "title": "QuantumLedger Run Provenance Record",
+  "title": "Provenova Run Provenance Record",
   "type": "object",
   "required": [
     "schema", "run_id", "run_hash", "workspace", "created_at",

@@ -58,7 +58,7 @@ def new_secret() -> str:
 
 
 def provisioning_uri(secret: str, email: str) -> str:
-    return pyotp.TOTP(secret).provisioning_uri(name=email, issuer_name="QuantumLedger")
+    return pyotp.TOTP(secret).provisioning_uri(name=email, issuer_name="Provenova")
 
 
 def qr_svg(uri: str) -> str:

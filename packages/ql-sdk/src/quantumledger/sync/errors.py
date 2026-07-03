@@ -54,7 +54,7 @@ def explain_transport_error(exc: Exception, endpoint: str) -> SyncError:
                 hint="The hostname looks wrong or unreachable. Check the endpoint with `ql config show` / `ql config set sync_endpoint <url>`.",
             )
         return SyncError(
-            f"Could not reach the QuantumLedger server at {endpoint} (connection refused).",
+            f"Could not reach the Provenova server at {endpoint} (connection refused).",
             hint="Is the server running and the endpoint correct? Check `ql config show`, then `ql doctor`.",
         )
     # generic fallback for other httpx transport issues
@@ -91,9 +91,9 @@ def raise_for_status(resp: httpx.Response, endpoint: str) -> None:
     if code == 404:
         # Don't echo the (often HTML) body — it's just noise for a wrong URL.
         raise SyncError(
-            f"{endpoint} returned 404 for the QuantumLedger API.",
+            f"{endpoint} returned 404 for the Provenova API.",
             status=code,
-            hint="This may not be a QuantumLedger server, or the endpoint is wrong. Check `ql config show`.",
+            hint="This may not be a Provenova server, or the endpoint is wrong. Check `ql config show`.",
         )
     if code == 422:
         raise SyncError(

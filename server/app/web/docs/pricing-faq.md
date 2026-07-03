@@ -59,7 +59,7 @@ most labs actually need for auditable, signed artifacts.
 Sign up with an email at a recognised academic domain — `.edu`, `.ac.<country>` (e.g. `.ac.uk`),
 `.edu.<country>` (e.g. `.edu.au`), and common `uni-*`/`univ-*` institution domains worldwide — and
 your workspace is automatically granted the **Academic** plan (free) once your email is verified. If
-your institution isn't recognised, [email us](mailto:hi@ben.gy?subject=QuantumLedger%20academic%20verification)
+your institution isn't recognised, [email us](mailto:hi@ben.gy?subject=Provenova%20academic%20verification)
 and we'll add it.
 
 ## How do I pay / upgrade?
@@ -67,4 +67,4 @@ and we'll add it.
 Paid tiers are **provisioned by our team** — there's no self-serve checkout. Pick a tier on the
 [pricing page](/pricing), hit **Request access**, and we'll enable it on your workspace (invoicing is
 handled off-platform). Prices are indicative; for volume, academic or air-gapped terms just
-[talk to us](mailto:hi@ben.gy?subject=QuantumLedger%20pricing).
+[talk to us](mailto:hi@ben.gy?subject=Provenova%20pricing).

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full mock end-to-end test for QuantumLedger.
+# Full mock end-to-end test for Provenova.
 #
 # Installs the libraries, stands up the server against a throwaway database on a
 # free port, seeds a walkable dataset, then drives every layer (SDK/CLI, ingest
@@ -19,7 +19,7 @@ VENV="$REPO/.venv"
 PY="$VENV/bin/python"
 
 echo "==================================================================="
-echo " QuantumLedger — full end-to-end test"
+echo " Provenova — full end-to-end test"
 echo "==================================================================="
 
 # 1) venv + editable install of every package -------------------------------

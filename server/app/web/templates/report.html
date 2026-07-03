@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ report.title }} — QuantumLedger{% endblock %}
+{% block title %}{{ report.title }} — Provenova{% endblock %}
 {% block meta_description %}{{ report.meta_description }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block head %}
@@ -11,8 +11,8 @@
   "description": {{ report.meta_description | tojson }},
   "datePublished": {{ (report.published_at.isoformat() if report.published_at else '') | tojson }},
   "dateModified": {{ ((report.published_at or report.created_at).isoformat() if (report.published_at or report.created_at) else '') | tojson }},
-  "author": {"@type": "Organization", "name": "QuantumLedger"},
-  "publisher": {"@type": "Organization", "name": "QuantumLedger"},
+  "author": {"@type": "Organization", "name": "Provenova"},
+  "publisher": {"@type": "Organization", "name": "Provenova"},
   "mainEntityOfPage": {{ (settings.base_url ~ canonical_path) | tojson }}
 }
 </script>

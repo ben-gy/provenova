@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "quantumledger-crawler"
 version = "0.1.0"
-description = "QuantumLedger public-QPU calibration crawler: fixture/live sources, vendor normalization, ToS-gated corpus ingestion, scheduling."
+description = "Provenova public-QPU calibration crawler: fixture/live sources, vendor normalization, ToS-gated corpus ingestion, scheduling."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
-authors = [{ name = "QuantumLedger" }]
+authors = [{ name = "Provenova" }]
 dependencies = [
     "quantumledger-core",
     "SQLAlchemy>=2.0,<2.1",

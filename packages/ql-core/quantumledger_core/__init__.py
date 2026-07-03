@@ -1,4 +1,4 @@
-"""QuantumLedger core: provenance data model, canonical hashing, open schemas."""
+"""Provenova core: provenance data model, canonical hashing, open schemas."""
 
 from __future__ import annotations
 

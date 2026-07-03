@@ -8,7 +8,7 @@ metrics and strips per-qubit / per-gate raw detail.
 
 These entries encode a conservative reading of each vendor's public ToS as of
 2024 and are the single place to update if terms change. They are policy
-metadata for QuantumLedger's own corpus governance, not legal advice.
+metadata for Provenova's own corpus governance, not legal advice.
 """
 
 from __future__ import annotations

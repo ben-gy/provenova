@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://quantumledger.io/schemas/qlprov/calibration/1.0",
-  "title": "QuantumLedger Calibration Snapshot",
+  "title": "Provenova Calibration Snapshot",
   "type": "object",
   "required": ["schema", "backend", "captured_at"],
   "properties": {

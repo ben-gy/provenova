@@ -24,7 +24,7 @@ DOCS_DIR = Path(__file__).resolve().parent / "docs"
 # ``layout: "split"`` renders the page in the two-pane (prose + code rail) shell.
 DOCS_MANIFEST: list[dict] = [
     {"title": "Introduction", "pages": [
-        {"slug": "overview", "title": "What is QuantumLedger?", "source": "file:overview.md"},
+        {"slug": "overview", "title": "What is Provenova?", "source": "file:overview.md"},
         {"slug": "getting-started", "title": "Getting started", "source": "file:getting-started.md",
          "layout": "split"},
     ]},
@@ -168,7 +168,7 @@ def _gen_frameworks(db) -> tuple[str, str]:
         return ("<p>No frameworks are loaded. They are read from <code>frameworks/*.yaml</code> "
                 "at server startup.</p>", "")
 
-    parts = ["<p>The compliance standards QuantumLedger ships with, generated live from the definitions "
+    parts = ["<p>The compliance standards Provenova ships with, generated live from the definitions "
              "currently loaded. Each control lists what the standard requires, the automated checks used "
              "as evidence, and how to remediate a gap.</p>"]
     toc = ['<div class="toc"><ul>']
@@ -326,7 +326,7 @@ def _gen_api(request) -> tuple[str, str]:
             groups.setdefault(group, []).append((m, path, fallback))
 
     intro = (
-        "<p>The QuantumLedger REST API. All responses are JSON. Authenticate with an API key as a bearer "
+        "<p>The Provenova REST API. All responses are JSON. Authenticate with an API key as a bearer "
         "token — create one under <a href=\"/app/settings\">Settings → API keys</a>:</p>"
         f'<div class="code-block"><div class="code-block__bar"><span class="code-block__lang">Shell</span></div>'
         f'<pre><code class="language-bash">export QL_TOKEN=ql_live_...\n'

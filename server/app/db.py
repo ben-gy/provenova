@@ -105,7 +105,7 @@ def bootstrap(session: Session) -> None:
             session.flush()
         org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
         if org is None:
-            org = Org(name="QuantumLedger", slug="quantumledger", plan=PLAN_ENTERPRISE)
+            org = Org(name="Provenova", slug="quantumledger", plan=PLAN_ENTERPRISE)
             session.add(org)
             session.flush()
             session.add(OrgMembership(account_id=admin.id, org_id=org.id, role="owner"))

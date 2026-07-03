@@ -1,9 +1,9 @@
 # Open schemas (qlprov)
 
-QuantumLedger's provenance format is an **open, versioned standard** called `qlprov`, not a proprietary
+Provenova's provenance format is an **open, versioned standard** called `qlprov`, not a proprietary
 blob. The schemas are JSON Schema (draft 2020-12) and ship inside `quantumledger-core` at
 `quantumledger_core/schemas/qlprov/`. Because the format is open and self-verifying, a run you export can be
-read, validated, and hash-checked by anyone — no QuantumLedger server required.
+read, validated, and hash-checked by anyone — no Provenova server required.
 
 ## `qlprov/run/1.0`
 

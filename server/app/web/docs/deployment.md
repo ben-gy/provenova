@@ -1,6 +1,6 @@
 # Deployment & self-hosting
 
-QuantumLedger can run anywhere from a single SQLite file to a full PostgreSQL-backed cluster. The server is
+Provenova can run anywhere from a single SQLite file to a full PostgreSQL-backed cluster. The server is
 source-available (BUSL-1.1); see [Libraries & downloads](/docs/libraries).
 
 ## One-command self-host (Docker Compose)

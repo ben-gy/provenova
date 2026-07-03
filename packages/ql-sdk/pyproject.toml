@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "quantumledger"
 version = "0.1.0"
-description = "QuantumLedger open-source client: capture quantum runs + their calibration state, reproducibly."
+description = "Provenova open-source client: capture quantum runs + their calibration state, reproducibly."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
-authors = [{ name = "QuantumLedger" }]
+authors = [{ name = "Provenova" }]
 dependencies = [
     "quantumledger-core",
     "typer>=0.12",

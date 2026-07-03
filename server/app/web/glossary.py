@@ -26,7 +26,7 @@ GLOSSARY: dict[str, str] = {
                    "leaf changes the root, which is what makes tampering detectable.",
     "immutability": "Sealed records cannot be updated or deleted — database triggers "
                     "reject any change, so the ledger is append-only.",
-    "qlprov": "QuantumLedger's open, versioned provenance schemas (e.g. "
+    "qlprov": "Provenova's open, versioned provenance schemas (e.g. "
               "qlprov/run/1.0) — portable JSON that verifies its own hash with no server.",
 
     # -- reproduce & drift --

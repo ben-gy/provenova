@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% set card_url = settings.base_url + '/cards/' + card.slug %}
-{% block title %}{{ card.title }} — QuantumLedger{% endblock %}
-{% block meta_description %}Citable, offline-verifiable quantum result card on QuantumLedger: {{ card.title }}.{% endblock %}
+{% block title %}{{ card.title }} — Provenova{% endblock %}
+{% block meta_description %}Citable, offline-verifiable quantum result card on Provenova: {{ card.title }}.{% endblock %}
 {% block head %}
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 
@@ -37,7 +37,7 @@
       {% if attribution.arxiv_id %}<span class="mono text-xs text-slate-500">arXiv:{{ attribution.arxiv_id }}</span>{% endif %}
     </div>
     <p class="mt-1 text-xs leading-relaxed text-slate-600">
-      This card records a <b>deterministic simulator run on QuantumLedger</b> inspired by this paper.
+      This card records a <b>deterministic simulator run on Provenova</b> inspired by this paper.
       It does <b>not</b> reproduce the paper's hardware results, and does not imply any endorsement by its authors.
     </p>
     {% if attribution_html %}
@@ -49,7 +49,7 @@
   <!-- Badges -->
   <div class="mt-5 flex flex-wrap items-center gap-2">
     {% for t in ['recorded', 'reproduced', 'benchmarked', 'compliant', 'audit-ready'] %}
-    <img src="{{ settings.base_url }}/badge/{{ card.slug }}/{{ t }}.svg" alt="QuantumLedger: {{ t }}" class="h-5">
+    <img src="{{ settings.base_url }}/badge/{{ card.slug }}/{{ t }}.svg" alt="Provenova: {{ t }}" class="h-5">
     {% endfor %}
   </div>
   <div class="mt-1 text-xs text-slate-400">{{ term("badge ladder", "Maturity badges") }} — Recorded → Reproduced → Benchmarked → Compliant → Audit-ready. <a href="/docs/result-cards-and-badges" class="text-indigo-500 hover:underline">Learn more</a></div>
@@ -121,9 +121,9 @@
   <!-- Branded backlink — network effect: every shared/embedded card links home and recruits the next user -->
   <div class="mt-8 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5">
     <div class="flex items-center gap-3">
-      <a href="{{ settings.base_url }}/" class="shrink-0" aria-label="QuantumLedger">{{ mark(40) }}</a>
+      <a href="{{ settings.base_url }}/" class="shrink-0" aria-label="Provenova">{{ mark(40) }}</a>
       <div>
-        <a href="{{ settings.base_url }}/" class="font-semibold text-slate-900 hover:underline">QuantumLedger</a>
+        <a href="{{ settings.base_url }}/" class="font-semibold text-slate-900 hover:underline">Provenova</a>
         <p class="text-sm text-slate-600">The vendor-neutral system of record for quantum — every run bound to the exact calibration that produced it, reproducible and offline-verifiable.</p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 # Corpus & leaderboard
 
-Beyond your own runs, QuantumLedger maintains a **public calibration corpus**: a cross-vendor, longitudinal
+Beyond your own runs, Provenova maintains a **public calibration corpus**: a cross-vendor, longitudinal
 record of how real quantum hardware behaves over time. It powers the **State of Quantum Hardware**
 leaderboard at `/leaderboard`.
 

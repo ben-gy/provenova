@@ -38,13 +38,13 @@ class SyncClient:
             data = r.json()
         except Exception as exc:
             raise SyncError(
-                f"{self.endpoint} responded, but not with QuantumLedger JSON.",
-                hint="The endpoint is probably not a QuantumLedger server. Check `ql config show`.",
+                f"{self.endpoint} responded, but not with Provenova JSON.",
+                hint="The endpoint is probably not a Provenova server. Check `ql config show`.",
             ) from exc
         if data.get("service") != "quantumledger":
             raise SyncError(
-                f"{self.endpoint} does not look like a QuantumLedger server.",
-                hint="Point `sync_endpoint` at your QuantumLedger server (`ql config set sync_endpoint <url>`).",
+                f"{self.endpoint} does not look like a Provenova server.",
+                hint="Point `sync_endpoint` at your Provenova server (`ql config set sync_endpoint <url>`).",
             )
         return data
 
@@ -87,7 +87,7 @@ class SyncClient:
         except Exception as exc:
             raise SyncError(
                 f"{self.endpoint} accepted the request but returned a non-JSON response.",
-                hint="The endpoint may not be a QuantumLedger ingest API. Run `ql doctor`.",
+                hint="The endpoint may not be a Provenova ingest API. Run `ql doctor`.",
             ) from exc
 
     def close(self) -> None:
