@@ -1,18 +1,22 @@
 name: growth
 
-# Autonomous Provenova content pipeline. Runs headlessly on GitHub's runners —
-# no server, no always-on machine. Times are UTC (GitHub cron is always UTC).
-#   research-cards: Mon/Wed/Fri 21:00 UTC   weekly-report: Sun 22:00 UTC
-# Use "Run workflow" (workflow_dispatch) to trigger a run manually / test.
+# Autonomous Provenova content pipeline — the PORTABLE runner (Anthropic API +
+# billed to your account). This is an alternative to the Claude-app scheduled
+# routines (~/.claude/scheduled-tasks/provenova-*), which run on the Claude
+# subscription and are the active scheduler. The cron trigger here is therefore
+# DISABLED by default so it doesn't fail without secrets set — use "Run workflow"
+# (workflow_dispatch) to run it on demand, or uncomment `schedule:` to hand
+# scheduling to GitHub Actions instead of the app.
 #
-# Required repository secrets (Settings → Secrets and variables → Actions):
+# To enable the CI path, set two repository secrets first
+# (Settings → Secrets and variables → Actions), then uncomment `schedule:`:
 #   PROVENOVA_GROWTH_KEY  — the ql_live_… key with the `growth` scope
 #   ANTHROPIC_API_KEY     — an Anthropic API key (billed to your account)
 
 on:
-  schedule:
-    - cron: "0 21 * * 1,3,5"   # research-cards
-    - cron: "0 22 * * 0"       # weekly-report
+  # schedule:                       # UTC. Uncomment to let GitHub Actions schedule it.
+  #   - cron: "0 21 * * 1,3,5"      # research-cards (Mon/Wed/Fri 21:00 UTC)
+  #   - cron: "0 22 * * 0"          # weekly-report (Sun 22:00 UTC)
   workflow_dispatch:
     inputs:
       command:
