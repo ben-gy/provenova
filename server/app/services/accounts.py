@@ -22,19 +22,44 @@ from quantumledger_core.models import (
 
 from ..security import hash_password, verify_password
 
-# Academic email-domain heuristics (allowlist patterns).
-_ACADEMIC_SUFFIXES = (".edu", ".ac.uk", ".edu.au", ".ac.jp", ".edu.cn")
-_ACADEMIC_TOKENS = (".ac.", ".edu.", "uni-", "university")
-_ACADEMIC_ALLOWLIST = {"cern.ch", "mit.edu", "ethz.ch", "riken.jp", "ornl.gov", "lanl.gov"}
+# Academic email-domain verification. Rules derived from the JetBrains `swot`
+# academic-TLD set, applied at the domain-*label* level to avoid false positives
+# (e.g. "communi-cations.com" must NOT match on "uni-", "universitypizza.com"
+# must NOT match on "university").
+#
+# Coverage: *.edu, *.ac.<cc> and *.edu.<cc> for ANY country (so .edu.au, .ac.uk,
+# .ac.nz, .ac.jp, .ac.za, .edu.cn, ... are all handled), university-style labels
+# (uni / univ / uni-* / univ-*), plus a curated allowlist of research
+# institutions whose domains follow none of these patterns.
+_ACADEMIC_TLD2 = {"ac", "edu"}  # second-level academic labels: x.ac.uk, y.edu.au
+_ACADEMIC_UNI_LABELS = {"uni", "univ", "university", "college", "institute"}
+_ACADEMIC_ALLOWLIST = {
+    "cern.ch", "ethz.ch", "epfl.ch", "psi.ch",                 # CH
+    "mpg.de", "tum.de", "kit.edu", "desy.de", "fu-berlin.de",  # DE
+    "cnrs.fr", "inria.fr", "cea.fr", "ens.fr",                 # FR
+    "csic.es", "sissa.it", "infn.it",                          # ES/IT
+    "riken.jp", "kek.jp", "u-tokyo.ac.jp",                     # JP
+    "weizmann.ac.il", "technion.ac.il",                        # IL
+    "ornl.gov", "lanl.gov", "lbl.gov", "nist.gov", "anl.gov",  # US nat labs
+    "nasa.gov", "sandia.gov", "pnnl.gov", "fnal.gov",
+}
 
 
 def is_academic_domain(email: str) -> bool:
-    domain = email.split("@")[-1].lower()
+    domain = (email.rsplit("@", 1)[-1] or "").strip().lower().rstrip(".")
+    if not domain:
+        return False
     if domain in _ACADEMIC_ALLOWLIST:
         return True
-    if any(domain.endswith(s) for s in _ACADEMIC_SUFFIXES):
+    labels = domain.split(".")
+    if labels[-1] == "edu":                                # *.edu (US and others)
         return True
-    return any(tok in domain for tok in _ACADEMIC_TOKENS)
+    if len(labels) >= 3 and labels[-2] in _ACADEMIC_TLD2:  # *.ac.<cc> / *.edu.<cc>
+        return True
+    for lab in labels[:-1]:                                # university-style labels (never the TLD)
+        if lab in _ACADEMIC_UNI_LABELS or lab.startswith(("uni-", "univ-")):
+            return True
+    return False
 
 
 def audit(session: Session, *, workspace_id, account_id, action, resource_type=None,

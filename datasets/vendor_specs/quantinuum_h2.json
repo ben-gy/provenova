@@ -1,0 +1,51 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "quantinuum",
+  "backend_id": "H2",
+  "captured_at": "2026-07-03T00:00:00+00:00",
+  "source": "vendor-reported",
+  "license_ref": "vendor-reported \u00b7 quantinuum.com",
+  "raw_ref": "https://www.quantinuum.com/products-solutions/quantinuum-systems/system-model-h2",
+  "redistributable_raw": false,
+  "note": "Manufacturer-published specification (vendor claim), not independently reproduced.",
+  "derived_metrics": {
+    "quantum_volume": 33554432,
+    "two_q_fidelity": 0.999,
+    "n_qubits": 56,
+    "source": "vendor-reported"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "quantinuum",
+      "name": "H2"
+    },
+    "captured_at": "2026-07-03T00:00:00+00:00",
+    "source": "vendor-reported",
+    "provenance": {
+      "source": "vendor-reported",
+      "license_ref": "vendor-reported \u00b7 quantinuum.com",
+      "disclaimer": "Vendor headline spec; verified against the cited page, not independently measured on this platform."
+    },
+    "metric_provenance": [
+      {
+        "metric": "quantum_volume",
+        "value": 33554432,
+        "source_url": "https://www.quantinuum.com/products-solutions/quantinuum-systems/system-model-h2",
+        "quote": "33,554,432 (2^25) quantum volume"
+      },
+      {
+        "metric": "two_q_fidelity",
+        "value": 0.999,
+        "source_url": "https://www.quantinuum.com/products-solutions/quantinuum-systems/system-model-h2",
+        "quote": ">99.9% two-qubit gate fidelity"
+      },
+      {
+        "metric": "n_qubits",
+        "value": 56,
+        "source_url": "https://www.quantinuum.com/products-solutions/quantinuum-systems/system-model-h2",
+        "quote": "56 fully-connected qubits"
+      }
+    ]
+  }
+}

@@ -255,6 +255,22 @@ def run():
   </div>
 </section>
 
+{% if usage and not usage.unlimited %}
+<section class="mt-4 rounded-xl border border-slate-200 bg-white p-5">
+  <div class="flex items-center justify-between text-sm">
+    <span class="font-medium text-slate-700">Private runs</span>
+    <span class="{{ 'text-amber-700 font-semibold' if usage.at_cap else 'text-slate-500' }}">{{ usage.used }} / {{ usage.cap }}</span>
+  </div>
+  <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+    <div class="h-2 rounded-full {{ 'bg-amber-500' if usage.pct >= 80 else 'bg-indigo-500' }}" style="width: {{ usage.pct }}%"></div>
+  </div>
+  <p class="mt-2 text-xs text-slate-500">
+    {% if usage.at_cap %}You've hit your private-run limit — publish a run publicly to free a slot, or <a href="/app/plans" class="text-indigo-600 hover:underline">upgrade</a> for unlimited.
+    {% else %}Free includes {{ usage.cap }} private runs; public result cards are always unlimited. <a href="/app/plans" class="text-indigo-600 hover:underline">Compare plans →</a>{% endif %}
+  </p>
+</section>
+{% endif %}
+
 <section class="mt-8">
   <div class="flex items-center justify-between mb-3">
     <h2 class="text-lg font-semibold text-slate-900">Recent runs</h2>

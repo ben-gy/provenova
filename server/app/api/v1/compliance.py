@@ -18,7 +18,9 @@ from quantumledger_core.models import (
 
 from ...db import attestation_key, get_db
 from ...deps import Principal, require_feature, require_principal
+from ...entitlements import is_unlimited, quota_for
 from ...services import compliance as comp
+from ...services import limits as limits_svc
 from ...services.accounts import audit
 from ...services.attestation import create_attestation, revoke_attestation
 
@@ -62,6 +64,18 @@ def enable(ws_id: str, fw_id: str, db: Session = Depends(get_db),
     fw = db.get(ComplianceFramework, fw_id)
     if fw is None:
         raise HTTPException(404, "framework not found")
+    # Plan limits: Free may enable only FAIR; every plan is capped by
+    # frameworks_allowed. Re-enabling an already-enabled framework is idempotent.
+    already = db.scalar(select(WorkspaceFramework).where(
+        WorkspaceFramework.workspace_id == ws.id, WorkspaceFramework.framework_id == fw.id))
+    if already is None:
+        if p.plan == "free" and not fw.key.startswith("fair"):
+            raise HTTPException(402, detail={"error": "upgrade_required",
+                                             "message": "Free includes FAIR only"})
+        cap = quota_for(p.plan, "frameworks_allowed")
+        if not is_unlimited(cap) and limits_svc.frameworks_enabled_count(db, ws.id) >= cap:
+            raise HTTPException(402, detail={"error": "framework_limit",
+                                             "message": f"framework limit reached ({cap})"})
     comp.enable_framework(db, ws, fw)
     audit(db, workspace_id=ws.id, account_id=p.account_id, action="compliance.enable",
           resource_type="framework", resource_id=fw.id)

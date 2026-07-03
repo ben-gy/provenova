@@ -42,9 +42,14 @@ Badges reflect a result's maturity as a ladder — each rung is a stronger claim
 
 1. **Recorded** — the run is in the ledger with full provenance.
 2. **Reproduced** — it has been re-run and scored.
-3. **Benchmarked** — compared across backends/vendors.
+3. **Benchmarked** — compared across backends/vendors via **Compare vs. the fleet**.
 4. **Compliant** — it satisfies an enabled compliance framework.
 5. **Audit-ready** — backed by a signed attestation.
+
+Rungs 1–3 are reachable on the **Free** plan for your own runs — capture, reproduce, then hit
+**Compare vs. the fleet** on the record page to record a benchmark entry and light the
+**Benchmarked** badge, no upgrade required. Rung 4 needs an enabled framework and rung 5 needs a
+signed attestation (a paid feature — see the [pricing FAQ](/docs/pricing-faq)).
 
 External parties can even submit their own reproductions of a public card
 (`POST /api/v1/cards/<slug>/reproductions`), feeding independent verification into the leaderboard.

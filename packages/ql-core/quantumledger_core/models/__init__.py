@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .accounts import (
     PLAN_ACADEMIC,
+    PLAN_DISPLAY,
     PLAN_ENTERPRISE,
     PLAN_FREE,
     PLAN_LAB,
@@ -92,6 +93,7 @@ __all__ = [
     "PLAN_LAB",
     "PLAN_ENTERPRISE",
     "PLAN_ORDER",
+    "PLAN_DISPLAY",
     "ROLE_OWNER",
     "ROLE_ADMIN",
     "ROLE_MEMBER",

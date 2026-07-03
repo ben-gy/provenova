@@ -26,6 +26,44 @@ python -m venv /tmp/extract && /tmp/extract/bin/pip install qiskit-ibm-runtime
 /tmp/extract/bin/python scripts/extract_ibm_snapshots.py
 ```
 
+## Cross-vendor corpus records
+
+To make the leaderboard genuinely multi-vendor (not IBM-only), three additional
+directories hold **corpus-record** files (`qlprov/corpus-record/1.0`). Each file
+carries its own `provider`, `backend_id`, `captured_at`, `source`, `license_ref`,
+`raw_ref` (the source URL), and either an explicit `derived_metrics` block or a
+raw `calibration` payload. `scripts/seed_real.py::load_corpus()` loads all four
+directories; every value is copied from the file — nothing is invented — and each
+row is badged by source & licence in the UI.
+
+### `metriq/` — community benchmarks (CC-BY-4.0)
+
+Cross-vendor benchmark submissions (Algorithmic Qubits, CLOPS, Quantum Volume,
+2-qubit gate fidelity, …) from **[Metriq](https://metriq.info)**, Unitary Fund's
+open benchmark aggregator, licensed **CC-BY-4.0**. `source: "metriq"`;
+`license_ref` and `raw_ref` cite the specific submission. Fetch/refresh with
+`scripts/fetch_metriq.py`.
+
+### `iqm/` — raw calibration from Zenodo (CC-BY/CC0), if available
+
+A slot for real raw calibration from an openly-licensed **Zenodo** dataset.
+`scripts/fetch_zenodo_iqm.py` searches Zenodo and **only** writes a file if the
+record's licence is CC-BY/CC-BY-SA/CC0 (verified and recorded per file).
+
+As of this writing **no IQM Garnet raw-calibration dataset exists on Zenodo** (an
+exhaustive search returned only unrelated records), so this directory is empty
+and nothing is loaded from it — the fetch script is kept ready for when such a
+dataset is published. IQM hardware still appears in the corpus via **Metriq**
+(the Braket-hosted `iqm_garnet` / `iqm_emerald` benchmark rows, CC-BY-4.0) and
+via **vendor-reported** Garnet specs below.
+
+### `vendor_specs/` — vendor-reported specifications
+
+Headline specs published by manufacturers (IonQ, Quantinuum, Rigetti, IQM). These
+are **manufacturer claims**, clearly labelled `source: "vendor-reported"` with
+the press/spec URL in `raw_ref`, and rendered with a distinct "Vendor-reported"
+badge so they are never confused with independently-reproduced measurements.
+
 ## Benchmark runs
 
 The runs recorded on the platform are **real, deterministic executions** of

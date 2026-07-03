@@ -1,0 +1,48 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "ibm",
+  "backend_id": "ibm_kingston",
+  "captured_at": "2026-02-17T11:59:05.067456+00:00",
+  "source": "metriq",
+  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+  "redistributable_raw": true,
+  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
+  "derived_metrics": {
+    "clops": 362371.50261221,
+    "qaoa_ratio": 0.64122763,
+    "n_qubits": 156,
+    "source": "metriq"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "ibm",
+      "name": "ibm_kingston",
+      "n_qubits": 156
+    },
+    "captured_at": "2026-02-17T11:59:05.067456+00:00",
+    "source": "metriq",
+    "provenance": {
+      "source": "metriq",
+      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+      "repo": "unitaryfoundation/metriq-data"
+    },
+    "metric_provenance": [
+      {
+        "metric": "clops",
+        "benchmark": "CLOPS",
+        "value": 362371.50261220935,
+        "timestamp": "2026-02-17T11:59:05.067456",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-17_11-59-05_clops_2a37912f.json"
+      },
+      {
+        "metric": "qaoa_ratio",
+        "benchmark": "Linear Ramp QAOA",
+        "value": 0.6412276278320385,
+        "timestamp": "2026-02-17T11:53:57.115441",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-17_11-53-57_linear_ramp_qaoa_a9889f96.json"
+      }
+    ]
+  }
+}

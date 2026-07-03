@@ -19,6 +19,27 @@ from sqlalchemy import select
 from . import compliance
 from .normalize import to_snapshot
 
+# Leaderboard metric registry. ``higher`` marks higher-is-better ranking.
+# Calibration metrics come from raw snapshots; the benchmark metrics
+# (clops/eplg/algorithmic_qubits/two_q_fidelity/quantum_volume) come from
+# cross-vendor sources (Metriq, vendor-reported) carried in derived_metrics.
+LEADERBOARD_METRICS: list[dict] = [
+    {"key": "best_2q_fidelity", "label": "Best 2Q fidelity", "higher": True, "unit": ""},
+    {"key": "two_q_fidelity", "label": "2Q gate fidelity", "higher": True, "unit": ""},
+    {"key": "median_2q_error", "label": "Median 2Q error", "higher": False, "unit": ""},
+    {"key": "median_t1_us", "label": "Median T1 (µs)", "higher": True, "unit": "µs"},
+    {"key": "median_t2_us", "label": "Median T2 (µs)", "higher": True, "unit": "µs"},
+    {"key": "algorithmic_qubits", "label": "Algorithmic qubits (#AQ)", "higher": True, "unit": ""},
+    {"key": "quantum_volume", "label": "Quantum Volume", "higher": True, "unit": ""},
+    {"key": "clops", "label": "CLOPS", "higher": True, "unit": ""},
+    {"key": "eplg", "label": "EPLG (error/layer)", "higher": False, "unit": ""},
+    {"key": "bseq", "label": "Bell-state effective qubits", "higher": True, "unit": ""},
+    {"key": "qft_accuracy", "label": "QFT accuracy", "higher": True, "unit": ""},
+    {"key": "qaoa_ratio", "label": "QAOA approx. ratio", "higher": True, "unit": ""},
+    {"key": "n_qubits", "label": "Qubits", "higher": True, "unit": ""},
+]
+HIGHER_IS_BETTER = {m["key"] for m in LEADERBOARD_METRICS if m["higher"]}
+
 
 def _parse_dt(value) -> _dt.datetime | None:
     if value is None:
@@ -157,10 +178,11 @@ def fleet_leaderboard(
     (``best_2q_fidelity``, ``median_t1_us``, ``median_t2_us``) rank descending.
     Devices missing the metric are dropped. Returns a list of ranked dicts.
     """
-    higher_is_better = metric in {"best_2q_fidelity", "median_t1_us", "median_t2_us"}
+    higher_is_better = metric in HIGHER_IS_BETTER
     entries = []
     for row in _latest_per_device(session, period=period):
-        value = (row.derived_metrics or {}).get(metric)
+        dm = row.derived_metrics or {}
+        value = dm.get(metric)
         if value is None:
             continue
         entries.append(
@@ -171,6 +193,9 @@ def fleet_leaderboard(
                 "value": value,
                 "captured_at": row.captured_at.isoformat() if row.captured_at else None,
                 "derived_metrics": row.derived_metrics,
+                "source": dm.get("source") or row.provider,
+                "license_ref": row.license_ref,
+                "redistributable_raw": row.redistributable_raw,
             }
         )
     entries.sort(key=lambda e: e["value"], reverse=higher_is_better)

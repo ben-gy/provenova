@@ -28,13 +28,17 @@ from quantumledger_core.models import (
 from quantumledger_core.reproduce import runner
 from quantumledger_core.reproduce.report import build_report
 
+from quantumledger_core.models import PLAN_DISPLAY
+
 from ..config import get_settings
 from ..db import attestation_key, get_db
 from ..deps import Principal, current_principal
+from ..entitlements import is_unlimited, quota_for
 from ..security import generate_api_key
 from ..services import accounts as acc_svc
 from ..services import cards as cards_svc
 from ..services import compliance as comp
+from ..services import limits as limits_svc
 from ..services import settings as settings_svc
 from ..services.attestation import create_attestation
 
@@ -78,7 +82,9 @@ def landing(request: Request, db: Session = Depends(get_db),
         ) or 0
         stats = {"runs": runs_count, "reproductions": repro_count, "public_cards": cards_count}
     activation = _activation_state(db, p) if p else None
-    return render(request, "landing.html", p, recent=recent, stats=stats, activation=activation)
+    usage = limits_svc.private_run_usage(db, p.plan, p.workspace_id) if p else None
+    return render(request, "landing.html", p, recent=recent, stats=stats, activation=activation,
+                  usage=usage)
 
 
 def _activation_state(db: Session, p: Principal) -> dict:
@@ -161,7 +167,7 @@ def app_plans(request: Request, db: Session = Depends(get_db),
 
     return render(request, "plans.html", p, plan_order=PLAN_ORDER, features=FEATURES,
                   quotas=QUOTAS, current=p.plan, feature_labels=_FEATURE_LABELS,
-                  plan_blurbs=_PLAN_BLURBS)
+                  plan_blurbs=_PLAN_BLURBS, plan_display=PLAN_DISPLAY)
 
 
 _FEATURE_LABELS = {
@@ -183,36 +189,40 @@ _FEATURE_LABELS = {
 }
 
 _PLAN_BLURBS = {
-    "free": "Get started — capture, reproduce, public cards & badges.",
-    "academic": "Free for academic email domains — adds private records & fleet comparison.",
-    "pro": "For teams — compliance frameworks, monitoring & signed attestations.",
-    "lab": "For labs — self-hosting, a public Trust Center & unlimited frameworks.",
-    "enterprise": "Everything, plus SSO/SAML, data residency & an SLA.",
+    "free": "Everything you need to capture, reproduce, benchmark & publish — private by default.",
+    "academic": "Free for verified academic domains — unlimited private records & signed FAIR attestations.",
+    "pro": "For teams — compliance frameworks, continuous monitoring & signed attestations.",
+    "lab": "For labs — SSO, a public Trust Center & a self-hostable signing service.",
+    "enterprise": "Everything, plus data residency, custom controls & an SLA.",
 }
 
-# Indicative list pricing (configurable — invoicing is handled off-platform).
+# Indicative list pricing. Provisioning is admin-granted (no self-serve checkout);
+# paid tiers are "request access" to the contact address below.
+_CONTACT = "mailto:hi@ben.gy"
 _PRICING = {
     "free": {"price": "$0", "cadence": "forever", "tagline": "For individuals getting started",
-             "highlights": ["Capture & reproduce runs", "Public result cards & badges",
-                            "Full qlprov export", "1 seat"],
+             "highlights": ["Capture, reproduce & benchmark runs", "Unlimited public result cards & badges",
+                            "250 private records", "Compare vs. the public fleet",
+                            "FAIR compliance checklist", "Full qlprov export"],
              "cta": ("Get started", "/register"), "highlight": False},
-    "academic": {"price": "$0", "cadence": "for verified .edu", "tagline": "Free for academic domains",
-                 "highlights": ["Everything in Free", "Private records", "Compare vs. the fleet", "5 seats"],
-                 "cta": ("Sign up with your .edu email", "/register"), "highlight": False},
-    "pro": {"price": "$49", "cadence": "per user / month", "tagline": "For research teams",
-            "highlights": ["Everything in Academic", "Compliance frameworks", "Signed attestations",
-                           "Continuous monitoring", "10 seats"],
-            "cta": ("Request access", "mailto:sales@quantumledger.io?subject=QuantumLedger%20Pro"),
+    "academic": {"price": "$0", "cadence": "for verified academia", "tagline": "Free for .edu / .ac.* domains",
+                 "highlights": ["Everything in Free", "Unlimited private records",
+                                "Signed FAIR attestations", "15 seats"],
+                 "cta": ("Sign up with your academic email", "/register"), "highlight": False},
+    "pro": {"price": "$199", "cadence": "per month · $1,990/yr", "tagline": "For research teams",
+            "highlights": ["Everything in Academic", "All compliance frameworks", "Signed attestations",
+                           "Continuous monitoring & alerts", "10 seats"],
+            "cta": ("Request access", _CONTACT + "?subject=QuantumLedger%20Team"),
             "highlight": True},
     "lab": {"price": "$499", "cadence": "per month", "tagline": "For labs & departments",
-            "highlights": ["Everything in Pro", "Self-hosting", "Public Trust Center",
-                           "Unlimited frameworks", "50 seats"],
-            "cta": ("Request access", "mailto:sales@quantumledger.io?subject=QuantumLedger%20Lab"),
+            "highlights": ["Everything in Team", "SSO / SAML", "Public Trust Center",
+                           "Self-hostable signing service", "50 seats"],
+            "cta": ("Request access", _CONTACT + "?subject=QuantumLedger%20Lab"),
             "highlight": False},
     "enterprise": {"price": "Custom", "cadence": "", "tagline": "For organizations with scale & governance needs",
-                   "highlights": ["Everything in Lab", "SSO / SAML", "Data residency",
+                   "highlights": ["Everything in Lab", "Data residency", "Custom controls",
                                   "Support SLA", "Unlimited seats"],
-                   "cta": ("Contact sales", "mailto:sales@quantumledger.io?subject=QuantumLedger%20Enterprise"),
+                   "cta": ("Contact us", _CONTACT + "?subject=QuantumLedger%20Enterprise"),
                    "highlight": False},
 }
 
@@ -226,7 +236,7 @@ def pricing(request: Request, p: Principal | None = Depends(current_principal)):
 
     return render(request, "pricing.html", p, plan_order=PLAN_ORDER, features=FEATURES,
                   quotas=QUOTAS, feature_labels=_FEATURE_LABELS, plan_blurbs=_PLAN_BLURBS,
-                  pricing=_PRICING, current=(p.plan if p else None))
+                  pricing=_PRICING, current=(p.plan if p else None), plan_display=PLAN_DISPLAY)
 
 
 # -- auth -------------------------------------------------------------------
@@ -469,7 +479,26 @@ def record_detail(run_id: str, request: Request, db: Session = Depends(get_db),
     if ev is not None:
         report = build_report(run, db.get(Run, ev.reproduced_run_id), ev)
     card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
-    return render(request, "record_detail.html", p, run=run, doc=doc, report=report, card=card)
+    from ..services.benchmark import entry_for
+
+    benchmark = entry_for(db, run_id)
+    return render(request, "record_detail.html", p, run=run, doc=doc, report=report, card=card,
+                  benchmark=benchmark, can_benchmark=p.has("compare_vs_fleet"))
+
+
+@router.post("/app/records/{run_id}/benchmark")
+def web_benchmark(run_id: str, request: Request, db: Session = Depends(get_db),
+                  p: Principal | None = Depends(current_principal)):
+    if p is None:
+        return RedirectResponse("/login", status_code=303)
+    if not p.has("compare_vs_fleet"):
+        raise HTTPException(402, "fleet comparison requires an account")
+    run = _owned_run(db, run_id, p)
+    from ..services.benchmark import benchmark_run
+
+    benchmark_run(db, run)
+    db.commit()
+    return RedirectResponse(f"/app/records/{run_id}", status_code=303)
 
 
 @router.post("/app/records/{run_id}/reproduce")
@@ -517,13 +546,18 @@ def public_card(slug: str, request: Request, db: Session = Depends(get_db),
 def leaderboard(request: Request, metric: str = "median_2q_error", db: Session = Depends(get_db),
                 p: Principal | None = Depends(current_principal)):
     entries = []
+    metrics = []
+    metric_label = metric
     try:
-        from quantumledger_crawler.corpus import fleet_leaderboard
+        from quantumledger_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
 
+        metrics = LEADERBOARD_METRICS
+        metric_label = next((m["label"] for m in metrics if m["key"] == metric), metric)
         entries = fleet_leaderboard(db, metric=metric)
     except Exception:
         entries = []
-    return render(request, "leaderboard.html", p, entries=entries, metric=metric)
+    return render(request, "leaderboard.html", p, entries=entries, metric=metric,
+                  metrics=metrics, metric_label=metric_label)
 
 
 # -- docs -------------------------------------------------------------------
@@ -557,6 +591,11 @@ def compliance_console(request: Request, evaluated: str | None = None,
         select(WorkspaceFramework).where(WorkspaceFramework.workspace_id == p.workspace_id))}
     atts = db.scalars(select(Attestation).where(Attestation.workspace_id == p.workspace_id)).all()
 
+    # Plan limits: Free may only enable FAIR, and is capped by frameworks_allowed.
+    fw_cap = quota_for(p.plan, "frameworks_allowed")
+    enabled_count = len(enabled)
+    under_cap = is_unlimited(fw_cap) or enabled_count < fw_cap
+
     # Per-framework rollup: how many of its controls are currently passing.
     cards = []
     for fw in frameworks:
@@ -564,7 +603,10 @@ def compliance_console(request: Request, evaluated: str | None = None,
         wf = enabled.get(fw.id)
         detail = (wf.status_detail if wf else None) or {}
         passing = sum(1 for d in detail.values() if d.get("status") == "pass") if detail else None
-        cards.append({"fw": fw, "wf": wf, "total_controls": total, "passing": passing})
+        plan_allows = (p.plan != "free") or fw.key.startswith("fair")
+        lock = None if (plan_allows and under_cap) else ("plan" if not plan_allows else "cap")
+        cards.append({"fw": fw, "wf": wf, "total_controls": total, "passing": passing,
+                      "enableable": lock is None, "lock": lock})
 
     # Post-evaluation summary banner (recomputed from the freshly-stored status).
     summary = None
@@ -576,6 +618,7 @@ def compliance_console(request: Request, evaluated: str | None = None,
 
     return render(request, "compliance.html", p, cards=cards, enabled=enabled,
                   attestations=atts, has_compliance=p.has("compliance_frameworks"),
+                  can_attest=p.has("attestation_signing"), plan_display=PLAN_DISPLAY,
                   summary=summary)
 
 
@@ -583,9 +626,21 @@ def compliance_console(request: Request, evaluated: str | None = None,
 def web_enable(request: Request, framework_id: str = Form(...), db: Session = Depends(get_db),
                p: Principal | None = Depends(current_principal)):
     if p is None or not p.has("compliance_frameworks"):
-        raise HTTPException(402, "compliance requires Pro or above")
+        raise HTTPException(402, "compliance requires a paid plan")
     ws = db.get(Workspace, p.workspace_id)
     fw = db.get(ComplianceFramework, framework_id)
+    if fw is None:
+        raise HTTPException(404, "framework not found")
+    # Plan limits: Free may enable only FAIR, and every plan is capped by
+    # frameworks_allowed. Enabling an already-enabled framework is idempotent.
+    already = db.scalar(select(WorkspaceFramework).where(
+        WorkspaceFramework.workspace_id == ws.id, WorkspaceFramework.framework_id == fw.id))
+    if already is None:
+        if p.plan == "free" and not fw.key.startswith("fair"):
+            raise HTTPException(402, "Free includes FAIR only — upgrade to add more frameworks")
+        cap = quota_for(p.plan, "frameworks_allowed")
+        if not is_unlimited(cap) and limits_svc.frameworks_enabled_count(db, ws.id) >= cap:
+            raise HTTPException(402, f"framework limit reached ({cap}) on your plan")
     comp.enable_framework(db, ws, fw)
     comp.evaluate_framework(db, ws, fw)
     db.commit()

@@ -89,6 +89,26 @@
   </form>
 </section>
 
+<!-- Benchmark -->
+<section class="mt-6 rounded-xl border border-slate-200 bg-white p-5">
+  <div class="flex items-center justify-between">
+    <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Benchmark</h2>
+    <a href="/docs/result-cards-and-badges" class="text-xs text-indigo-600 hover:underline">About the badge ladder →</a>
+  </div>
+  {% if benchmark %}
+  <p class="mt-2 text-sm text-slate-600">
+    Scored against the noiseless ideal — Hellinger fidelity
+    <b class="text-slate-900">{{ '%.4f'|format(benchmark.score) }}</b>{% if benchmark.rank %} · rank #{{ benchmark.rank }} in your workspace{% endif %}.
+    This unlocks the <b>Benchmarked</b> rung of the badge ladder.
+  </p>
+  {% else %}
+  <p class="mt-2 max-w-2xl text-sm text-slate-600">Score this result against the noiseless ideal and the public fleet to earn the <b>Benchmarked</b> badge — included free.</p>
+  <form method="post" action="/app/records/{{ run.id }}/benchmark" class="mt-3">
+    <button type="submit" class="inline-flex h-10 items-center rounded-md bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700">Benchmark vs fleet</button>
+  </form>
+  {% endif %}
+</section>
+
 {% if report %}
 <section class="mt-6 rounded-xl border border-slate-200 bg-white p-5">
   <div class="flex items-center gap-3">

@@ -1,0 +1,56 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "iqm",
+  "backend_id": "iqm_garnet",
+  "captured_at": "2026-03-02T15:34:09.694518+00:00",
+  "source": "metriq",
+  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+  "redistributable_raw": true,
+  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
+  "derived_metrics": {
+    "bseq": 20.0,
+    "eplg": 0.00822524,
+    "qaoa_ratio": 0.14320161,
+    "n_qubits": 20,
+    "source": "metriq"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "iqm",
+      "name": "iqm_garnet",
+      "n_qubits": 20
+    },
+    "captured_at": "2026-03-02T15:34:09.694518+00:00",
+    "source": "metriq",
+    "provenance": {
+      "source": "metriq",
+      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+      "repo": "unitaryfoundation/metriq-data"
+    },
+    "metric_provenance": [
+      {
+        "metric": "bseq",
+        "benchmark": "BSEQ",
+        "value": 20.0,
+        "timestamp": "2026-03-02T15:34:09.694518",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/aws/arn_aws_braket_eu-north-1_device_qpu_iqm_garnet/2026-03-02_15-34-09_bseq_f044a305.json"
+      },
+      {
+        "metric": "eplg",
+        "benchmark": "EPLG",
+        "value": 0.008225240196389483,
+        "timestamp": "2026-01-16T00:59:48.054516",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.4/aws/arn_aws_braket_eu-north-1_device_qpu_iqm_garnet/2026-01-16_00-59-48_eplg_665664c1.json"
+      },
+      {
+        "metric": "qaoa_ratio",
+        "benchmark": "Linear Ramp QAOA",
+        "value": 0.14320160617947145,
+        "timestamp": "2026-01-09T11:13:32.648597",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/aws/arn_aws_braket_eu-north-1_device_qpu_iqm_garnet/2026-01-09_11-13-32_linear_ramp_qaoa_25c9fd3a.json"
+      }
+    ]
+  }
+}

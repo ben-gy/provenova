@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_helpers.html" import status_pill, status_legend, term, empty_state %}
+{% from "_helpers.html" import status_pill, status_legend, term, empty_state, icon %}
 {% block title %}{{ fw.name }} — Compliance — QuantumLedger{% endblock %}
 
 {% block content %}
@@ -25,11 +25,18 @@
       <button type="submit" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Re-evaluate</button>
     </form>
     {% endif %}
-    {% if wf and wf.status == 'pass' and can_attest %}
-    <form method="post" action="/app/compliance/attest">
-      <input type="hidden" name="framework_id" value="{{ fw.id }}">
-      <button type="submit" class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700">Attest</button>
-    </form>
+    {% if wf and wf.status == 'pass' %}
+      {% if can_attest %}
+      <form method="post" action="/app/compliance/attest">
+        <input type="hidden" name="framework_id" value="{{ fw.id }}">
+        <button type="submit" class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700">Attest</button>
+      </form>
+      {% else %}
+      <a href="/app/plans" class="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
+         title="This framework passes — issue a signed, publicly-verifiable attestation on Academic and up.">
+        {{ icon('lock-closed', 'h-3.5 w-3.5') }} Issue signed attestation — Team+
+      </a>
+      {% endif %}
     {% endif %}
   </div>
 </div>

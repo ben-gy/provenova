@@ -143,27 +143,91 @@ def _robust_metrics(payload):
     }
 
 
-def load_corpus(session):
+def _insert_snapshot(session, *, provider, backend_id, captured_at, content_hash,
+                     snapshot_json, derived_metrics, license_ref, redistributable_raw,
+                     raw_ref=None):
+    exists = session.scalar(select(CorpusSnapshot).where(
+        CorpusSnapshot.provider == provider, CorpusSnapshot.backend_id == backend_id,
+        CorpusSnapshot.content_hash == content_hash))
+    if exists:
+        return False
+    session.add(CorpusSnapshot(
+        provider=provider, backend_id=backend_id, captured_at=captured_at,
+        content_hash=content_hash, snapshot_json=snapshot_json,
+        derived_metrics=derived_metrics, license_ref=license_ref,
+        redistributable_raw=redistributable_raw, raw_ref=raw_ref))
+    return True
+
+
+def _load_ibm_raw(session):
+    """Real IBM device raw calibration (Qiskit fake_provider snapshots, Apache-2.0)."""
     n = 0
     for fn in sorted(glob.glob(str(REPO / "datasets" / "ibm" / "*.json"))):
         payload = json.load(open(fn))
         bid = payload["backend"]["name"]
-        content = hashing.calibration_hash(payload)
-        exists = session.scalar(select(CorpusSnapshot).where(
-            CorpusSnapshot.provider == "ibm", CorpusSnapshot.backend_id == bid,
-            CorpusSnapshot.content_hash == content))
-        if exists:
-            continue
-        session.add(CorpusSnapshot(
-            provider="ibm", backend_id=bid,
-            captured_at=_dt.datetime.fromisoformat(payload["captured_at"]),
-            content_hash=content, snapshot_json=payload,
-            derived_metrics=_robust_metrics(payload),
-            license_ref="Apache-2.0 · Qiskit fake_provider snapshot",
-            redistributable_raw=True))
-        n += 1
-    session.commit()
+        dm = _robust_metrics(payload)
+        dm["source"] = "ibm"
+        if _insert_snapshot(
+                session, provider="ibm", backend_id=bid,
+                captured_at=_dt.datetime.fromisoformat(payload["captured_at"]),
+                content_hash=hashing.calibration_hash(payload), snapshot_json=payload,
+                derived_metrics=dm, license_ref="Apache-2.0 · Qiskit fake_provider snapshot",
+                redistributable_raw=True):
+            n += 1
     return n
+
+
+def _load_records(session, subdir):
+    """Curated cross-vendor corpus-record files (metriq / iqm / vendor_specs).
+
+    Each file carries provider/backend_id/captured_at/source/license_ref plus
+    either an explicit ``derived_metrics`` block (Metriq, vendor-reported specs)
+    or a raw ``calibration`` payload to reduce (Zenodo IQM). Nothing is invented:
+    every value comes from the dataset file, which records its own source URL.
+    """
+    n = 0
+    for fn in sorted(glob.glob(str(REPO / "datasets" / subdir / "*.json"))):
+        rec = json.load(open(fn))
+        provider, bid = rec["provider"], rec["backend_id"]
+        source = rec.get("source", subdir)
+        if rec.get("derived_metrics") is not None:
+            dm = dict(rec["derived_metrics"])
+        elif rec.get("calibration") is not None:
+            dm = _robust_metrics(rec["calibration"])
+        else:
+            dm = {}
+        dm.setdefault("source", source)
+        snapshot_json = rec.get("snapshot_json") or rec.get("calibration") or {
+            "schema": "qlprov/corpus-record/1.0",
+            "backend": {"vendor": provider, "name": bid},
+            "captured_at": rec["captured_at"], "source": source,
+            "provenance": {"source": source, "license_ref": rec.get("license_ref"),
+                           "raw_ref": rec.get("raw_ref"), "note": rec.get("note", "")},
+            "metrics": dm,
+        }
+        content_hash = hashing.calibration_hash(
+            {"provider": provider, "backend_id": bid, "captured_at": rec["captured_at"],
+             "source": source, "metrics": dm})
+        if _insert_snapshot(
+                session, provider=provider, backend_id=bid,
+                captured_at=_dt.datetime.fromisoformat(rec["captured_at"]),
+                content_hash=content_hash, snapshot_json=snapshot_json, derived_metrics=dm,
+                license_ref=rec["license_ref"],
+                redistributable_raw=bool(rec.get("redistributable_raw", False)),
+                raw_ref=rec.get("raw_ref")):
+            n += 1
+    return n
+
+
+def load_corpus(session):
+    counts = {
+        "ibm": _load_ibm_raw(session),
+        "metriq": _load_records(session, "metriq"),
+        "iqm": _load_records(session, "iqm"),
+        "vendor_specs": _load_records(session, "vendor_specs"),
+    }
+    session.commit()
+    return counts
 
 
 # ---- main --------------------------------------------------------------------
@@ -175,8 +239,10 @@ def main():
     print("wiping fabricated content ...")
     wipe_content(s, eng)
 
-    n_corpus = load_corpus(s)
-    print(f"real IBM device snapshots in corpus: {n_corpus}")
+    counts = load_corpus(s)
+    print("real corpus snapshots loaded: "
+          + ", ".join(f"{k}={v}" for k, v in counts.items())
+          + f"  (total {sum(counts.values())})")
 
     ws = default_workspace(s)
     now = _dt.datetime.now(_dt.timezone.utc)

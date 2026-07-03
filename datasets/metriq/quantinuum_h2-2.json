@@ -1,0 +1,64 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "quantinuum",
+  "backend_id": "h2-2",
+  "captured_at": "2026-01-23T17:05:44.697182+00:00",
+  "source": "metriq",
+  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+  "redistributable_raw": true,
+  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
+  "derived_metrics": {
+    "bseq": 56.0,
+    "eplg": 0.00179932,
+    "qaoa_ratio": 0.80175087,
+    "qft_accuracy": 0.967,
+    "n_qubits": 56,
+    "source": "metriq"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "quantinuum",
+      "name": "h2-2",
+      "n_qubits": 56
+    },
+    "captured_at": "2026-01-23T17:05:44.697182+00:00",
+    "source": "metriq",
+    "provenance": {
+      "source": "metriq",
+      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+      "repo": "unitaryfoundation/metriq-data"
+    },
+    "metric_provenance": [
+      {
+        "metric": "bseq",
+        "benchmark": "BSEQ",
+        "value": 56.0,
+        "timestamp": "2025-12-18T07:58:05.336906",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-18_07-58-05_bseq_d8a4a9cf.json"
+      },
+      {
+        "metric": "eplg",
+        "benchmark": "EPLG",
+        "value": 0.001799315217803632,
+        "timestamp": "2026-01-23T17:05:44.697182",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/quantinuum/h2-2/2026-01-23_17-05-44_eplg.json"
+      },
+      {
+        "metric": "qaoa_ratio",
+        "benchmark": "Linear Ramp QAOA",
+        "value": 0.8017508672262815,
+        "timestamp": "2025-12-12T14:10:06.387432",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-12_14-10-06_linear_ramp_qaoa_dc3970fe.json"
+      },
+      {
+        "metric": "qft_accuracy",
+        "benchmark": "Quantum Fourier Transform",
+        "value": 0.967,
+        "timestamp": "2025-12-08T10:03:08.711173",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-08_10-03-08_quantum_fourier_transform_7c1268e7.json"
+      }
+    ]
+  }
+}

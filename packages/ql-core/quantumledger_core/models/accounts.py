@@ -22,6 +22,16 @@ PLAN_LAB = "lab"
 PLAN_ENTERPRISE = "enterprise"
 PLAN_ORDER = [PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE]
 
+# Display names for the UI. The internal key for the paid team tier stays "pro"
+# (grants + existing data reference it) but it is presented as "Team".
+PLAN_DISPLAY = {
+    PLAN_FREE: "Free",
+    PLAN_ACADEMIC: "Academic",
+    PLAN_PRO: "Team",
+    PLAN_LAB: "Lab",
+    PLAN_ENTERPRISE: "Enterprise",
+}
+
 ROLE_OWNER = "owner"
 ROLE_ADMIN = "admin"
 ROLE_MEMBER = "member"

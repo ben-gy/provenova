@@ -106,9 +106,10 @@ def submit_reproduction(slug: str, days: float = 20.0, profile: str = "typical",
 def leaderboard(metric: str = "median_2q_error", period: str | None = None,
                 db: Session = Depends(get_db)):
     try:
-        from quantumledger_crawler.corpus import fleet_leaderboard
+        from quantumledger_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
 
-        return {"metric": metric, "entries": fleet_leaderboard(db, metric=metric, period=period)}
+        return {"metric": metric, "metrics": LEADERBOARD_METRICS,
+                "entries": fleet_leaderboard(db, metric=metric, period=period)}
     except Exception as e:  # crawler not installed / no corpus
         return {"metric": metric, "entries": [], "note": str(e)}
 

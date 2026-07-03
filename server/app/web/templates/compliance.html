@@ -96,21 +96,35 @@
 
     <div class="mt-4 flex flex-wrap items-center gap-2">
       {% if not wf %}
-      <form method="post" action="/app/compliance/enable">
-        <input type="hidden" name="framework_id" value="{{ fw.id }}">
-        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">Enable</button>
-      </form>
+        {% if card.enableable %}
+        <form method="post" action="/app/compliance/enable">
+          <input type="hidden" name="framework_id" value="{{ fw.id }}">
+          <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">Enable</button>
+        </form>
+        {% else %}
+        <a href="/app/plans" class="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
+           title="{{ 'Free includes FAIR only.' if card.lock == 'plan' else 'You have reached your framework limit.' }} Upgrade to enable more.">
+          {{ icon('lock-closed', 'h-3.5 w-3.5') }} {{ 'FAIR only on Free — upgrade' if card.lock == 'plan' else 'Framework limit — upgrade' }}
+        </a>
+        {% endif %}
       {% else %}
       <a href="/app/compliance/frameworks/{{ fw.id }}" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">View controls & gaps</a>
       <form method="post" action="/app/compliance/evaluate/{{ fw.id }}">
         <button type="submit" class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Re-evaluate</button>
       </form>
       {% if wf.status == 'pass' %}
-      <form method="post" action="/app/compliance/attest">
-        <input type="hidden" name="framework_id" value="{{ fw.id }}">
-        <button type="submit" class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700"
-                title="Issue an Ed25519-signed, publicly-verifiable attestation over the collected evidence.">Attest</button>
-      </form>
+        {% if can_attest %}
+        <form method="post" action="/app/compliance/attest">
+          <input type="hidden" name="framework_id" value="{{ fw.id }}">
+          <button type="submit" class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700"
+                  title="Issue an Ed25519-signed, publicly-verifiable attestation over the collected evidence.">Attest</button>
+        </form>
+        {% else %}
+        <a href="/app/plans" class="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
+           title="Signed attestations are included on {{ plan_display['academic'] }} and up.">
+          {{ icon('lock-closed', 'h-3.5 w-3.5') }} Issue attestation — {{ plan_display['pro'] }}+
+        </a>
+        {% endif %}
       {% endif %}
       {% endif %}
     </div>

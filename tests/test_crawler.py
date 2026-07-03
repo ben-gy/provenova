@@ -187,6 +187,43 @@ def test_fleet_leaderboard_ranks_devices(session, sources):
     assert fid_values == sorted(fid_values, reverse=True)
 
 
+def test_fleet_leaderboard_new_metrics_and_provenance(session):
+    """Cross-vendor benchmark metrics rank correctly with mixed availability,
+    and each entry surfaces its source + licence."""
+    import datetime as _dt
+
+    def _snap(provider, backend, dm, source, lic):
+        return CorpusSnapshot(
+            provider=provider, backend_id=backend,
+            captured_at=_dt.datetime(2026, 1, 1, tzinfo=_dt.timezone.utc),
+            content_hash=f"{provider}:{backend}:{source}", snapshot_json={},
+            derived_metrics={**dm, "source": source}, license_ref=lic,
+            redistributable_raw=(source != "vendor-reported"))
+
+    session.add_all([
+        _snap("quantinuum", "H2-1", {"two_q_fidelity": 0.9987, "quantum_volume": 1048576},
+              "metriq", "CC-BY-4.0 · metriq.info"),
+        _snap("ionq", "Forte", {"algorithmic_qubits": 36, "two_q_fidelity": 0.996},
+              "vendor-reported", "vendor-reported · ionq.com"),
+        _snap("rigetti", "Ankaa-3", {"two_q_fidelity": 0.995}, "vendor-reported",
+              "vendor-reported · rigetti.com"),
+        _snap("iqm", "Garnet", {"n_qubits": 20}, "iqm-zenodo", "CC-BY-4.0 · zenodo.org"),
+    ])
+    session.commit()
+
+    board = fleet_leaderboard(session, metric="two_q_fidelity")
+    # Only the three devices reporting the metric appear (IQM row dropped).
+    assert [e["backend_id"] for e in board] == ["H2-1", "Forte", "Ankaa-3"]
+    assert [e["value"] for e in board] == sorted([e["value"] for e in board], reverse=True)
+    # Provenance surfaced.
+    top = board[0]
+    assert top["source"] == "metriq"
+    assert "CC-BY-4.0" in top["license_ref"]
+    # algorithmic_qubits (higher-is-better) ranks IonQ first, others dropped.
+    aq = fleet_leaderboard(session, metric="algorithmic_qubits")
+    assert [e["backend_id"] for e in aq] == ["Forte"]
+
+
 def test_device_timeseries_is_longitudinal(session, sources):
     run_once(session, sources)
     series = device_timeseries(session, "ibm", "ibm_kyiv")

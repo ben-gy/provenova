@@ -121,11 +121,18 @@ def test_compliance_and_attestation(client, bundle):
     r = client.post("/api/v1/ingest/runs", json=bundle)
     assert r.status_code == 200
 
-    # free tier: compliance is gated
+    # Free tier: can enable FAIR (read-only view) but NOT a non-FAIR framework,
+    # and cannot ISSUE attestations (issuance is paid).
     fw = client.get("/api/v1/frameworks").json()
     fair = next(f for f in fw if f["key"].startswith("fair"))
-    gated = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
-    assert gated.status_code == 402  # upgrade_required
+    ieee = next(f for f in fw if f["key"].startswith("ieee"))
+    free_fair = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
+    assert free_fair.status_code == 200, free_fair.text        # FAIR allowed on Free
+    free_ieee = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{ieee['id']}/enable")
+    assert free_ieee.status_code == 402                        # non-FAIR gated on Free
+    assert client.post(f"/api/v1/workspaces/{ws_id}/compliance/evaluate").status_code == 200
+    free_att = client.post(f"/api/v1/workspaces/{ws_id}/attestations?framework_id={fair['id']}")
+    assert free_att.status_code == 402                         # attestation issuance is paid
 
     # admin upgrades the org to pro (admin-driven, no payment)
     from app.db import SessionLocal
@@ -135,8 +142,8 @@ def test_compliance_and_attestation(client, bundle):
     grant_plan(s, s.get(Org, org_id), "pro", source="admin_override")
     s.commit(); s.close()
 
-    # now enable + evaluate + attest
-    en = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
+    # now the non-FAIR framework + evaluate + attest all work
+    en = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{ieee['id']}/enable")
     assert en.status_code == 200, en.text
     ev = client.post(f"/api/v1/workspaces/{ws_id}/compliance/evaluate")
     assert ev.status_code == 200, ev.text

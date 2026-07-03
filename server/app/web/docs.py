@@ -39,6 +39,7 @@ DOCS_MANIFEST: list[dict] = [
     ]},
     {"title": "Using the app", "pages": [
         {"slug": "product-tour", "title": "Product tour (every page & button)", "source": "file:product-tour.md"},
+        {"slug": "pricing-faq", "title": "Pricing FAQ", "source": "file:pricing-faq.md"},
     ]},
     {"title": "Libraries & reference", "pages": [
         {"slug": "libraries", "title": "Libraries & downloads", "source": "file:libraries.md"},
