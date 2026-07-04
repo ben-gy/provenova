@@ -7,8 +7,14 @@ Licensed Work:        provenova-server (the Provenova server application)
                       The Licensed Work is (c) 2026 Ben Richardson.
 Additional Use Grant: You may make production use of the Licensed Work,
                       provided you do not offer the Licensed Work to third
-                      parties as a hosted or managed service that provides
-                      the Licensed Work's substantial functionality.
+                      parties as a hosted, managed, or embedded service or
+                      product that provides substantially the functionality
+                      of the Licensed Work. Making the Licensed Work
+                      available to your own organization and its affiliates,
+                      or operating it on a non-commercial basis for an
+                      academic or research collaboration in which you
+                      participate, is not an offering to third parties
+                      under this grant.
 Change Date:          2030-07-03
 Change License:       Apache License, Version 2.0
 

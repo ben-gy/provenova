@@ -204,7 +204,7 @@ _FEATURE_LABELS = {
     "continuous_monitoring": "Continuous monitoring & alerts",
     "attestation_signing": "Signed attestations",
     "trust_center": "Public Trust Center",
-    "self_host": "Self-hosting",
+    "verified_keys": "Verified keys for self-hosted instances",
     "sso_saml": "SSO / SAML",
     "data_residency": "Data residency",
     "sla": "Support SLA",
@@ -225,7 +225,8 @@ _PRICING = {
     "free": {"price": "$0", "cadence": "forever", "tagline": "For individuals getting started",
              "highlights": ["Capture, reproduce & benchmark runs", "Unlimited public result cards & badges",
                             "250 private records", "Compare vs. the public fleet",
-                            "FAIR compliance checklist", "Full qlprov export"],
+                            "FAIR compliance checklist", "Full qlprov export",
+                            "Self-host free (BUSL, production included)"],
              "cta": ("Get started", "/register"), "highlight": False},
     "academic": {"price": "$0", "cadence": "for verified academia", "tagline": "Free for .edu / .ac.* domains",
                  "highlights": ["Everything in Free", "Unlimited private records",
@@ -239,12 +240,13 @@ _PRICING = {
             "highlight": True},
     "lab": {"price": "$499", "cadence": "per month", "tagline": "For labs & departments",
             "highlights": ["Everything in Team", "SSO / SAML", "Public Trust Center",
-                           "Self-hostable signing service", "50 seats"],
+                           "Self-hostable signing service + verified keys", "50 seats"],
             "cta": ("Request access", _CONTACT + "?subject=Provenova%20Lab"),
             "highlight": False},
     "enterprise": {"price": "Custom", "cadence": "", "tagline": "For organizations with scale & governance needs",
                    "highlights": ["Everything in Lab", "Data residency", "Custom controls",
-                                  "Support SLA", "Unlimited seats"],
+                                  "Supported / air-gapped self-hosting",
+                                  "Commercial license for procurement", "Support SLA", "Unlimited seats"],
                    "cta": ("Contact us", _CONTACT + "?subject=Provenova%20Enterprise"),
                    "highlight": False},
 }
@@ -821,20 +823,24 @@ def verify_attestation_page(att_id: str, request: Request, db: Session = Depends
 @router.get("/trust/{org_slug}", response_class=HTMLResponse)
 def trust_center(org_slug: str, request: Request, db: Session = Depends(get_db),
                  p: Principal | None = Depends(current_principal)):
+    from ..entitlements import effective_plan, has_feature
+
     org = db.scalar(select(Org).where(Org.slug == org_slug))
     if org is None:
         raise HTTPException(404)
-    ws_ids = [w.id for w in db.scalars(select(Workspace).where(Workspace.org_id == org.id))]
+    active = has_feature(effective_plan(db, org), "trust_center")
     frameworks = []
     attestations = []
-    if ws_ids:
-        for wf in db.scalars(select(WorkspaceFramework).where(WorkspaceFramework.workspace_id.in_(ws_ids))):
-            fw = db.get(ComplianceFramework, wf.framework_id)
-            frameworks.append({"name": fw.name if fw else "?", "status": wf.status})
-        attestations = db.scalars(select(Attestation).where(
-            Attestation.workspace_id.in_(ws_ids), Attestation.revoked.is_(False))).all()
+    if active:
+        ws_ids = [w.id for w in db.scalars(select(Workspace).where(Workspace.org_id == org.id))]
+        if ws_ids:
+            for wf in db.scalars(select(WorkspaceFramework).where(WorkspaceFramework.workspace_id.in_(ws_ids))):
+                fw = db.get(ComplianceFramework, wf.framework_id)
+                frameworks.append({"name": fw.name if fw else "?", "status": wf.status})
+            attestations = db.scalars(select(Attestation).where(
+                Attestation.workspace_id.in_(ws_ids), Attestation.revoked.is_(False))).all()
     return render(request, "trust.html", p, org=org, frameworks=frameworks, attestations=attestations,
-                  canonical_path=f"/trust/{org_slug}")
+                  trust_center_active=active, canonical_path=f"/trust/{org_slug}")
 
 
 # -- admin ------------------------------------------------------------------

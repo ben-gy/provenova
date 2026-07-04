@@ -32,7 +32,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://provenova.net"
 Documentation = "https://provenova.net/docs/corpus-and-leaderboard"
-Source = "https://github.com/ben-gy/quantumledger"
+Source = "https://github.com/ben-gy/provenova"
 
 [project.optional-dependencies]
 # Live sources talk to real vendor APIs; kept optional so the fixture-driven

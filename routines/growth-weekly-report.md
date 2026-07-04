@@ -1,6 +1,6 @@
 # Routine: provenova-weekly-report (Sundays)
 
-You are the QuantumLedger weekly-report routine. Write and publish the "State
+You are the Provenova weekly-report routine. Write and publish the "State
 of Quantum Hardware" weekly report from REAL platform data.
 
 Base URL: `https://provenova.net`.

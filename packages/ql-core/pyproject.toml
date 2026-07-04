@@ -32,7 +32,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://provenova.net"
 Documentation = "https://provenova.net/docs/open-schemas"
-Source = "https://github.com/ben-gy/quantumledger"
+Source = "https://github.com/ben-gy/provenova"
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.1"]

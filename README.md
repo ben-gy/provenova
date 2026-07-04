@@ -39,6 +39,20 @@ tests/                 pytest suites (attestation, crawler + corpus dedup, datas
                        minting, rule engine, growth, plan tiering, full end-to-end server flow).
 ```
 
+## Licensing
+
+Open-core, one repo, two licenses — each directory carries its own `LICENSE` file:
+
+- **Apache-2.0**: `packages/ql-core`, `packages/ql-sdk`, `packages/ql-crawler` (published on
+  PyPI as [`provenova`](https://pypi.org/project/provenova/), `provenova-core`,
+  `provenova-crawler`) and the `frameworks/` compliance data. The provenance format and every
+  tool that reads or writes it is permanently open.
+- **BUSL-1.1**: `server/` — source-available; free to run, **production self-hosting included**,
+  no license key. The only reserved right is offering the server to third parties as a
+  competing hosted/managed/embedded service. Each release converts to Apache-2.0 four years
+  after it ships (this one: 2030-07-03). Details with examples:
+  [provenova.net/docs/licensing](https://provenova.net/docs/licensing).
+
 ## The four pillars (PRD §1)
 
 1. **Vendor-neutral system of record** — one versioned, immutable, hash-chained record
@@ -80,7 +94,7 @@ PYTHONPATH=server uvicorn app.main:app --port 8000     # web app + API at :8000
 ```
 
 Then browse: `/` (dashboard), `/leaderboard` (State of Quantum Hardware),
-`/cards/<slug>` (public Result Card + badges), `/app/compliance`, `/trust/quantumledger`.
+`/cards/<slug>` (public Result Card + badges), `/app/compliance`, `/trust/provenova`.
 
 Push local runs to the hosted store:
 
@@ -90,6 +104,8 @@ ql push
 ```
 
 ## Self-host (one command)
+
+Free — production included — under the server's BUSL-1.1 license (see [Licensing](#licensing)):
 
 ```bash
 cd deploy && docker compose up -d      # postgres + api + worker + Caddy
@@ -127,5 +143,4 @@ Not quantum hardware/control electronics, not a circuit IDE or scheduler, not an
 error-mitigation product, not a general MLOps platform, and not an accredited auditor —
 we produce the evidence and attestation. Quantum sensing is a future (O2) expansion.
 
-*Licensing: `ql-core`, `ql-sdk`, connectors, schema and the public Result Cards/badges
-are Apache-2.0 (open core); the hosted server is source-available (BUSL-1.1).*
+*See [Licensing](#licensing) above; per-directory `LICENSE` files are authoritative.*

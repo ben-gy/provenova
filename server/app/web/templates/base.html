@@ -36,7 +36,7 @@
     ('/hardware', 'Hardware'),
     ('/leaderboard', 'Leaderboard'),
     ('/app/compliance', 'Compliance'),
-    ('/trust/quantumledger', 'Trust Center'),
+    ('/trust/provenova', 'Trust Center'),
     ('/pricing', 'Pricing'),
     ('/docs', 'Docs')
   ] %}
@@ -105,7 +105,11 @@
       <a href="/reports" class="hover:text-slate-600">Reports</a>
       <a href="/reports/feed.xml" class="hover:text-slate-600">RSS</a>
       <a href="/docs" class="hover:text-slate-600">Docs</a>
-      {% if settings and settings.deployment %}<span>· {{ settings.deployment }}</span>{% endif %}
+      <a href="/pricing" class="hover:text-slate-600">Pricing</a>
+      <a href="/docs/licensing" class="hover:text-slate-600">License</a>
+      <a href="https://github.com/ben-gy/provenova" class="hover:text-slate-600">GitHub</a>
+      <a href="https://pypi.org/project/provenova/" class="hover:text-slate-600">PyPI</a>
+      {% if settings and settings.deployment == "selfhost" %}<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5">Self-hosted instance</span>{% endif %}
     </div>
   </footer>
 </body>

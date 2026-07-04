@@ -49,9 +49,13 @@ self-hosted server to publish cards, run compliance, and compare across the publ
 
 ## Open core
 
-The client SDK, vendor connectors, provenance schema, and the public Result Cards / badges are
-**Apache-2.0**. The hosted server (reproduce engine, analytics, compliance rule engine, governance) is
-source-available under **BUSL-1.1**. See [Libraries & downloads](/docs/libraries).
+All of it is developed in the open at
+[github.com/ben-gy/provenova](https://github.com/ben-gy/provenova). The client SDK, vendor
+connectors, provenance schema, reproduce engine and calibration crawler are **Apache-2.0**. The
+server (web app, cards, compliance rule engine, attestations, governance) is source-available
+under **BUSL-1.1** — free to self-host, production included; the only reserved right is offering
+it as a competing hosted service. See [Licensing](/docs/licensing) and
+[Libraries & downloads](/docs/libraries).
 
 ## What Provenova is *not*
 

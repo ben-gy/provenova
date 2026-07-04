@@ -48,6 +48,7 @@ DOCS_MANIFEST: list[dict] = [
         {"slug": "frameworks", "title": "Frameworks reference", "source": "gen:frameworks"},
         {"slug": "open-schemas", "title": "Open schemas (qlprov)", "source": "file:open-schemas.md"},
         {"slug": "deployment", "title": "Deployment & self-hosting", "source": "file:deployment.md"},
+        {"slug": "licensing", "title": "Licensing", "source": "file:licensing.md"},
     ]},
 ]
 

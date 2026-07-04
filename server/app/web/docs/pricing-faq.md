@@ -55,12 +55,29 @@ unlimited on Academic and paid tiers) and, being permanent, are minted only by t
 never automatically. Hitting the cap never blocks publishing; the card keeps its always-free PID.
 (A DataCite path also exists for operators who have their own membership, but it's off by default.)
 
+## Is Provenova open source?
+
+The client side is: the SDK, the vendor connectors, the reproduce engine, the calibration crawler
+and the `qlprov` provenance format are all **Apache-2.0** — fork them, embed them, ship them. The
+server is **source-available** under the Business Source License (BUSL-1.1): the code is public,
+you can run all of it, and every release automatically becomes Apache-2.0 four years after it
+ships. The only thing the license reserves is offering Provenova itself to third parties as a
+competing hosted service. The full breakdown, with examples of what you can and can't do, is on
+the [Licensing](/docs/licensing) page.
+
 ## Can I self-host?
 
-Yes — clone the repo and use the docker-compose in `deploy/`; a single-node SQLite deployment works
-out of the box. See [Deployment & self-hosting](/docs/deployment). The **Lab** tier adds a
-**self-hostable attestation signing service**, SSO/SAML and a public **Trust Center** on top of
-self-hosting, which is what most labs actually need for auditable, signed artifacts.
+Yes — free, production included, no license key, no feature gates. Clone
+[the repo](https://github.com/ben-gy/provenova) and use the docker-compose in `deploy/`; a
+single-node SQLite deployment works out of the box. See
+[Deployment & self-hosting](/docs/deployment).
+
+What you can't self-host is *trust*. Attestations are only as credible as the key that signs
+them, and a self-hosted instance signs with its own key — which third parties have no reason to
+believe. That's what the paid tiers are actually about: the **Lab** tier's self-hostable signing
+service comes with **verified keys** — your instance's public key is registered in Provenova's
+trust directory, so attestations you sign verify against provenova.net — plus SSO/SAML and a
+public **Trust Center**. Run it yourself for free; pay us when you need the world to believe it.
 
 ## How does academic verification work?
 

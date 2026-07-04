@@ -147,7 +147,7 @@
     {% set personas = [
       ('Researchers', 'Make results reproducible and citable. Publish a Result Card with a citable identifier and prove it hasn\'t changed — free for academic email domains.', 'Start free', '/register'),
       ('Labs & teams', 'Compliance frameworks, continuous monitoring, signed attestations and a public Trust Center to share your posture.', 'See Team & Lab', '/pricing'),
-      ('Enterprises', 'Self-hosting, SSO/SAML, data residency and an SLA — the vendor-neutral record of every quantum workload.', 'Talk to us', '/pricing')
+      ('Enterprises', 'Supported self-hosting, SSO/SAML, data residency and an SLA — the vendor-neutral record of every quantum workload.', 'Talk to us', '/pricing')
     ] %}
     {% for who, body, cta, href in personas %}
     <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6">
@@ -171,6 +171,7 @@
     </p>
     <div class="mt-4 flex flex-wrap gap-3 text-sm">
       <a href="/docs" class="rounded-md bg-white/10 px-4 py-2 font-medium text-white hover:bg-white/20">Browse the docs</a>
+      <a href="https://github.com/ben-gy/provenova" class="rounded-md px-4 py-2 font-medium text-indigo-300 hover:text-indigo-200">GitHub →</a>
       <a href="/docs/api" class="rounded-md px-4 py-2 font-medium text-indigo-300 hover:text-indigo-200">API reference →</a>
     </div>
   </div>

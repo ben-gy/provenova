@@ -10,7 +10,7 @@ primary_region = "syd"
 # Non-secret config. Secrets (QL_SECRET_KEY, QL_ATTESTATION_KEY_B64,
 # QL_DATABASE_URL) are set with `fly secrets set` — never put them here.
 [env]
-  QL_DEPLOYMENT = "selfhost"
+  QL_DEPLOYMENT = "hosted"      # this IS the hosted instance (provenova.net)
   QL_PUBLIC_CARDS = "true"
   QL_ADMIN_EMAIL = "hi@ben.gy"
 

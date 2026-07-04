@@ -1,12 +1,15 @@
 # Libraries & downloads
 
-Provenova ships as four Python packages. The client side is open source (Apache-2.0); the hosted server
-is source-available (BUSL-1.1). You only need the pieces relevant to what you're doing.
+Provenova ships as four Python packages, all developed in the open in one monorepo:
+[github.com/ben-gy/provenova](https://github.com/ben-gy/provenova). The client side is open source
+(Apache-2.0); the hosted server is source-available (BUSL-1.1) — see [Licensing](/docs/licensing).
+You only need the pieces relevant to what you're doing.
 
 ## `provenova` — the SDK & CLI
 
 **Install:** `pip install provenova` · extras: `[aer]`, `[qiskit_runtime]`, `[braket]`, `[azure]` ·
-**License:** Apache-2.0 · **Package dir:** `packages/ql-sdk`
+**License:** Apache-2.0 · **Source:** [`packages/ql-sdk`](https://github.com/ben-gy/provenova/tree/main/packages/ql-sdk) ·
+[PyPI](https://pypi.org/project/provenova/)
 
 The open-source client. What it gives you:
 
@@ -23,7 +26,8 @@ pip install "provenova[aer]"
 ## `provenova-core` — the provenance engine
 
 **Install:** `pip install provenova-core` · extra: `[postgres]` · **License:** Apache-2.0 ·
-**Package dir:** `packages/ql-core`
+**Source:** [`packages/ql-core`](https://github.com/ben-gy/provenova/tree/main/packages/ql-core) ·
+[PyPI](https://pypi.org/project/provenova-core/)
 
 The shared foundation used by both the SDK and the server:
 
@@ -38,8 +42,9 @@ Runs on SQLite (offline / small self-host) or PostgreSQL (hosted) from one schem
 
 ## `provenova-crawler` — the corpus crawler
 
-**Install:** `pip install provenova-crawler` · **License:** Apache-2.0 · **Package dir:**
-`packages/ql-crawler`
+**Install:** `pip install provenova-crawler` · **License:** Apache-2.0 ·
+**Source:** [`packages/ql-crawler`](https://github.com/ben-gy/provenova/tree/main/packages/ql-crawler) ·
+[PyPI](https://pypi.org/project/provenova-crawler/)
 
 Collects public-QPU calibration data, normalizes it to `qlprov/calibration/1.0`, applies terms-of-service
 redistribution policies, deduplicates, and ingests it into the public corpus. Ships a `FixtureSource`
@@ -48,8 +53,10 @@ redistribution policies, deduplicates, and ingests it into the public corpus. Sh
 
 ## `provenova-server` — the hosted platform
 
-**Install:** clone the repo and use the docker-compose in `deploy/` (not distributed on PyPI) ·
-**License:** BUSL-1.1 (source-available) · **Package dir:** `server`
+**Install:** clone [the repo](https://github.com/ben-gy/provenova) and use the docker-compose in
+`deploy/` (not distributed on PyPI) ·
+**License:** BUSL-1.1 (source-available; self-host free, production included — see [Licensing](/docs/licensing)) ·
+**Source:** [`server`](https://github.com/ben-gy/provenova/tree/main/server)
 
 The FastAPI application: ingestion + read API, the server-rendered web UI, Result Cards + badge service, the
 reproduce engine, the compliance rule engine, Ed25519 attestations, accounts/entitlements/RBAC, and admin.
@@ -61,7 +68,7 @@ See [Deployment & self-hosting](/docs/deployment) and the [API reference](/docs/
 |------|---------|
 | Record & reproduce locally | `provenova[aer]` (pulls in `provenova-core`) |
 | Contribute to / crawl the corpus | `provenova-crawler` |
-| Run your own server | clone the repo → `deploy/` docker-compose |
+| Run your own server | [clone the repo](https://github.com/ben-gy/provenova) → `deploy/` docker-compose |
 | Just verify a shared `qlprov` document | `provenova-core` |
 
 Next: [CLI reference](/docs/cli).

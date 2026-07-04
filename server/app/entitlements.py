@@ -3,6 +3,10 @@
 Entitlements are resolved from the org's plan (which is set by the highest active
 grant — admin override, academic, purchase). Full open-format export is available
 at EVERY tier per the NFR and is therefore never gated.
+
+Self-hosting is never an entitlement: running the server is governed by the
+server license (BUSL-1.1, production use included), and plans only bind on the
+hosted service — a self-hosted operator administers their own grants.
 """
 
 from __future__ import annotations
@@ -45,7 +49,7 @@ FEATURES: dict[str, set[str]] = {
     "attestation_signing": {PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
     "continuous_monitoring": {PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
     "trust_center": {PLAN_LAB, PLAN_ENTERPRISE},
-    "self_host": {PLAN_LAB, PLAN_ENTERPRISE},
+    "verified_keys": {PLAN_LAB, PLAN_ENTERPRISE},
     "sso_saml": {PLAN_LAB, PLAN_ENTERPRISE},
     "data_residency": {PLAN_ENTERPRISE},
     "sla": {PLAN_ENTERPRISE},

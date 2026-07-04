@@ -1,4 +1,4 @@
-# Hosting QuantumLedger on Fly.io
+# Hosting Provenova on Fly.io
 
 Fly builds and runs `deploy/Dockerfile` directly, terminates TLS at its edge (no
 Caddy needed), and scales the web machine to zero when idle. Config lives in

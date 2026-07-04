@@ -1,0 +1,17 @@
+Provenova is an open-core monorepo under two licenses. The per-directory
+LICENSE files are authoritative:
+
+  packages/ql-core/LICENSE      Apache License 2.0
+  packages/ql-sdk/LICENSE       Apache License 2.0
+  packages/ql-crawler/LICENSE   Apache License 2.0
+  frameworks/                   Apache License 2.0 (compliance frameworks as data)
+  server/LICENSE                Business Source License 1.1 (BUSL-1.1)
+
+In short: the client SDK, provenance engine, schemas and crawler are open
+source (Apache-2.0). The server is source-available (BUSL-1.1) — free to run,
+production self-hosting included; the only reserved right is offering the
+server to third parties as a competing hosted, managed, or embedded service.
+Each server release converts to Apache-2.0 four years after it ships.
+
+Plain-language guide with examples: https://provenova.net/docs/licensing
+Commercial licensing: hi@ben.gy

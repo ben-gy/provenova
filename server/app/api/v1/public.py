@@ -249,9 +249,14 @@ def verify_attestation_endpoint(att_id: str, db: Session = Depends(get_db)):
 
 @router.get("/api/v1/trust/{org_slug}")
 def trust_center(org_slug: str, db: Session = Depends(get_db)):
+    from ...entitlements import effective_plan, has_feature
+
     org = db.scalar(select(Org).where(Org.slug == org_slug))
     if org is None:
         raise HTTPException(404, "org not found")
+    if not has_feature(effective_plan(db, org), "trust_center"):
+        return {"org": org.name, "slug": org.slug, "trust_center": "inactive",
+                "frameworks": [], "attestations": []}
     ws_ids = [w.id for w in db.scalars(select(Workspace).where(Workspace.org_id == org.id))]
     frameworks = []
     if ws_ids:

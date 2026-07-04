@@ -103,9 +103,14 @@ def bootstrap(session: Session) -> None:
             )
             session.add(admin)
             session.flush()
-        org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
+        org = session.scalar(select(Org).where(Org.slug == "provenova"))
         if org is None:
-            org = Org(name="Provenova", slug="quantumledger", plan=PLAN_ENTERPRISE)
+            # migrate the pre-rename slug in place so existing deployments keep their org
+            org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
+            if org is not None:
+                org.slug = "provenova"
+        if org is None:
+            org = Org(name="Provenova", slug="provenova", plan=PLAN_ENTERPRISE)
             session.add(org)
             session.flush()
             session.add(OrgMembership(account_id=admin.id, org_id=org.id, role="owner"))
