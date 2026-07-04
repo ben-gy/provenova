@@ -49,9 +49,17 @@ Open-core, one repo, two licenses — each directory carries its own `LICENSE` f
   tool that reads or writes it is permanently open.
 - **BUSL-1.1**: `server/` — source-available; free to run, **production self-hosting included**,
   no license key. The only reserved right is offering the server to third parties as a
-  competing hosted/managed/embedded service. Each release converts to Apache-2.0 four years
-  after it ships (this one: 2030-07-03). Details with examples:
+  hosted, managed, or embedded service or product with substantially the server's
+  functionality — paid or free. Each release converts to Apache-2.0 four years after it
+  ships (this one: 2030-07-03). Details with examples:
   [provenova.net/docs/licensing](https://provenova.net/docs/licensing).
+
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, PR guidelines
+and the [Provenova CLA](CLA.md), which every contributor signs once (a bot walks you through
+it on your first PR). The CLA grants the relicensing rights that keep the scheduled
+BUSL→Apache conversion and commercial licensing legally possible.
 
 ## The four pillars (PRD §1)
 

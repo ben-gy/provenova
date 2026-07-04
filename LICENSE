@@ -10,8 +10,10 @@ LICENSE files are authoritative:
 In short: the client SDK, provenance engine, schemas and crawler are open
 source (Apache-2.0). The server is source-available (BUSL-1.1) — free to run,
 production self-hosting included; the only reserved right is offering the
-server to third parties as a competing hosted, managed, or embedded service.
+server to third parties as a hosted, managed, or embedded service or product
+with substantially the server's functionality, paid or free.
 Each server release converts to Apache-2.0 four years after it ships.
 
 Plain-language guide with examples: https://provenova.net/docs/licensing
 Commercial licensing: hi@ben.gy
+Contributions: accepted under the Provenova CLA — see CONTRIBUTING.md

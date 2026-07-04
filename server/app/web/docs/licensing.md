@@ -35,8 +35,12 @@ the server down retroactively even if it wanted to.
 - **Run it for your whole organization.** A company or university operating one instance for all
   its own teams, departments and affiliates is squarely inside the grant.
 - **Host it for an academic collaboration.** A national quantum hub running one instance for its
-  member labs, on a non-commercial basis, is explicitly allowed — the grant carves this in.
-- **Run it air-gapped.** Set `QL_PUBLIC_CARDS=false` and nothing leaves your network. See
+  member labs, on a non-commercial basis, is explicitly allowed — the grant carves this in, and
+  defines *non-commercial* precisely: no fee or other consideration in exchange for access,
+  beyond recovering the direct costs of operating it. Splitting the hosting bill is fine.
+- **Run it air-gapped.** A self-hosted instance is fully self-contained — it never calls
+  provenova.net, and the few outbound integrations (DOI minting, IndexNow, the public-corpus
+  refresh) are all off by default. Nothing leaves your network unless you turn it on. See
   [Deployment & self-hosting](/docs/deployment).
 - **Fork the SDK, build on the format, ship products on top.** All Apache-2.0. A QPU vendor can
   bundle the *client* in their tooling today, no permission needed.
@@ -44,8 +48,9 @@ the server down retroactively even if it wanted to.
 ## What you can't do
 
 - **Offer Provenova as a service.** You can't take the server and sell (or give away) hosted
-  Provenova to third parties — "QuantumProvenance Cloud, powered by our fork" is exactly what the
-  license reserves until the code converts to Apache-2.0.
+  Provenova to third parties — the grant is explicit that this holds *whether or not you charge
+  a fee or receive any other consideration*. "QuantumProvenance Cloud, powered by our fork" is
+  exactly what the license reserves until the code converts to Apache-2.0.
 - **Embed the server in a competing product.** A vendor console that ships the server's
   functionality to its customers is an offering to third parties, hosted or not.
 
@@ -63,6 +68,20 @@ a public [Trust Center](/docs/compliance), verified keys for self-hosted instanc
 public corpus behind the [leaderboard](/hardware). Keeping the code open costs us nothing we were
 selling — and it means you can audit the ledger you're trusting, which for a provenance product
 is rather the point.
+
+That's also why the provenance engine itself (`ql-core`) is Apache-2.0 rather than something
+stricter, and will stay that way: verification has to be embeddable everywhere — vendor tooling,
+CI pipelines, a reviewer's laptop — for the format to win, and the engine without the corpus and
+the signing keys is not the product.
+
+## Contributions
+
+Contributions are welcome across the whole repo — see
+[CONTRIBUTING.md](https://github.com/ben-gy/provenova/blob/main/CONTRIBUTING.md). Every
+contributor signs the [Provenova CLA](https://github.com/ben-gy/provenova/blob/main/CLA.md)
+once, via a bot comment on their first pull request. The CLA grants the relicensing rights that
+make the promises on this page keepable: without it, contributed server code couldn't legally
+follow the scheduled conversion to Apache-2.0, and commercial licenses couldn't cover it.
 
 See also: [Pricing FAQ](/docs/pricing-faq) · [Deployment & self-hosting](/docs/deployment) ·
 [Libraries & downloads](/docs/libraries)

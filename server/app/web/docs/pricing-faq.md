@@ -61,9 +61,9 @@ The client side is: the SDK, the vendor connectors, the reproduce engine, the ca
 and the `qlprov` provenance format are all **Apache-2.0** — fork them, embed them, ship them. The
 server is **source-available** under the Business Source License (BUSL-1.1): the code is public,
 you can run all of it, and every release automatically becomes Apache-2.0 four years after it
-ships. The only thing the license reserves is offering Provenova itself to third parties as a
-competing hosted service. The full breakdown, with examples of what you can and can't do, is on
-the [Licensing](/docs/licensing) page.
+ships. The only thing the license reserves is offering the server itself to third parties as a
+hosted, managed, or embedded service or product — paid or free. The full breakdown, with examples
+of what you can and can't do, is on the [Licensing](/docs/licensing) page.
 
 ## Can I self-host?
 
