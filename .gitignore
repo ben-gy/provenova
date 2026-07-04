@@ -9,3 +9,4 @@ data/
 *.key
 .env
 .pytest_cache/
+dist/
