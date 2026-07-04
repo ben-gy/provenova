@@ -1,0 +1,5 @@
+# Triaged false positives (gitleaks fingerprints).
+#
+# generic-api-key on a Python type annotation — no secret material:
+#   self._signing_key: ed25519.Ed25519PrivateKey | None = None
+9be82db16caf67b298bb2b6362a503567079a520:server/app/services/attestation/keys.py:generic-api-key:122
