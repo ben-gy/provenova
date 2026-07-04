@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,8 @@ version = "0.1.0"
 description = "Provenova public-QPU calibration crawler: fixture/live sources, vendor normalization, ToS-gated corpus ingestion, scheduling."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [{ name = "Provenova", email = "hi@ben.gy" }]
 keywords = ["quantum", "calibration", "crawler", "benchmarks"]
 classifiers = [
