@@ -23,8 +23,9 @@ controls:
       identifier (a DOI or other PID) so it can be found and cited unambiguously.
     severity: high
     remediation: >-
-      Mint a DOI (or register a PID) for the published ResultCard and store it on
-      the card before publishing.
+      Publish the ResultCard — it is automatically assigned a free, citable PID.
+      Optionally mint a DOI (via Zenodo) for an external, globally-resolvable
+      identifier.
     evidence_rules:
       - id: FAIR-F1-pid
         source: card

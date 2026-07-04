@@ -55,8 +55,8 @@ A **gap** is a failing control — and the framework detail page tells you exact
 - the **evidence collected so far**, with its source and content hash.
 
 So "gap" is never a dead end: you can see which check failed, what the standard wanted, and the concrete
-action that closes it. Fix the underlying data (e.g. mint a DOI, publish a card, refresh a calibration),
-then **Re-evaluate**.
+action that closes it. Fix the underlying data (e.g. publish a card — which assigns a citable PID —
+refresh a stale calibration, or reproduce a run), then **Re-evaluate**.
 
 ## Attestations {#attestations}
 

@@ -21,9 +21,11 @@ Cards can be unpublished (retracted) later.
 Because a card carries a persistent identifier and an immutable `run_hash`, it can be cited unambiguously.
 The card page and API offer ready-made citations:
 
-- `GET /api/v1/cards/<slug>/citation` — **BibTeX** and **RIS**.
+- `GET /api/v1/cards/<slug>/citation?format=<bibtex|csl|ris>` — **BibTeX** (default), **CSL JSON**, or **RIS**.
 - `GET /api/v1/cards/<slug>` — machine-readable metadata (JSON).
-- `GET /api/v1/cards/<slug>/embed` — an embeddable HTML snippet.
+- `GET /api/v1/cards/<slug>/embed` — JSON of copy-paste snippets (a Markdown/HTML badge and an iframe tag).
+- `GET /cards/<slug>/embed.html` — the self-contained, iframe-embeddable Result Card widget itself (served
+  with `frame-ancestors *`), also discoverable via oEmbed at `GET /api/v1/oembed`.
 
 A card's free **PID** already satisfies the FAIR persistent-identifier control (FAIR-F1); an optional
 **DOI** — minted for free on demand via Zenodo, which also archives the provenance record — strengthens

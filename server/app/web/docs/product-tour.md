@@ -68,8 +68,8 @@ so partners can verify your compliance posture without contacting you. Revoked a
 
 ## Result card (`/cards/<slug>`)
 
-The public face of a published run: title, summary, provenance, distribution, badges, an embed snippet, and
-citation formats (BibTeX/RIS). See [Result cards & badges](/docs/result-cards-and-badges).
+The public face of a published run: title, summary, provenance, distribution, badges, an embeddable card
+widget, and citation formats (BibTeX, CSL JSON, RIS). See [Result cards & badges](/docs/result-cards-and-badges).
 
 ## Settings (`/app/settings`)
 
