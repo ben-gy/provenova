@@ -1,8 +1,12 @@
-# QuantumLedger
+# Provenova
 
 **The vendor-neutral system of record for quantum computing.**
 
-QuantumLedger binds every quantum run to the exact calibration and hardware state
+> Naming: the product and site are **Provenova** (provenova.net); *quantumledger*
+> is the repo codename that survives in a few stable identifiers — the `ql` CLI,
+> the `QL_*` env vars, the `ql:card:*` PIDs and the frozen `qlprov/*` schema IDs.
+
+Provenova binds every quantum run to the exact calibration and hardware state
 that produced it — so results are **reproducible, comparable, shareable and
 auditable** across QPUs, simulators and vendors. It is the "source of truth" that
 enterprise software provides in every other data-intensive field, applied to the
@@ -20,7 +24,7 @@ artifacts, compliance, and the public-corpus crawler.
 packages/ql-core/      Shared core: SQLAlchemy provenance model, canonical hashing +
                        Merkle run-hashing, DB-trigger immutability, the deterministic
                        simulator + drift engine, reproduce/scoring/diff, open qlprov schemas.
-packages/ql-sdk/       Open-source client `quantumledger` (Apache-2.0): the @ql.capture
+packages/ql-sdk/       Open-source client `provenova` (Apache-2.0): the @ql.capture
                        decorator/context-manager, vendor connectors (plugin system),
                        offline local store, `ql` CLI, content-hash-idempotent push.
 packages/ql-crawler/   Public-QPU calibration crawler + aggregate corpus + ToS gate.
@@ -31,16 +35,33 @@ frameworks/            Compliance frameworks as data (FAIR, IEEE P7131, metrolog
 fixtures/              Representative vendor calibration payloads (IBM/IonQ/Braket).
 deploy/                docker-compose (postgres + api + worker + Caddy) for self-host.
 examples/  scripts/    Runnable demos + the end-to-end seed.
-tests/                 pytest suites (determinism, immutability, dedup, drift, rule
-                       engine, attestation, crawler, full end-to-end server flow).
+tests/                 pytest suites (attestation, crawler + corpus dedup, datasets, DOI
+                       minting, rule engine, growth, plan tiering, full end-to-end server flow).
 ```
+
+## Licensing
+
+Open-core, one repo, two licenses — each directory carries its own `LICENSE` file:
+
+- **Apache-2.0**: `packages/ql-core`, `packages/ql-sdk`, `packages/ql-crawler` (published on
+  PyPI as [`provenova`](https://pypi.org/project/provenova/), `provenova-core`,
+  `provenova-crawler`) and the `frameworks/` compliance data. The provenance format and every
+  tool that reads or writes it is permanently open.
+- **BUSL-1.1**: `server/` — source-available; free to run, **production self-hosting included**,
+  no license key. The only reserved right is offering the server to third parties as a
+  competing hosted/managed/embedded service. Each release converts to Apache-2.0 four years
+  after it ships (this one: 2030-07-03). Details with examples:
+  [provenova.net/docs/licensing](https://provenova.net/docs/licensing).
 
 ## The four pillars (PRD §1)
 
 1. **Vendor-neutral system of record** — one versioned, immutable, hash-chained record
    binding every run to the calibration state that produced it (`ql-core`).
-2. **Open-core + freemium** — the client, connectors and provenance schema are Apache-2.0;
-   the hosted record, reproduce/compare engine, analytics and governance are paid.
+2. **Open-core + freemium** — the client, connectors, provenance schema and reproduce
+   engine are Apache-2.0; the hosted record is freemium (Free: 250 private records, fleet
+   comparison, unlimited public Result Cards & badges, a read-only FAIR checklist);
+   attestation issuance, continuous monitoring, deeper analytics and governance
+   (Trust Center, SSO, data residency, SLA) are paid.
 3. **Trust artifacts as a growth engine** — public, citable Result Cards and embeddable
    shields.io-style badges (Recorded → Reproduced → Benchmarked → Compliant → Audit-ready).
 4. **"Vanta for quantum" compliance** — pick a standard; evidence is auto-collected from
@@ -73,7 +94,7 @@ PYTHONPATH=server uvicorn app.main:app --port 8000     # web app + API at :8000
 ```
 
 Then browse: `/` (dashboard), `/leaderboard` (State of Quantum Hardware),
-`/cards/<slug>` (public Result Card + badges), `/app/compliance`, `/trust/quantumledger`.
+`/cards/<slug>` (public Result Card + badges), `/app/compliance`, `/trust/provenova`.
 
 Push local runs to the hosted store:
 
@@ -84,12 +105,13 @@ ql push
 
 ## Self-host (one command)
 
+Free — production included — under the server's BUSL-1.1 license (see [Licensing](#licensing)):
+
 ```bash
 cd deploy && docker compose up -d      # postgres + api + worker + Caddy
 ```
 
-Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment, or
-`QL_PUBLIC_CARDS=false` for a VPC/air-gapped install (badges/cards stay internal).
+Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment.
 
 ## Design guarantees
 
@@ -98,7 +120,7 @@ Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment, or
   a per-workspace `chain_hash` links runs into a tamper-evident ledger. DB triggers
   reject any UPDATE/DELETE of sealed records.
 - **Offline-verifiable provenance.** The exported `qlprov/run/1.0` document recomputes
-  its own hash with no server (`quantumledger_core.verify_run_hash`).
+  its own hash with no server (`provenova_core.verify_run_hash`).
 - **Content-addressed dedup.** Calibration snapshots, circuits and compilations are
   stored once and referenced many times.
 - **Compliance as a byproduct.** `EvidenceItem` points back into the core record; an
@@ -110,8 +132,9 @@ Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment, or
 
 ```bash
 pip install pytest
-python -m pytest        # 31 tests: determinism, immutability, dedup, drift, rule
-                        # engine, attestation, crawler, and the full server flow
+python -m pytest        # attestation, crawler + corpus dedup, datasets, DOI/PID minting,
+                        # rule engine, growth, plan tiering, sanitization, SEO pages,
+                        # and the full end-to-end server flow
 ```
 
 ## Non-goals (PRD §4)
@@ -120,5 +143,4 @@ Not quantum hardware/control electronics, not a circuit IDE or scheduler, not an
 error-mitigation product, not a general MLOps platform, and not an accredited auditor —
 we produce the evidence and attestation. Quantum sensing is a future (O2) expansion.
 
-*Licensing: `ql-core`, `ql-sdk`, connectors, schema and the public Result Cards/badges
-are Apache-2.0 (open core); the hosted server is source-available (BUSL-1.1).*
+*See [Licensing](#licensing) above; per-directory `LICENSE` files are authoritative.*

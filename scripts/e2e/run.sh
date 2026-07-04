@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full mock end-to-end test for QuantumLedger.
+# Full mock end-to-end test for Provenova.
 #
 # Installs the libraries, stands up the server against a throwaway database on a
 # free port, seeds a walkable dataset, then drives every layer (SDK/CLI, ingest
@@ -7,7 +7,7 @@
 # multi-tenant security, and interop error handling) and asserts the results.
 #
 # Fully isolated and repeatable: each run uses a fresh temp DB / SDK home /
-# signing key and never touches your real ~/.quantumledger or repo database.
+# signing key and never touches your real ~/.provenova (or legacy ~/.quantumledger) or repo database.
 #
 #   bash scripts/e2e/run.sh          # or: make e2e
 #
@@ -19,7 +19,7 @@ VENV="$REPO/.venv"
 PY="$VENV/bin/python"
 
 echo "==================================================================="
-echo " QuantumLedger — full end-to-end test"
+echo " Provenova — full end-to-end test"
 echo "==================================================================="
 
 # 1) venv + editable install of every package -------------------------------

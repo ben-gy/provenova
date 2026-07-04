@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quantumledger.io/schemas/qlprov/run/1.0",
+  "title": "Provenova Run Provenance Record",
+  "type": "object",
+  "required": [
+    "schema", "run_id", "run_hash", "workspace", "created_at",
+    "circuit", "backend", "calibration", "execution", "results", "merkle"
+  ],
+  "properties": {
+    "schema": { "const": "qlprov/run/1.0" },
+    "run_id": { "type": "string" },
+    "run_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "prev_run_hash": { "type": ["string", "null"] },
+    "workspace": { "type": "object" },
+    "created_by": { "type": ["string", "null"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "circuit": {
+      "type": "object",
+      "required": ["content_sha256", "format"],
+      "properties": {
+        "content_sha256": { "type": "string" },
+        "format": { "type": "string" },
+        "n_qubits": { "type": ["integer", "null"] },
+        "n_clbits": { "type": ["integer", "null"] }
+      }
+    },
+    "compilation": { "type": ["object", "null"] },
+    "backend": {
+      "type": "object",
+      "required": ["identity_hash", "vendor", "name"],
+      "properties": {
+        "identity_hash": { "type": "string" },
+        "vendor": { "type": "string" },
+        "name": { "type": "string" },
+        "kind": { "type": "string" }
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "required": ["content_sha256", "captured_at"],
+      "properties": {
+        "snapshot_id": { "type": "string" },
+        "content_sha256": { "type": "string" },
+        "captured_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": ["shots"],
+      "properties": {
+        "shots": { "type": "integer" },
+        "seed_simulator": { "type": ["integer", "null"] },
+        "seed_transpiler": { "type": ["integer", "null"] },
+        "params": { "type": "object" }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["result_index", "counts_sha256", "distribution", "shots"],
+        "properties": {
+          "result_index": { "type": "integer" },
+          "counts_sha256": { "type": "string" },
+          "distribution": { "type": "object" },
+          "shots": { "type": "integer" },
+          "retained": { "type": "string" }
+        }
+      }
+    },
+    "merkle": {
+      "type": "object",
+      "required": ["leaves", "inputs_root", "algo"],
+      "properties": {
+        "leaves": { "type": "object" },
+        "inputs_root": { "type": "string" },
+        "algo": { "type": "string" }
+      }
+    }
+  }
+}

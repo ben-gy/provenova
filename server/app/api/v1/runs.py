@@ -6,14 +6,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import ReproductionEvent, ResultCard, Run, VIS_PUBLIC, Workspace
-from quantumledger_core.provenance import build_run_doc
-from quantumledger_core.reproduce import runner
-from quantumledger_core.reproduce.report import build_report
+from provenova_core.models import ReproductionEvent, ResultCard, Run, VIS_PUBLIC, Workspace
+from provenova_core.provenance import build_run_doc
+from provenova_core.reproduce import runner
+from provenova_core.reproduce.report import build_report
 
+from ...config import get_settings
 from ...db import get_db
 from ...deps import Principal, current_principal, owned_run, require_feature, require_principal
 from ...services import cards as cards_svc
+from ...services import doi as doi_svc
 from ...services.accounts import audit
 
 router = APIRouter(prefix="/api/v1", tags=["runs"])
@@ -81,22 +83,62 @@ def publish(run_id: str, db: Session = Depends(get_db),
         raise HTTPException(403, "forbidden")
     run = owned_run(db, run_id, p)
     card = cards_svc.get_or_create_card(db, run)
-    cards_svc.publish_card(db, card)
+    settings = get_settings()
+    card, mint = cards_svc.publish_card(
+        db, card, plan=p.plan, provider=doi_svc.provider_for(settings),
+        base_url=settings.base_url)
     audit(db, workspace_id=run.workspace_id, account_id=p.account_id, action="card.publish",
           resource_type="card", resource_id=card.id)
+    if mint["status"] in ("minted", "mint_failed", "quota_exceeded"):
+        audit(db, workspace_id=run.workspace_id, account_id=p.account_id,
+              action="card.doi.mint", resource_type="card", resource_id=card.id,
+              detail=mint)
     db.commit()
-    return {"slug": card.slug, "visibility": card.visibility, "pid": card.pid}
+    return {"slug": card.slug, "visibility": card.visibility, "pid": card.pid,
+            "doi": card.doi, "doi_status": mint["status"]}
 
 
 @router.post("/runs/{run_id}/card/unpublish")
 def unpublish(run_id: str, db: Session = Depends(get_db),
               p: Principal = Depends(require_principal)):
+    if not p.can("publish"):  # mirror publish — retracting a card has side effects
+        raise HTTPException(403, "forbidden")
     run = owned_run(db, run_id, p)
     card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
     if card is None:
         raise HTTPException(404, "no card")
-    cards_svc.unpublish_card(db, card)
+    cards_svc.unpublish_card(db, card, provider=doi_svc.provider_for(get_settings()))
     audit(db, workspace_id=run.workspace_id, account_id=p.account_id, action="card.unpublish",
           resource_type="card", resource_id=card.id)
     db.commit()
     return {"slug": card.slug, "visibility": card.visibility}
+
+
+@router.post("/runs/{run_id}/card/mint-doi")
+def mint_doi(run_id: str, db: Session = Depends(get_db),
+             p: Principal = Depends(require_feature("public_result_cards"))):
+    """Explicit, opt-in DOI mint via Zenodo for an already-public card."""
+    if not p.can("publish"):
+        raise HTTPException(403, "forbidden")
+    run = owned_run(db, run_id, p)
+    card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
+    if card is None or card.visibility != VIS_PUBLIC:
+        raise HTTPException(409, "card must be published first")
+    if card.doi:
+        raise HTTPException(409, {"error": "exists", "doi": card.doi})
+    provider = doi_svc.zenodo_provider(get_settings())
+    if provider is None:
+        raise HTTPException(400, "DOI minting is not configured (no Zenodo token)")
+    info = cards_svc.mint_card_doi(db, card, provider=provider, plan=p.plan,
+                                   base_url=get_settings().base_url)
+    if info["status"] == "quota_exceeded":
+        raise HTTPException(402, {"error": "quota_exceeded", **info})
+    if info["status"] == "mint_failed":
+        raise HTTPException(502, {"error": "mint_failed", **info})
+    if info["status"] == "exists":
+        raise HTTPException(409, {"error": "exists", "doi": info["doi"]})
+    audit(db, workspace_id=run.workspace_id, account_id=p.account_id,
+          action="card.doi.mint", resource_type="card", resource_id=card.id, detail=info)
+    db.commit()
+    return {"slug": card.slug, "doi": card.doi, "doi_status": info["status"],
+            "record_url": info.get("record_url")}

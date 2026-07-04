@@ -1,0 +1,48 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "iqm",
+  "backend_id": "iqm_emerald",
+  "captured_at": "2025-11-19T21:16:42.030136+00:00",
+  "source": "metriq",
+  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+  "redistributable_raw": true,
+  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
+  "derived_metrics": {
+    "qaoa_ratio": 0.00992064,
+    "qft_accuracy": 0.12933333,
+    "n_qubits": 54,
+    "source": "metriq"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "iqm",
+      "name": "iqm_emerald",
+      "n_qubits": 54
+    },
+    "captured_at": "2025-11-19T21:16:42.030136+00:00",
+    "source": "metriq",
+    "provenance": {
+      "source": "metriq",
+      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+      "repo": "unitaryfoundation/metriq-data"
+    },
+    "metric_provenance": [
+      {
+        "metric": "qaoa_ratio",
+        "benchmark": "Linear Ramp QAOA",
+        "value": 0.009920641235910826,
+        "timestamp": "2025-11-19T19:13:53.002021",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/aws/arn_aws_braket_eu-north-1_device_qpu_iqm_emerald/2025-11-19_19-13-53_linear_ramp_qaoa_fc5b0ba2.json"
+      },
+      {
+        "metric": "qft_accuracy",
+        "benchmark": "Quantum Fourier Transform",
+        "value": 0.12933333333333333,
+        "timestamp": "2025-11-19T21:16:42.030136",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/aws/arn_aws_braket_eu-north-1_device_qpu_iqm_emerald/2025-11-19_21-16-42_quantum_fourier_transform_fa64f8d9.json"
+      }
+    ]
+  }
+}

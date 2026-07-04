@@ -1,4 +1,4 @@
-"""End-to-end assertions across every moving part of QuantumLedger.
+"""End-to-end assertions across every moving part of Provenova.
 
 Runs after the server is up (see run.sh). Exercises, with real data:
   A. offline SDK/CLI        (ql init/demo/list/show/reproduce/connectors/config)
@@ -69,7 +69,7 @@ def ql(*args: str, home: str | None = None, timeout: int = 180) -> subprocess.Co
     env = dict(os.environ)
     env["QL_HOME"] = home or QL_HOME
     return subprocess.run(
-        [sys.executable, "-m", "quantumledger.cli.__main__", *args],
+        [sys.executable, "-m", "provenova.cli.__main__", *args],
         env=env, capture_output=True, text=True, timeout=timeout,
     )
 
@@ -116,7 +116,8 @@ def phase_offline_cli() -> None:
 def phase_auth(admin: httpx.Client) -> dict:
     R.section("B/C. Health, auth, API key")
     h = httpx.get(f"{ENDPOINT}/api/v1/health", timeout=15)
-    R.check("GET /api/v1/health", h.status_code == 200 and h.json().get("service") == "quantumledger",
+    R.check("GET /api/v1/health", h.status_code == 200
+            and h.json().get("service") in ("provenova", "quantumledger"),
             f"status={h.status_code}")
 
     lr = admin.post("/api/v1/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PW})
@@ -179,7 +180,7 @@ def phase_provenance(admin: httpx.Client, run_id: str) -> None:
     doc = admin.get(f"/api/v1/runs/{run_id}").json()
     R.check("run doc is qlprov/run", isinstance(doc, dict) and "run_hash" in doc)
     try:
-        import quantumledger_core as qc
+        import provenova_core as qc
 
         verifier = getattr(qc, "verify_run_hash", None)
         if verifier is None:
@@ -330,9 +331,13 @@ def phase_security(ctx: dict, admin_run_id: str) -> None:
     R.check("?workspace_id=<victim> leaks nothing", isinstance(rows, list) and len(rows) == 0,
             f"n={len(rows) if isinstance(rows, list) else '?'}")
 
-    # free tier is gated out of compliance on its OWN workspace
+    # free tier includes the FAIR checklist (evaluate succeeds); the paid gate
+    # is attestation signing (402 upgrade_required)
     r = u2.post(f"/api/v1/workspaces/{me2.get('workspace_id')}/compliance/evaluate")
-    R.check("free tier compliance gated (402)", r.status_code == 402, f"status={r.status_code}")
+    R.check("free tier can evaluate (FAIR checklist)", r.status_code == 200, f"status={r.status_code}")
+    r = u2.post(f"/api/v1/workspaces/{me2.get('workspace_id')}/attestations",
+                params={"framework_id": "any"})
+    R.check("free tier attestation signing gated (402)", r.status_code == 402, f"status={r.status_code}")
     u2.close()
 
 

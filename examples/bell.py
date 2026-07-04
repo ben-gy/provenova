@@ -1,6 +1,6 @@
 """The <5-minute, one-line capture demo.
 
-    pip install quantumledger[aer]
+    pip install provenova[aer]
     python examples/bell.py
 
 Records the circuit + calibration snapshot + result to a local, offline ledger.
@@ -9,7 +9,7 @@ Then: `ql list`, `ql show <id>`, `ql reproduce <id>`.
 
 from __future__ import annotations
 
-import quantumledger as ql
+import provenova as ql
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 

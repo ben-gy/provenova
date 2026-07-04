@@ -1,8 +1,9 @@
 # Product tour
 
-A screen-by-screen guide to every page in the web app and what each button does. The top navigation bar is
-always present: **Home · Records · State of Quantum Hardware · Compliance · Trust Center · Docs** (plus
-**Admin** for superadmins), with your account and plan on the right.
+A screen-by-screen guide to the main pages of the web app and what each button does. The top navigation
+bar is always present: **Home · Records · Hardware · Leaderboard · Compliance · Trust Center · Pricing ·
+Docs** (plus **Admin** for superadmins), with your account and plan on the right. The Leaderboard item
+opens the State of Quantum Hardware page.
 
 ## Home / dashboard (`/`)
 
@@ -27,17 +28,21 @@ The full provenance of one run:
   [Reproduce & drift](/docs/reproduce-and-drift).
 - **Reproduction report** — after reproducing: the Hellinger-fidelity score, the verdict, and the diff
   (calibration drift, transpilation delta, top bitstring shifts).
+- **Benchmark vs fleet** (button) — score the run's distribution against the noiseless ideal and the
+  public fleet, earning the **Benchmarked** badge (free on every plan).
 - **Publish** (button) — turn this run into a public [Result Card](/docs/result-cards-and-badges).
 
 ## State of Quantum Hardware (`/leaderboard`)
 
-The public cross-vendor leaderboard, ranking devices by a calibration metric you can switch (2-qubit error,
-T1, T2, readout fidelity). Backed by the [public corpus](/docs/corpus-and-leaderboard).
+The public cross-vendor leaderboard, ranking devices by a calibration or benchmark metric you can switch
+(median 2Q error, best 2Q fidelity, median T1/T2, Quantum Volume, CLOPS, EPLG and more). Backed by the
+[public corpus](/docs/corpus-and-leaderboard).
 
 ## Compliance (`/app/compliance`)
 
-The compliance console (Pro+). A "How it works" panel and a status legend sit at the top, followed by a card
-per framework.
+The compliance console — available on every plan; Free includes the FAIR framework, and issuing signed
+attestations requires Academic or above. A "How it works" panel and a status legend sit at the top,
+followed by a card per framework.
 
 - **Enable** — turn a framework on for your workspace and evaluate it for the first time.
 - **Evaluate all** — recompute every enabled framework against your current runs. Safe to run repeatedly.
@@ -63,8 +68,8 @@ so partners can verify your compliance posture without contacting you. Revoked a
 
 ## Result card (`/cards/<slug>`)
 
-The public face of a published run: title, summary, provenance, distribution, badges, an embed snippet, and
-citation formats (BibTeX/RIS). See [Result cards & badges](/docs/result-cards-and-badges).
+The public face of a published run: title, summary, provenance, distribution, badges, an embeddable card
+widget, and citation formats (BibTeX, CSL JSON, RIS). See [Result cards & badges](/docs/result-cards-and-badges).
 
 ## Settings (`/app/settings`)
 
@@ -73,7 +78,8 @@ for pushing runs from the SDK (`ql login --token …`). Generate a key here, cop
 
 ## Admin (`/app/admin`, superadmin only)
 
-Organization management: view every org and its effective plan, and change plans (upgrade/downgrade).
+Organization management: view every org and its effective plan, and grant plan upgrades (granting a lower
+plan does not reduce an org's effective plan).
 
 ## Docs (`/docs`)
 

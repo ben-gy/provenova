@@ -26,7 +26,7 @@ GLOSSARY: dict[str, str] = {
                    "leaf changes the root, which is what makes tampering detectable.",
     "immutability": "Sealed records cannot be updated or deleted — database triggers "
                     "reject any change, so the ledger is append-only.",
-    "qlprov": "QuantumLedger's open, versioned provenance schemas (e.g. "
+    "qlprov": "Provenova's open, versioned provenance schemas (e.g. "
               "qlprov/run/1.0) — portable JSON that verifies its own hash with no server.",
 
     # -- reproduce & drift --
@@ -45,12 +45,16 @@ GLOSSARY: dict[str, str] = {
                            "count) between the original run and its reproduction.",
 
     # -- trust artifacts --
-    "result card": "A public, citable page for a run — with a DOI/PID, summary, "
-                   "provenance and embeddable badges.",
+    "result card": "A public, citable page for a run — with a free persistent "
+                   "identifier (and an optional Zenodo DOI), summary, provenance "
+                   "and embeddable badges.",
     "badge ladder": "The maturity rungs a result can earn: Recorded → Reproduced → "
                     "Benchmarked → Compliant → Audit-ready.",
+    "PID": "A persistent identifier. Every published card gets a free, offline "
+           "ql:card:<hash> PID that never expires and needs no network.",
     "DOI": "A Digital Object Identifier — a globally unique, persistent identifier "
-           "that lets a result be cited unambiguously.",
+           "that lets a result be cited unambiguously. Provenova mints DOIs for "
+           "free (opt-in) via Zenodo; the always-free default is the internal PID.",
 
     # -- compliance --
     "framework": "A standard expressed as data (e.g. FAIR, IEEE P7131) — a set of "

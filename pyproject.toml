@@ -1,7 +1,7 @@
 [project]
-name = "quantumledger-workspace"
+name = "provenova-workspace"
 version = "0.1.0"
-description = "QuantumLedger monorepo (dev workspace: core + sdk + crawler + server)."
+description = "Provenova monorepo (dev workspace: core + sdk + crawler + server)."
 requires-python = ">=3.10"
 
 [tool.pytest.ini_options]

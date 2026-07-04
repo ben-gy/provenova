@@ -1,6 +1,6 @@
-# quantumledger-core
+# provenova-core
 
-Shared core for QuantumLedger: the SQLAlchemy provenance data model, canonical
+Shared core for Provenova: the SQLAlchemy provenance data model, canonical
 JSON hashing + Merkle run-hashing, the immutability/tamper-evidence layer, and
 the open `qlprov/*` provenance JSON schemas.
 

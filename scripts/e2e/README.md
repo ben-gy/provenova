@@ -14,7 +14,7 @@ make e2e            # or: bash scripts/e2e/run.sh
    (`ql-core`, `ql-sdk[aer]`, `ql-crawler`, `server`).
 2. Spins up a **fully isolated, throwaway environment** — a fresh temp SQLite
    DB, SDK home, and attestation signing key, on a random free port. It never
-   touches your real `~/.quantumledger` or repo database.
+   touches your real `~/.provenova` (or legacy `~/.quantumledger`) or repo database.
 3. `provision.py` bootstraps the DB, sets a known password on the (Enterprise,
    superadmin) bootstrap account, and seeds a walkable dataset via
    `demo_seed.seed_workspace` (runs, a reproduction, a published card, the

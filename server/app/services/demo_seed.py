@@ -17,7 +17,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import ComplianceFramework, Control, EvidenceItem, Workspace
+from provenova_core.models import ComplianceFramework, Control, EvidenceItem, Workspace
 
 _REPO = Path(__file__).resolve().parents[3]
 _FIXTURES = _REPO / "fixtures"
@@ -54,7 +54,7 @@ def _ghz(n: int):
 
 def is_empty(session: Session, workspace: Workspace) -> bool:
     """True if the workspace has no runs yet (safe to seed)."""
-    from quantumledger_core.models import Run
+    from provenova_core.models import Run
 
     return session.scalar(select(Run).where(Run.workspace_id == workspace.id)) is None
 
@@ -66,7 +66,7 @@ def seed_workspace(session: Session, workspace: Workspace, *, attest: bool = Tru
     from app.services import cards as cards_svc
     from app.services import compliance as comp
     from app.services.attestation import create_attestation
-    from quantumledger_core.reproduce import runner
+    from provenova_core.reproduce import runner
 
     summary: dict = {"runs": [], "reproduction": None, "card": None,
                      "corpus": 0, "frameworks": [], "attestation": None}
@@ -91,17 +91,18 @@ def seed_workspace(session: Session, workspace: Workspace, *, attest: bool = Tru
                                         account_id=account_id)
     summary["reproduction"] = {"verdict": ev.verdict, "score": ev.reproducibility_score}
 
-    # 3) publish a Result Card for r1
+    # 3) publish a Result Card for r1. The demo always uses the default local
+    # PID minter (no provider passed) — seeding must never register a permanent
+    # DataCite DOI, even where DataCite is configured.
     card = cards_svc.get_or_create_card(session, r1, title="GHZ-3 on IBM Kyiv — chem benchmark")
-    card.doi = "10.5281/zenodo.demo1234"
     card.license = card.license or "CC-BY-4.0"
     cards_svc.publish_card(session, card)
     summary["card"] = card.slug
 
     # 4) populate the public corpus from fixtures (optional)
     try:
-        from quantumledger_crawler.corpus import crawl_all
-        from quantumledger_crawler.sources.fixture_source import FixtureSource
+        from provenova_crawler.corpus import crawl_all
+        from provenova_crawler.sources.fixture_source import FixtureSource
 
         total = 0
         for prov in ("ibm", "ionq", "braket"):

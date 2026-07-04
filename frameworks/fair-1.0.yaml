@@ -1,4 +1,4 @@
-# FAIR data principles, expressed as QuantumLedger compliance controls.
+# FAIR data principles, expressed as Provenova compliance controls.
 #
 # Evidence is auto-collected from the immutable core record: published
 # ResultCards (persistent identifiers, licence, retrievability) and the logical
@@ -23,8 +23,9 @@ controls:
       identifier (a DOI or other PID) so it can be found and cited unambiguously.
     severity: high
     remediation: >-
-      Mint a DOI (or register a PID) for the published ResultCard and store it on
-      the card before publishing.
+      Publish the ResultCard — it is automatically assigned a free, citable PID.
+      Optionally mint a DOI (via Zenodo) for an external, globally-resolvable
+      identifier.
     evidence_rules:
       - id: FAIR-F1-pid
         source: card
@@ -57,7 +58,7 @@ controls:
     title: (Meta)data use a formal, accessible, shared, broadly applicable language
     requirement_text: >-
       The circuit is stored in an open, interoperable representation — QASM3,
-      the QuantumLedger IR (qlir/1.0), or QIR — not a vendor-locked binary.
+      the Provenova IR (qlir/1.0), or QIR — not a vendor-locked binary.
     severity: medium
     remediation: Re-record the run capturing the logical circuit as qasm3, qlir/1.0 or qir.
     evidence_rules:

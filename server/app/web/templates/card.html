@@ -1,23 +1,19 @@
 {% extends "base.html" %}
 {% set card_url = settings.base_url + '/cards/' + card.slug %}
-{% block title %}{{ card.title }} — QuantumLedger{% endblock %}
+{% block title %}{{ card.title }} — Provenova{% endblock %}
+{% block meta_description %}Citable, offline-verifiable quantum result card on Provenova: {{ card.title }}.{% endblock %}
 {% block head %}
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="{{ card.title }}">
-<meta property="og:description" content="Citable, offline-verifiable quantum result card on QuantumLedger.">
-<meta property="og:url" content="{{ card_url }}">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="{{ card.title }}">
-<meta name="twitter:description" content="Citable, offline-verifiable quantum result card on QuantumLedger.">
+<link rel="alternate" type="application/json+oembed"
+      href="{{ settings.base_url }}/api/v1/oembed?url={{ card_url | urlencode }}"
+      title="{{ card.title }}">
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": {{ card.title | tojson }},
-  "identifier": {{ (card.pid or card.doi) | default('') | tojson }},
+  "identifier": {{ (card.doi or card.pid) | default('') | tojson }},
   "license": {{ card.license | default('') | tojson }},
   "url": {{ card_url | tojson }}
 }
@@ -30,14 +26,33 @@
 <article class="max-w-3xl mx-auto">
   <div class="flex items-center gap-2 text-xs text-slate-500">
     <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 font-medium">Result card</span>
-    {% if card.published_at %}<span>Published {{ card.published_at }}</span>{% endif %}
+    {% if card.published_at %}<span>Published {{ card.published_at.strftime('%Y-%m-%d') }}</span>{% endif %}
   </div>
   <h1 class="mt-3 text-3xl font-bold text-slate-900">{{ card.title }}</h1>
+
+  {% if attribution %}
+  <!-- Paper attribution: fixed server-rendered framing (honesty banner). -->
+  <div class="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-4 text-sm text-slate-700">
+    <div class="font-medium text-slate-900">
+      References:
+      <a href="{{ attribution.url }}" rel="noopener" class="text-indigo-700 hover:underline">{{ attribution.title }}</a>
+      {% if attribution.authors %}({{ attribution.authors[:3] | join(', ') }}{% if attribution.authors | length > 3 %} et al.{% endif %}{% if attribution.year %}, {{ attribution.year }}{% endif %}){% endif %}
+      {% if attribution.arxiv_id %}<span class="mono text-xs text-slate-500">arXiv:{{ attribution.arxiv_id }}</span>{% endif %}
+    </div>
+    <p class="mt-1 text-xs leading-relaxed text-slate-600">
+      This card records a <b>deterministic simulator run on Provenova</b> inspired by this paper.
+      It does <b>not</b> reproduce the paper's hardware results, and does not imply any endorsement by its authors.
+    </p>
+    {% if attribution_html %}
+    <div class="prose prose-sm mt-3 max-w-none text-slate-700">{{ attribution_html | safe }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
 
   <!-- Badges -->
   <div class="mt-5 flex flex-wrap items-center gap-2">
     {% for t in ['recorded', 'reproduced', 'benchmarked', 'compliant', 'audit-ready'] %}
-    <img src="{{ settings.base_url }}/badge/{{ card.slug }}/{{ t }}.svg" alt="QuantumLedger: {{ t }}" class="h-5">
+    <img src="{{ settings.base_url }}/badge/{{ card.slug }}/{{ t }}.svg" alt="Provenova: {{ t }}" class="h-5">
     {% endfor %}
   </div>
   <div class="mt-1 text-xs text-slate-400">{{ term("badge ladder", "Maturity badges") }} — Recorded → Reproduced → Benchmarked → Compliant → Audit-ready. <a href="/docs/result-cards-and-badges" class="text-indigo-500 hover:underline">Learn more</a></div>
@@ -57,13 +72,15 @@
       <div class="text-xs text-slate-500">Shots</div>
       <div class="text-slate-900 font-medium">{{ card.summary.shots | default('—') }}</div>
     </div>
+    {% set hf = card.summary.get('hellinger_fidelity') %}
     <div class="rounded-lg border border-slate-200 bg-white p-4">
-      <div class="text-xs text-slate-500">Calibration captured</div>
-      <div class="text-slate-900 font-medium">{{ card.summary.calibration_captured_at | default('—') }}</div>
+      <div class="text-xs text-slate-500">{{ term("Hellinger fidelity") }}</div>
+      <div class="text-slate-900 font-medium">{{ hf if hf is not none else '—' }}</div>
     </div>
     <div class="rounded-lg border border-slate-200 bg-white p-4">
-      <div class="text-xs text-slate-500">Reproducibility score</div>
-      <div class="text-slate-900 font-medium">{{ card.summary.reproducibility_score | default('—') }}</div>
+      <div class="text-xs text-slate-500">{{ term("verdict", "Verdict") }}</div>
+      {% set v = card.summary.get('verdict') %}
+      <div class="font-medium {{ 'text-amber-600' if v == 'drifted' else 'text-green-600' if v == 'reproducible' else 'text-red-600' if v in ('divergent', 'irreproducible') else 'text-slate-900' }}">{{ v if v is not none else '—' }}</div>
     </div>
   </div>
   {% endif %}
@@ -72,6 +89,9 @@
   <div class="mt-6 rounded-lg border border-slate-200 bg-white p-4">
     <div class="text-xs text-slate-500">{{ term("run_hash", "Provenance hash") }}</div>
     <div class="mono break-all text-slate-800">{{ (card.summary.run_hash if card.summary else run.run_hash) | default('—') }}</div>
+    {% if card.summary and card.summary.calibration_captured_at %}
+    <div class="mt-2 text-xs text-slate-500">{{ term("calibration snapshot", "Calibration captured") }}: <span class="text-slate-700">{{ card.summary.calibration_captured_at }}</span></div>
+    {% endif %}
     <p class="mt-2 text-xs text-slate-400">Verify offline — this hash is Merkle-bound to the exact calibration and hardware state. <a href="/docs/open-schemas" class="text-slate-500 hover:underline">How verification works →</a></p>
   </div>
 
@@ -84,34 +104,61 @@
   {% endif %}
 
   <!-- Cite this -->
+  {% set _owns_card = principal and principal.workspace_id == card.workspace_id %}
+  {% set _doi_flash = request.query_params.get('doi') %}
   <div class="mt-6 rounded-lg border border-slate-200 bg-white p-4">
     <div class="text-sm font-semibold text-slate-900">Cite this</div>
-    {% if card.doi %}<div class="mt-1 text-sm text-slate-600">{{ term("DOI") }}: <span class="mono">{{ card.doi }}</span></div>{% endif %}
-    {% if card.pid %}<div class="text-sm text-slate-600">PID: <span class="mono">{{ card.pid }}</span></div>{% endif %}
+    {% if _doi_flash == 'minted' %}<div class="mt-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800">DOI minted and the provenance record archived on Zenodo.</div>
+    {% elif _doi_flash == 'quota_exceeded' %}<div class="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">You've hit your monthly DOI limit — the card keeps its free PID. <a href="/app/plans" class="underline">Upgrade</a> for more.</div>
+    {% elif _doi_flash == 'mint_failed' %}<div class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">DOI minting failed — please try again. The card keeps its free PID.</div>
+    {% elif _doi_flash == 'unconfigured' %}<div class="mt-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">DOI minting isn't configured on this server.</div>{% endif %}
+    {% if card.doi %}
+    <div class="mt-1 text-sm text-slate-600">{{ term("DOI") }}: <a href="https://doi.org/{{ card.doi }}" rel="noopener" class="mono text-indigo-700 hover:underline">{{ card.doi }}</a></div>
+    {% if card.summary and card.summary.zenodo and card.summary.zenodo.record_url %}<div class="text-xs text-slate-500"><a href="{{ card.summary.zenodo.record_url }}" rel="noopener" class="hover:underline">Archived on Zenodo →</a></div>{% endif %}
+    {% endif %}
+    {% if card.pid %}<div class="text-sm text-slate-600">{{ term("PID", "PID") }}: <span class="mono">{{ card.pid }}</span></div>{% endif %}
     <div class="mt-3 flex flex-wrap gap-2 text-sm">
       <a href="/api/v1/cards/{{ card.slug }}/citation?format=bibtex" class="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50">BibTeX</a>
       <a href="/api/v1/cards/{{ card.slug }}/citation?format=csl" class="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50">CSL JSON</a>
       <a href="/api/v1/cards/{{ card.slug }}/citation?format=ris" class="rounded-md border border-slate-300 px-3 py-1.5 text-slate-700 hover:bg-slate-50">RIS</a>
     </div>
+    {% if not card.doi and _owns_card and settings.zenodo_token %}
+    <div class="mt-3 border-t border-slate-100 pt-3">
+      <form method="post" action="/app/records/{{ card.run_id }}/mint-doi">
+        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">Mint a DOI (Zenodo)</button>
+      </form>
+      <p class="mt-1.5 text-xs text-slate-400">The free PID above already makes this card citable. Minting a DOI also archives the provenance record on Zenodo — it's permanent.</p>
+    </div>
+    {% endif %}
   </div>
 
   <!-- Embed -->
   {% if embed %}
   <div class="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-    <div class="flex items-center justify-between">
-      <div class="text-sm font-semibold text-slate-900">Embed</div>
-      <button type="button" onclick="copyEmbed(this)" class="text-xs rounded-md border border-slate-300 px-2 py-1 text-slate-600 hover:bg-slate-50">Copy</button>
+    <div class="text-sm font-semibold text-slate-900">Embed</div>
+
+    <div class="mt-3 flex items-center justify-between">
+      <div class="text-xs font-medium text-slate-500">Badge (Markdown)</div>
+      <button type="button" onclick="copyEmbed('embed-md', this)" class="text-xs rounded-md border border-slate-300 px-2 py-1 text-slate-600 hover:bg-slate-50">Copy</button>
     </div>
-    <code id="embed-md" class="mono mt-3 block break-all whitespace-pre-wrap rounded bg-slate-900 text-slate-100 p-3 text-xs">{{ embed.markdown }}</code>
+    <code id="embed-md" class="mono mt-1 block break-all whitespace-pre-wrap rounded bg-slate-900 text-slate-100 p-3 text-xs">{{ embed.markdown }}</code>
+
+    {% if embed.iframe %}
+    <div class="mt-4 flex items-center justify-between">
+      <div class="text-xs font-medium text-slate-500">Full card (iframe)</div>
+      <button type="button" onclick="copyEmbed('embed-iframe', this)" class="text-xs rounded-md border border-slate-300 px-2 py-1 text-slate-600 hover:bg-slate-50">Copy</button>
+    </div>
+    <code id="embed-iframe" class="mono mt-1 block break-all whitespace-pre-wrap rounded bg-slate-900 text-slate-100 p-3 text-xs">{{ embed.iframe }}</code>
+    {% endif %}
   </div>
   {% endif %}
 
   <!-- Branded backlink — network effect: every shared/embedded card links home and recruits the next user -->
   <div class="mt-8 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white p-5">
     <div class="flex items-center gap-3">
-      <a href="{{ settings.base_url }}/" class="shrink-0" aria-label="QuantumLedger">{{ mark(40) }}</a>
+      <a href="{{ settings.base_url }}/" class="shrink-0" aria-label="Provenova">{{ mark(40) }}</a>
       <div>
-        <a href="{{ settings.base_url }}/" class="font-semibold text-slate-900 hover:underline">QuantumLedger</a>
+        <a href="{{ settings.base_url }}/" class="font-semibold text-slate-900 hover:underline">Provenova</a>
         <p class="text-sm text-slate-600">The vendor-neutral system of record for quantum — every run bound to the exact calibration that produced it, reproducible and offline-verifiable.</p>
       </div>
     </div>
@@ -123,13 +170,20 @@
 </article>
 
 <script>
-  function copyEmbed(btn) {
-    var el = document.getElementById('embed-md');
+  function copyEmbed(id, btn) {
+    var el = document.getElementById(id);
     if (!el) return;
-    navigator.clipboard.writeText(el.textContent).then(function () {
-      var old = btn.textContent; btn.textContent = 'Copied!';
+    var done = function (ok) {
+      var old = btn.textContent;
+      btn.textContent = ok ? 'Copied!' : 'Press ⌘/Ctrl+C';
       setTimeout(function () { btn.textContent = old; }, 1500);
-    });
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(el.textContent).then(function () { done(true); },
+                                                          function () { done(false); });
+    } else {
+      done(false);  // insecure origin / older browser — text is selectable to copy manually
+    }
   }
   (function () {
     {% if card.summary and card.summary.distribution %}

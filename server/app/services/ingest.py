@@ -14,9 +14,9 @@ import json
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Run, Workspace
-from quantumledger_core.reproduce import runner
-from quantumledger_core.simulate import bridge
+from provenova_core.models import Run, Workspace
+from provenova_core.reproduce import runner
+from provenova_core.simulate import bridge
 
 
 def materialize_bundle(session: Session, workspace: Workspace, bundle: dict) -> dict:

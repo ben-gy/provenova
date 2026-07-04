@@ -21,7 +21,7 @@ from app.db import SessionLocal, bootstrap, default_workspace  # noqa: E402
 from app.security import generate_api_key  # noqa: E402
 from app.services.demo_seed import seed_workspace  # noqa: E402
 
-from quantumledger_core.models import Account, ApiKey, OrgMembership  # noqa: E402
+from provenova_core.models import Account, ApiKey, OrgMembership  # noqa: E402
 
 
 def main() -> None:

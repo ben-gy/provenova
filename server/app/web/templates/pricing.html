@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% from "_helpers.html" import plan_matrix %}
-{% block title %}Pricing — QuantumLedger{% endblock %}
+{% block title %}Pricing — Provenova{% endblock %}
 
 {% block content %}
 <div class="text-center">
   <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Simple, open-core pricing</h1>
   <p class="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500 sm:text-base">
-    Capture, reproduce, public result cards, badges and full <span class="mono">qlprov</span> export are free at
-    every tier — forever. Paid tiers add compliance, attestations, self-hosting and enterprise controls.
+    Free gets you the full loop — capture, reproduce, benchmark, 250 private records, fleet comparison,
+    a FAIR checklist, unlimited public cards & badges, and full <span class="mono">qlprov</span> export.
+    Higher tiers add the <em>trust artifacts</em>: signed attestations (free for verified academia), monitoring, a Trust Center and enterprise controls.
   </p>
 </div>
 
@@ -17,7 +18,7 @@
   {% set pr = pricing.get(pl, {}) %}
   <div class="flex flex-col rounded-xl border bg-white p-5 {{ 'border-indigo-400 ring-1 ring-indigo-300 shadow-sm' if pr.highlight else 'border-slate-200' }}">
     <div class="flex items-center justify-between">
-      <div class="text-sm font-semibold capitalize text-slate-900">{{ pl }}</div>
+      <div class="text-sm font-semibold text-slate-900">{{ plan_display.get(pl, pl|capitalize) if plan_display else pl|capitalize }}</div>
       {% if pr.highlight %}<span class="rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">Popular</span>{% endif %}
       {% if pl == current %}<span class="rounded-full border border-slate-300 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">Current</span>{% endif %}
     </div>
@@ -44,14 +45,15 @@
 
 <p class="mt-4 text-center text-xs text-slate-400">
   Paid tiers are provisioned by our team (invoicing handled off-platform). Prices are indicative — need volume,
-  academic or air-gapped terms? <a href="mailto:sales@quantumledger.io?subject=QuantumLedger%20pricing" class="text-indigo-600 hover:underline">Talk to us</a>.
+  academic or air-gapped terms? <a href="mailto:hi@ben.gy?subject=Provenova%20pricing" class="text-indigo-600 hover:underline">Talk to us</a>.
+  Questions about caps, DOIs or self-hosting? See the <a href="/docs/pricing-faq" class="text-indigo-600 hover:underline">pricing FAQ</a>.
 </p>
 
 <!-- Full comparison -->
 <h2 class="mt-12 text-lg font-semibold text-slate-900">Compare all features</h2>
 <p class="mt-1 text-sm text-slate-500">Every capability by tier. {% if current %}Your current plan is highlighted.{% endif %}</p>
 <div class="mt-3">
-  {{ plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current) }}
+  {{ plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current, plan_display) }}
 </div>
 
 <div class="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5 text-center">

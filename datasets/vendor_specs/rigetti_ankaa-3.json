@@ -1,0 +1,44 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "rigetti",
+  "backend_id": "Ankaa-3",
+  "captured_at": "2024-12-23T00:00:00+00:00",
+  "source": "vendor-reported",
+  "license_ref": "vendor-reported \u00b7 rigetti.com",
+  "raw_ref": "https://www.rigetti.com/news/rigetti-computing-launches-84-qubit-ankaa-3-system-achieves-99-5-median-two-qubit-gate-fidelity-milestone",
+  "redistributable_raw": false,
+  "note": "Manufacturer-published specification (vendor claim), not independently reproduced.",
+  "derived_metrics": {
+    "n_qubits": 84,
+    "two_q_fidelity": 0.995,
+    "source": "vendor-reported"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "rigetti",
+      "name": "Ankaa-3"
+    },
+    "captured_at": "2024-12-23T00:00:00+00:00",
+    "source": "vendor-reported",
+    "provenance": {
+      "source": "vendor-reported",
+      "license_ref": "vendor-reported \u00b7 rigetti.com",
+      "disclaimer": "Vendor headline spec; verified against the cited page, not independently measured on this platform."
+    },
+    "metric_provenance": [
+      {
+        "metric": "n_qubits",
+        "value": 84,
+        "source_url": "https://www.rigetti.com/news/rigetti-computing-launches-84-qubit-ankaa-3-system-achieves-99-5-median-two-qubit-gate-fidelity-milestone",
+        "quote": "84-qubit Ankaa-3 system"
+      },
+      {
+        "metric": "two_q_fidelity",
+        "value": 0.995,
+        "source_url": "https://www.rigetti.com/news/rigetti-computing-launches-84-qubit-ankaa-3-system-achieves-99-5-median-two-qubit-gate-fidelity-milestone",
+        "quote": "99.5% median two-qubit gate fidelity"
+      }
+    ]
+  }
+}

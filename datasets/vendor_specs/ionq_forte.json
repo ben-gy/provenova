@@ -1,0 +1,51 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "ionq",
+  "backend_id": "Forte",
+  "captured_at": "2026-07-03T00:00:00+00:00",
+  "source": "vendor-reported",
+  "license_ref": "vendor-reported \u00b7 ionq.com",
+  "raw_ref": "https://www.ionq.com/quantum-systems/forte",
+  "redistributable_raw": false,
+  "note": "Manufacturer-published specification (vendor claim), not independently reproduced.",
+  "derived_metrics": {
+    "algorithmic_qubits": 36,
+    "two_q_fidelity": 0.996,
+    "n_qubits": 36,
+    "source": "vendor-reported"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "ionq",
+      "name": "Forte"
+    },
+    "captured_at": "2026-07-03T00:00:00+00:00",
+    "source": "vendor-reported",
+    "provenance": {
+      "source": "vendor-reported",
+      "license_ref": "vendor-reported \u00b7 ionq.com",
+      "disclaimer": "Vendor headline spec; verified against the cited page, not independently measured on this platform."
+    },
+    "metric_provenance": [
+      {
+        "metric": "algorithmic_qubits",
+        "value": 36,
+        "source_url": "https://www.ionq.com/quantum-systems/forte-enterprise",
+        "quote": "#AQ 36 and 36 qubits"
+      },
+      {
+        "metric": "two_q_fidelity",
+        "value": 0.996,
+        "source_url": "https://www.ionq.com/quantum-systems/forte",
+        "quote": "0.4% 2-Qubit gate error (fidelity = 1 - 0.004)"
+      },
+      {
+        "metric": "n_qubits",
+        "value": 36,
+        "source_url": "https://www.ionq.com/quantum-systems/forte",
+        "quote": "36 qubit count"
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+# Minimal dependencies for the standalone growth agent (scripts/growth_agent.py).
+# Deliberately tiny so it installs fast in CI without the full server stack.
+anthropic>=0.40
+httpx>=0.27
+pydantic>=2.7

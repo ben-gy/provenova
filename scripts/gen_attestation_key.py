@@ -1,4 +1,4 @@
-"""Generate a fresh Ed25519 attestation signing key for QuantumLedger.
+"""Generate a fresh Ed25519 attestation signing key for Provenova.
 
 Prints a ready-to-paste ``QL_ATTESTATION_KEY_B64=<base64>`` line plus the
 derived ``kid``. When set in the environment (or the deploy ``.env``), the

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # oracle-setup.sh — prepare a fresh Oracle Cloud "Always Free" Ampere A1
-# (aarch64) VM running Ubuntu 22.04/24.04 to host QuantumLedger.
+# (aarch64) VM running Ubuntu 22.04/24.04 to host Provenova.
 #
 # Installs Docker Engine + the compose plugin, enables the service, adds the
 # invoking user to the docker group, and opens the in-VM firewall for HTTP/HTTPS
@@ -22,7 +22,7 @@ else
 	SUDO="sudo"
 fi
 
-echo "==> QuantumLedger Oracle VM setup"
+echo "==> Provenova Oracle VM setup"
 echo "    target user: ${TARGET_USER}"
 echo "    arch:        $(uname -m)"
 

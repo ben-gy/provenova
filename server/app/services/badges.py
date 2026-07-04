@@ -10,7 +10,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     Attestation,
     BenchmarkEntry,
     ReproductionEvent,
@@ -30,7 +30,7 @@ _COLORS = {
     "private": "#9f9f9f",
     "unknown": "#9f9f9f",
 }
-_LABEL = "quantumledger"
+_LABEL = "provenova"
 # Approximate Verdana glyph widths at 11px (shields.io uses a table; this is a
 # simple constant-width approximation that renders cleanly enough).
 _CHAR_W = 6.6

@@ -1,0 +1,56 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "ibm",
+  "backend_id": "ibm_boston",
+  "captured_at": "2026-02-18T20:46:15.410019+00:00",
+  "source": "metriq",
+  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+  "redistributable_raw": true,
+  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
+  "derived_metrics": {
+    "clops": 360573.83306319,
+    "eplg": 0.00153921,
+    "qaoa_ratio": 0.6733964,
+    "n_qubits": 156,
+    "source": "metriq"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "ibm",
+      "name": "ibm_boston",
+      "n_qubits": 156
+    },
+    "captured_at": "2026-02-18T20:46:15.410019+00:00",
+    "source": "metriq",
+    "provenance": {
+      "source": "metriq",
+      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+      "repo": "unitaryfoundation/metriq-data"
+    },
+    "metric_provenance": [
+      {
+        "metric": "clops",
+        "benchmark": "CLOPS",
+        "value": 360573.8330631854,
+        "timestamp": "2026-02-09T13:52:36.672187",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_boston/2026-02-09_13-52-36_clops_d0048f25.json"
+      },
+      {
+        "metric": "eplg",
+        "benchmark": "EPLG",
+        "value": 0.0015392088300900664,
+        "timestamp": "2026-02-18T20:46:15.410019",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_boston/2026-02-18_20-46-15_eplg_81147c7a.json"
+      },
+      {
+        "metric": "qaoa_ratio",
+        "benchmark": "Linear Ramp QAOA",
+        "value": 0.6733964010940963,
+        "timestamp": "2025-12-17T17:05:30.267281",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_boston/2025-12-17_17-05-30_linear_ramp_qaoa_2d4d2fc3.json"
+      }
+    ]
+  }
+}

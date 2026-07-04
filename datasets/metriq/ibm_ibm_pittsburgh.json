@@ -1,0 +1,56 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "ibm",
+  "backend_id": "ibm_pittsburgh",
+  "captured_at": "2026-02-19T10:49:11.515257+00:00",
+  "source": "metriq",
+  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+  "redistributable_raw": true,
+  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
+  "derived_metrics": {
+    "clops": 358612.99109987,
+    "eplg": 0.0027295,
+    "qaoa_ratio": 0.56950165,
+    "n_qubits": 156,
+    "source": "metriq"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "ibm",
+      "name": "ibm_pittsburgh",
+      "n_qubits": 156
+    },
+    "captured_at": "2026-02-19T10:49:11.515257+00:00",
+    "source": "metriq",
+    "provenance": {
+      "source": "metriq",
+      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+      "repo": "unitaryfoundation/metriq-data"
+    },
+    "metric_provenance": [
+      {
+        "metric": "clops",
+        "benchmark": "CLOPS",
+        "value": 358612.99109987105,
+        "timestamp": "2026-02-17T11:58:37.854389",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-17_11-58-37_clops_ef80920b.json"
+      },
+      {
+        "metric": "eplg",
+        "benchmark": "EPLG",
+        "value": 0.0027294956480133914,
+        "timestamp": "2026-02-19T10:49:11.515257",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-19_10-49-11_eplg_e5ee1886.json"
+      },
+      {
+        "metric": "qaoa_ratio",
+        "benchmark": "Linear Ramp QAOA",
+        "value": 0.5695016455174476,
+        "timestamp": "2026-02-17T11:50:02.008863",
+        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-17_11-50-02_linear_ramp_qaoa_99724204.json"
+      }
+    ]
+  }
+}

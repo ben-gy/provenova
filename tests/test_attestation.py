@@ -8,9 +8,9 @@ import stat
 
 import pytest
 
-import quantumledger_core as qc
-from quantumledger_core import hashing
-from quantumledger_core.models import (
+import provenova_core as qc
+from provenova_core import hashing
+from provenova_core.models import (
     Backend,
     CalibrationSnapshot,
     Circuit,
@@ -66,7 +66,7 @@ def jwks(key):
 
 def _seed_run(session):
     """Create a minimal Run with a run_hash + a Control to attach evidence to."""
-    from quantumledger_core.models import Control, ComplianceFramework
+    from provenova_core.models import Control, ComplianceFramework
 
     ws = bootstrap_local(session)
 

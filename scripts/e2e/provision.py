@@ -22,7 +22,7 @@ from sqlalchemy import select  # noqa: E402
 from app.db import SessionLocal, bootstrap, default_workspace  # noqa: E402
 from app.security import hash_password  # noqa: E402
 from app.services.demo_seed import is_empty, seed_workspace  # noqa: E402
-from quantumledger_core.models import Account  # noqa: E402
+from provenova_core.models import Account  # noqa: E402
 
 PASSWORD = os.environ.get("QL_E2E_ADMIN_PASSWORD", "e2e-pass-123456")
 

@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-import quantumledger_core as qc
+import provenova_core as qc
 from qiskit import QuantumCircuit
-from quantumledger_core.models import bootstrap_local
-from quantumledger_core.reproduce import runner
+from provenova_core.models import bootstrap_local
+from provenova_core.reproduce import runner
 
 
 def ghz(n=4):

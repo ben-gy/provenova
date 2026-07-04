@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Account, ApiKey, Org, OrgMembership, Workspace
+from provenova_core.models import Account, ApiKey, Org, OrgMembership, Workspace
 
 from ...db import get_db
 from ...deps import Principal, current_principal, require_principal
@@ -82,16 +82,32 @@ def me(db: Session = Depends(get_db), p: Principal | None = Depends(current_prin
             "workspace_id": p.workspace_id, "plan": p.plan, "features": sorted(p.features)}
 
 
+# Scopes that unlock automation surfaces; minting one requires superadmin.
+PRIVILEGED_SCOPES = {"growth"}
+
+
+class ApiKeyIn(BaseModel):
+    name: str = "default"
+    scopes: list[str] | None = None
+
+
 @router.post("/orgs/{org_id}/api-keys")
-def create_api_key(org_id: str, name: str = "default", db: Session = Depends(get_db),
+def create_api_key(org_id: str, body: ApiKeyIn | None = None, name: str = "default",
+                   db: Session = Depends(get_db),
                    p: Principal = Depends(require_principal)):
     if p.org_id != org_id and not p.is_superadmin:
         raise HTTPException(403, "forbidden")
+    body = body or ApiKeyIn(name=name)
+    scopes = list(dict.fromkeys(body.scopes or []))  # dedupe, keep order
+    if any(s in PRIVILEGED_SCOPES for s in scopes) and not p.is_superadmin:
+        raise HTTPException(403, "privileged scopes require superadmin")
     full, prefix, key_hash = generate_api_key()
-    k = ApiKey(org_id=org_id, account_id=p.account_id, name=name, prefix=prefix, key_hash=key_hash)
+    k = ApiKey(org_id=org_id, account_id=p.account_id, name=body.name, prefix=prefix,
+               key_hash=key_hash, scopes=scopes or None)
     db.add(k)
     db.commit()
-    return {"api_key": full, "prefix": prefix, "note": "store this now; it is not shown again"}
+    return {"api_key": full, "prefix": prefix, "scopes": scopes,
+            "note": "store this now; it is not shown again"}
 
 
 # -- admin ------------------------------------------------------------------

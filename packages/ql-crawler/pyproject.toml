@@ -1,21 +1,38 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantumledger-crawler"
+name = "provenova-crawler"
 version = "0.1.0"
-description = "QuantumLedger public-QPU calibration crawler: fixture/live sources, vendor normalization, ToS-gated corpus ingestion, scheduling."
+description = "Provenova public-QPU calibration crawler: fixture/live sources, vendor normalization, ToS-gated corpus ingestion, scheduling."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
-authors = [{ name = "QuantumLedger" }]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Provenova", email = "hi@ben.gy" }]
+keywords = ["quantum", "calibration", "crawler", "benchmarks"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dependencies = [
-    "quantumledger-core",
+    "provenova-core>=0.1.0,<0.2",
     "SQLAlchemy>=2.0,<2.1",
     "APScheduler>=3.10,<4",
     "jsonschema>=4.20",
 ]
+
+[project.urls]
+Homepage = "https://provenova.net"
+Documentation = "https://provenova.net/docs/corpus-and-leaderboard"
+Source = "https://github.com/ben-gy/provenova"
 
 [project.optional-dependencies]
 # Live sources talk to real vendor APIs; kept optional so the fixture-driven
@@ -26,4 +43,4 @@ live = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["quantumledger_crawler*"]
+include = ["provenova_crawler*"]

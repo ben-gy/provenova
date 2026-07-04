@@ -1,8 +1,9 @@
 # Compliance & attestations
 
-Compliance in QuantumLedger is "Vanta for quantum": you pick a standard, and the evidence is **collected
+Compliance in Provenova is "Vanta for quantum": you pick a standard, and the evidence is **collected
 automatically from the runs already in your ledger**. You don't upload documents or fill in checklists —
-your records *are* the evidence. The console lives at `/app/compliance` (Pro plan and above).
+your records *are* the evidence. The console lives at `/app/compliance` (available on every plan —
+Free is limited to the FAIR framework; issuing signed attestations requires Academic or a paid plan).
 
 ## The model: frameworks → controls → evidence rules
 
@@ -37,8 +38,11 @@ idempotent — it simply recomputes status against your current runs. For each c
 |--------|---------|
 | **pass** | Every control has the evidence it needs. |
 | **gap** | At least one control is missing required evidence. |
-| **drift** | Evidence exists but has aged out of its freshness window, so it no longer counts. |
 | **unknown** | Not evaluated yet. |
+
+Separately, a **drift alert** fires when a rule's evidence exists but has aged out of its freshness
+window. Stale items stop counting toward the rule, so if a control no longer has enough fresh evidence
+it reports **gap** until the evidence is refreshed.
 
 ## Understanding a gap
 
@@ -51,8 +55,8 @@ A **gap** is a failing control — and the framework detail page tells you exact
 - the **evidence collected so far**, with its source and content hash.
 
 So "gap" is never a dead end: you can see which check failed, what the standard wanted, and the concrete
-action that closes it. Fix the underlying data (e.g. mint a DOI, publish a card, refresh a calibration),
-then **Re-evaluate**.
+action that closes it. Fix the underlying data (e.g. publish a card — which assigns a citable PID —
+refresh a stale calibration, or reproduce a run), then **Re-evaluate**.
 
 ## Attestations {#attestations}
 
@@ -63,7 +67,7 @@ controls were satisfied at a point in time.
   covers.
 - It signs that root with an **Ed25519** key, producing a signed statement stored with the workspace.
 - Anyone can verify it: `GET /api/v1/attestations/<id>/verify`, using the public keys published at
-  `/.well-known/quantumledger-jwks.json`.
+  `/.well-known/provenova-jwks.json`.
 
 Two properties make attestations trustworthy:
 
@@ -77,8 +81,8 @@ your compliance posture without asking you.
 
 ## Frameworks that ship
 
-FAIR (data-sharing principles), IEEE P7131 (quantum system assurance), a metrology/traceability policy, and
-an internal reproducibility policy. See every control, check, and remediation on the live
+FAIR (data-sharing principles), IEEE P7131 (quantum computing reproducibility), a metrology/traceability
+policy, and an internal reproducibility policy. See every control, check, and remediation on the live
 [Frameworks reference](/docs/frameworks).
 
 Next: [Corpus & leaderboard](/docs/corpus-and-leaderboard).

@@ -4,7 +4,7 @@ Signing scheme (kept deliberately standard):
 
 * The *statement* is a plain JSON object describing what was attested.
 * We serialize it with RFC 8785-style canonical JSON (via ql-core's
-  :func:`quantumledger_core.hashing.canonical_bytes`) so any verifier — on
+  :func:`provenova_core.hashing.canonical_bytes`) so any verifier — on
   SQLite, Postgres, or offline — reconstructs byte-identical signing input.
 * We take a detached Ed25519 signature over those bytes and wrap it in an
   envelope ``{"statement", "signature", "kid", "alg": "EdDSA"}``.
@@ -28,8 +28,8 @@ from typing import Any, Iterable
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
-from quantumledger_core import hashing
-from quantumledger_core.models import (
+from provenova_core import hashing
+from provenova_core.models import (
     Attestation,
     ComplianceFramework,
     EvidenceItem,

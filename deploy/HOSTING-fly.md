@@ -1,4 +1,4 @@
-# Hosting QuantumLedger on Fly.io
+# Hosting Provenova on Fly.io
 
 Fly builds and runs `deploy/Dockerfile` directly, terminates TLS at its edge (no
 Caddy needed), and scales the web machine to zero when idle. Config lives in
@@ -29,18 +29,18 @@ Then tell Claude "authed" — everything below is CLI-driven and Claude runs it.
      QL_SECRET_KEY=$(openssl rand -hex 32) \
      QL_ATTESTATION_KEY_B64="$(fly ... gen key)" \
      QL_DATABASE_URL="postgresql+psycopg://…" \
-     QL_BASE_URL="https://quantumledger.ben.gy"
+     QL_BASE_URL="https://provenova.net"
    ```
    `QL_ATTESTATION_KEY_B64` is generated once with `scripts/gen_attestation_key.py`
    (via the built image) and **kept forever** — rotating it invalidates prior
    attestations.
 4. **Deploy:** `fly deploy` (builds the ARM/amd64 image on Fly's builders, boots the app,
    runs startup bootstrap against Postgres).
-5. **Custom domain:** `fly certs add quantumledger.ben.gy`, then a Cloudflare record
+5. **Custom domain:** `fly certs add provenova.net` (keep the legacy `quantumledger.ben.gy` cert — the app 301s it to the canonical host), then a Cloudflare record
    (CNAME → `quantumledger.fly.dev`, or the A/AAAA Fly prints) — Claude sets the DNS via
    its Cloudflare skill. Fly provisions the TLS cert automatically.
 6. **Seed demo (optional):** `fly ssh console -C "python /app/scripts/seed_demo.py"`.
-7. **Verify:** `curl https://quantumledger.ben.gy/api/v1/health`.
+7. **Verify:** `curl https://provenova.net/api/v1/health`.
 
 ## Notes
 - The background worker (crawler/monitor) is omitted initially (fixture-driven, low

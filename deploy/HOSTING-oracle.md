@@ -1,6 +1,6 @@
-# Hosting QuantumLedger on Oracle Cloud (Always Free, ~$0/mo)
+# Hosting Provenova on Oracle Cloud (Always Free, ~$0/mo)
 
-A step-by-step runbook to run the **entire** QuantumLedger stack — Postgres, the
+A step-by-step runbook to run the **entire** Provenova stack — Postgres, the
 API/web app, the background worker, and a Caddy reverse proxy that provisions
 TLS automatically — on a single Oracle Cloud "Always Free" Ampere A1 VM.
 

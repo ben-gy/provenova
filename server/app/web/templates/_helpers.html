@@ -11,9 +11,21 @@
   'chart-bar': 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z',
   'cpu-chip': 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z',
   'sparkles': 'M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z',
-  'check-circle': 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+  'check-circle': 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+  'lock-closed': 'M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z'
 } -%}
 <svg class="{{ cls }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="{{ paths.get(name, '') }}"/></svg>
+{% endmacro %}
+
+{# Provenance badge: colour + label keyed off a corpus snapshot's source. #}
+{% macro source_badge(src, license_ref) %}
+{% set s = (src or '')|lower %}
+{% if s == 'ibm' %}{% set cls, txt = 'bg-emerald-50 text-emerald-700 border-emerald-200', 'IBM · Apache-2.0' %}
+{% elif s == 'metriq' %}{% set cls, txt = 'bg-indigo-50 text-indigo-700 border-indigo-200', 'Metriq · CC-BY-4.0' %}
+{% elif s in ('iqm', 'iqm-zenodo', 'zenodo') %}{% set cls, txt = 'bg-violet-50 text-violet-700 border-violet-200', 'Zenodo · CC-BY' %}
+{% elif s == 'vendor-reported' %}{% set cls, txt = 'bg-amber-50 text-amber-700 border-amber-200', 'Vendor-reported' %}
+{% else %}{% set cls, txt = 'bg-slate-50 text-slate-600 border-slate-200', s or 'unknown' %}{% endif %}
+<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium {{ cls }}" title="{{ license_ref or '' }}">{{ txt }}</span>
 {% endmacro %}
 
 {# A domain term with a CSS-only hover tooltip pulled from the shared glossary. #}
@@ -63,7 +75,9 @@
 {% endmacro %}
 
 {# Tier → feature comparison matrix, shared by /pricing and /app/plans. #}
-{% macro plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current=None) %}
+{% macro _qfmt(v) %}{% if v is none %}—{% elif v >= 9999 %}Unlimited{% else %}{{ v }}{% endif %}{% endmacro %}
+
+{% macro plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current=None, plan_display=None) %}
 <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
   <table class="min-w-full text-sm">
     <thead>
@@ -71,7 +85,7 @@
         <th class="px-4 py-3 text-left font-medium text-slate-500">Feature</th>
         {% for pl in plan_order %}
         <th class="px-4 py-3 text-center align-top {{ 'bg-indigo-50' if pl == current else '' }}">
-          <div class="font-semibold capitalize text-slate-900">{{ pl }}</div>
+          <div class="font-semibold text-slate-900">{{ plan_display.get(pl, pl|capitalize) if plan_display else pl|capitalize }}</div>
           {% if pl == current %}<div class="mt-1 inline-flex items-center rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">Current</div>{% endif %}
           {% if plan_blurbs %}<div class="mx-auto mt-1 max-w-[10rem] text-[11px] font-normal leading-snug text-slate-400">{{ plan_blurbs.get(pl, '') }}</div>{% endif %}
         </th>
@@ -84,7 +98,8 @@
         <td class="px-4 py-2 text-slate-700">{{ feature_labels.get(feat, feat) }}</td>
         {% for pl in plan_order %}
         <td class="px-4 py-2 text-center {{ 'bg-indigo-50/60' if pl == current else '' }}">
-          {% if pl in plans %}<span class="text-green-600">✓</span>{% else %}<span class="text-slate-300">–</span>{% endif %}
+          {% if feat == 'compliance_frameworks' and pl == 'free' %}<span class="text-[11px] font-medium text-amber-600">FAIR only</span>
+          {% elif pl in plans %}<span class="text-green-600">✓</span>{% else %}<span class="text-slate-300">–</span>{% endif %}
         </td>
         {% endfor %}
       </tr>
@@ -92,14 +107,26 @@
       <tr class="bg-slate-50/60">
         <td class="px-4 py-2 font-medium text-slate-600">Seats</td>
         {% for pl in plan_order %}
-        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ quotas.get(pl, {}).get('seats', '—') }}</td>
+        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('seats')) }}</td>
         {% endfor %}
       </tr>
       <tr class="bg-slate-50/60">
-        <td class="px-4 py-2 font-medium text-slate-600">Frameworks enabled</td>
+        <td class="px-4 py-2 font-medium text-slate-600">Private records</td>
         {% for pl in plan_order %}
-        {% set fq = quotas.get(pl, {}).get('frameworks_enabled', 0) %}
-        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ 'Unlimited' if fq >= 9999 else fq }}</td>
+        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('private_run_cap')) }}</td>
+        {% endfor %}
+      </tr>
+      <tr class="bg-slate-50/60">
+        <td class="px-4 py-2 font-medium text-slate-600">Compliance frameworks</td>
+        {% for pl in plan_order %}
+        {% set fq = quotas.get(pl, {}).get('frameworks_allowed', 0) %}
+        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ 'FAIR only' if pl == 'free' else _qfmt(fq) }}</td>
+        {% endfor %}
+      </tr>
+      <tr class="bg-slate-50/60">
+        <td class="px-4 py-2 font-medium text-slate-600">DOIs / mo</td>
+        {% for pl in plan_order %}
+        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('doi_monthly_cap')) }}</td>
         {% endfor %}
       </tr>
     </tbody>

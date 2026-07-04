@@ -47,7 +47,7 @@ pip install -e packages/ql-core -e "packages/ql-sdk[aer]"
 
 ```python
 # examples/bell.py
-import quantumledger as ql
+import provenova as ql
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 

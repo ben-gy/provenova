@@ -10,7 +10,7 @@ description: >-
   Organisation-internal policy: runs are deterministically seeded and
   cryptographically hashed, and the workspace demonstrates verified reproduction.
 spec:
-  source: QuantumLedger house policy
+  source: Provenova house policy
 controls:
   - key: REPRO-SEED
     title: Runs are deterministically seeded

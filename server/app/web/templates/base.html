@@ -3,7 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}QuantumLedger{% endblock %}</title>
+  <title>{% block title %}Provenova{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Provenova is the vendor-neutral system of record for quantum computing: reproducible runs, verified hardware benchmarks, citable result cards and signed compliance attestations.{% endblock %}">
+  {%- if canonical_path %}
+  <link rel="canonical" href="{{ settings.base_url }}{{ canonical_path }}">
+  {%- endif %}
+  {%- if noindex %}
+  <meta name="robots" content="noindex">
+  {%- endif %}
+  <meta property="og:site_name" content="Provenova">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.meta_description() }}">
+  {%- if canonical_path %}
+  <meta property="og:url" content="{{ settings.base_url }}{{ canonical_path }}">
+  {%- endif %}
+  <meta name="twitter:card" content="summary">
+  <link rel="alternate" type="application/atom+xml" title="Provenova reports & result cards" href="/reports/feed.xml">
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -13,12 +29,14 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased">
   {% from "_brand.html" import mark %}
+  {# plan_labels is a Jinja global from PLAN_DISPLAY (provenova_core.models.accounts) — internal "pro" shows as "Team". #}
   {% set nav_links = [
     ('/', 'Home'),
     ('/app/records', 'Records'),
-    ('/leaderboard', 'Hardware'),
+    ('/hardware', 'Hardware'),
+    ('/leaderboard', 'Leaderboard'),
     ('/app/compliance', 'Compliance'),
-    ('/trust/quantumledger', 'Trust Center'),
+    ('/trust/provenova', 'Trust Center'),
     ('/pricing', 'Pricing'),
     ('/docs', 'Docs')
   ] %}
@@ -26,7 +44,7 @@
     <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4">
       <a href="/" class="flex items-center gap-2 font-semibold text-slate-900 shrink-0">
         {{ mark(26) }}
-        <span>QuantumLedger</span>
+        <span>Provenova</span>
       </a>
       <div class="hidden lg:flex items-center gap-1 text-sm text-slate-600">
         {% for href, label in nav_links %}
@@ -40,7 +58,7 @@
         {% if principal %}
           <a href="/app/settings" class="max-w-[14rem] truncate text-slate-600 hover:text-slate-900" title="Account settings">{{ principal.email }}</a>
           {% if principal.plan %}
-          <a href="/app/plans" title="View plans & what they unlock" class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium capitalize hover:bg-indigo-100">{{ principal.plan }}</a>
+          <a href="/app/plans" title="View plans & what they unlock" class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium hover:bg-indigo-100">{{ plan_labels.get(principal.plan, principal.plan|capitalize) }}</a>
           {% endif %}
           <form method="post" action="/logout" class="inline">
             <button type="submit" class="text-slate-500 hover:text-slate-900">Logout</button>
@@ -66,7 +84,7 @@
         {% endif %}
         <div class="my-1 border-t border-slate-100"></div>
         {% if principal %}
-          <a href="/app/settings" class="truncate rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ principal.email }}{% if principal.plan %} · <span class="capitalize">{{ principal.plan }}</span>{% endif %}</a>
+          <a href="/app/settings" class="truncate rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ principal.email }}{% if principal.plan %} · <span>{{ plan_labels.get(principal.plan, principal.plan|capitalize) }}</span>{% endif %}</a>
           <form method="post" action="/logout"><button type="submit" class="w-full rounded px-2 py-2 text-left text-slate-600 hover:bg-slate-100">Logout</button></form>
         {% else %}
           <a href="/login" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">Login</a>
@@ -81,8 +99,18 @@
   </main>
 
   <footer class="max-w-6xl mx-auto px-4 py-10 text-xs text-slate-400 border-t border-slate-200 mt-8">
-    QuantumLedger — the vendor-neutral system of record for quantum.
-    {% if settings and settings.deployment %}<span class="ml-2">· {{ settings.deployment }}</span>{% endif %}
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span>Provenova — the vendor-neutral system of record for quantum.</span>
+      <a href="/hardware" class="hover:text-slate-600">Hardware</a>
+      <a href="/reports" class="hover:text-slate-600">Reports</a>
+      <a href="/reports/feed.xml" class="hover:text-slate-600">RSS</a>
+      <a href="/docs" class="hover:text-slate-600">Docs</a>
+      <a href="/pricing" class="hover:text-slate-600">Pricing</a>
+      <a href="/docs/licensing" class="hover:text-slate-600">License</a>
+      <a href="https://github.com/ben-gy/provenova" class="hover:text-slate-600">GitHub</a>
+      <a href="https://pypi.org/project/provenova/" class="hover:text-slate-600">PyPI</a>
+      {% if settings and settings.deployment == "selfhost" %}<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5">Self-hosted instance</span>{% endif %}
+    </div>
   </footer>
 </body>
 </html>

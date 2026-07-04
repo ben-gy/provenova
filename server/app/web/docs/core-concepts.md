@@ -32,9 +32,10 @@ logical object always hashes the same way across machines and languages.
 
 ## Immutability & the hash chain
 
-- **`run_hash`** is a **Merkle root** over a run's constituent leaves (circuit, backend, calibration,
-  result). It is a portable content identity — recomputable offline, identical in the local and hosted
-  stores, and used as the idempotency key when you `ql push`.
+- **`run_hash`** is a **Merkle-bound content hash**: the SHA-256 over the Merkle root of a run's
+  labeled leaves (schema version, circuit, compilation, backend, calibration, execution parameters —
+  shots, seeds, and run options — and results). It is a portable content identity — recomputable
+  offline, identical in the local and hosted stores, and used as the idempotency key when you `ql push`.
 - **`chain_hash`** links each run to the previous one in a workspace, forming a **tamper-evident ledger**:
   altering an old run breaks every chain hash after it.
 - **Database triggers reject any `UPDATE` or `DELETE`** of a sealed record. The ledger is append-only by
@@ -43,8 +44,8 @@ logical object always hashes the same way across machines and languages.
 ## Offline verifiability
 
 A run exported as a `qlprov/run/1.0` document **recomputes its own hash with no server**
-(`quantumledger_core.verify_run_hash`). Anyone you share it with can confirm it hasn't been altered,
-without trusting QuantumLedger. See [Open schemas](/docs/open-schemas).
+(`provenova_core.verify_run_hash`). Anyone you share it with can confirm it hasn't been altered,
+without trusting Provenova. See [Open schemas](/docs/open-schemas).
 
 ## Why this matters downstream
 

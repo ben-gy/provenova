@@ -19,8 +19,32 @@ class Settings(BaseSettings):
     attestation_key_b64: str = ""
     public_cards: bool = True
     admin_email: str = "admin@quantumledger.local"
-    enable_doi: bool = False
     data_dir: str = "./data"
+
+    # DOI minting. "local" (default) mints stable offline PIDs; "datacite"
+    # registers real DOIs (permanent — prefix/repository must stay stable
+    # across redeploys); "off" disables. enable_doi is the legacy toggle:
+    # honored as "datacite" when doi_provider is unset.
+    doi_provider: str = ""  # datacite | local | off ("" -> legacy enable_doi)
+    enable_doi: bool = False
+    datacite_endpoint: str = "https://api.datacite.org"  # test: https://api.test.datacite.org
+    datacite_repository_id: str = ""
+    datacite_password: str = ""
+    datacite_prefix: str = ""  # e.g. "10.82521"
+
+    # Zenodo DOI minting (FREE, opt-in). Set zenodo_token to enable the explicit
+    # "Mint a DOI" action, which archives a run's provenance JSON on Zenodo and
+    # mints a real, resolvable DOI at no cost. Never used by the auto-publish
+    # path. Start against the sandbox (throwaway 10.5072 DOIs) before prod.
+    zenodo_endpoint: str = "https://zenodo.org"  # sandbox: https://sandbox.zenodo.org
+    zenodo_token: str = ""  # personal token, scopes: deposit:write deposit:actions
+
+    # Growth engine (autonomous content pipeline)
+    indexnow_key: str = ""  # serves /<key>.txt + enables IndexNow pings when set
+    growth_max_cards_per_day: int = 3
+    growth_max_reports_per_week: int = 2
+    growth_refresh_min_hours: int = 6
+    github_token: str = ""  # optional: raises GitHub API rate limit for corpus refresh
 
     @property
     def is_sqlite(self) -> bool:

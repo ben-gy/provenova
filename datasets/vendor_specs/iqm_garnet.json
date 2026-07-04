@@ -1,0 +1,44 @@
+{
+  "schema": "qlprov/corpus-record/1.0",
+  "provider": "iqm",
+  "backend_id": "Garnet",
+  "captured_at": "2026-07-03T00:00:00+00:00",
+  "source": "vendor-reported",
+  "license_ref": "vendor-reported \u00b7 aws.amazon.com/braket",
+  "raw_ref": "https://aws.amazon.com/braket/quantum-computers/iqm/",
+  "redistributable_raw": false,
+  "note": "Manufacturer-published specification (vendor claim), not independently reproduced.",
+  "derived_metrics": {
+    "n_qubits": 20,
+    "two_q_fidelity": 0.9951,
+    "source": "vendor-reported"
+  },
+  "snapshot_json": {
+    "schema": "qlprov/corpus-record/1.0",
+    "backend": {
+      "vendor": "iqm",
+      "name": "Garnet"
+    },
+    "captured_at": "2026-07-03T00:00:00+00:00",
+    "source": "vendor-reported",
+    "provenance": {
+      "source": "vendor-reported",
+      "license_ref": "vendor-reported \u00b7 aws.amazon.com/braket",
+      "disclaimer": "Vendor headline spec; verified against the cited page, not independently measured on this platform."
+    },
+    "metric_provenance": [
+      {
+        "metric": "n_qubits",
+        "value": 20,
+        "source_url": "https://aws.amazon.com/braket/quantum-computers/iqm/",
+        "quote": "20 computational transmon qubits and 30 tunable coupler qubits"
+      },
+      {
+        "metric": "two_q_fidelity",
+        "value": 0.9951,
+        "source_url": "https://aws.amazon.com/braket/quantum-computers/iqm/",
+        "quote": "median 2-qubit gate fidelity of 99.51%"
+      }
+    ]
+  }
+}

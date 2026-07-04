@@ -10,7 +10,7 @@ import qrcode.image.svg
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import Account, MfaCredential
+from provenova_core.models import Account, MfaCredential
 
 from ..security import hash_password, verify_password
 from .accounts import audit
@@ -58,7 +58,7 @@ def new_secret() -> str:
 
 
 def provisioning_uri(secret: str, email: str) -> str:
-    return pyotp.TOTP(secret).provisioning_uri(name=email, issuer_name="QuantumLedger")
+    return pyotp.TOTP(secret).provisioning_uri(name=email, issuer_name="Provenova")
 
 
 def qr_svg(uri: str) -> str:

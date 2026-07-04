@@ -12,7 +12,7 @@ import tempfile
 import pytest
 from fastapi.testclient import TestClient
 
-import quantumledger as ql
+import provenova as ql
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
@@ -30,7 +30,7 @@ def bundle():
     """Produce a real captured run bundle via the SDK local ledger."""
     home = tempfile.mkdtemp(prefix="ql_sdk_")
     ledger = ql.LocalLedger(f"sqlite:///{home}/ledger.db")
-    from quantumledger.agent import CaptureAgent
+    from provenova.agent import CaptureAgent
 
     agent = CaptureAgent(ledger)
 
@@ -92,6 +92,10 @@ def test_full_flow(client, bundle):
     pub = client.post(f"/api/v1/runs/{run_id}/card/publish")
     assert pub.status_code == 200, pub.text
     slug = pub.json()["slug"]
+    # default (no DataCite creds): a free local PID, no DOI, publish unblocked
+    assert pub.json()["doi_status"] == "pid_only"
+    assert pub.json()["pid"].startswith("ql:card:")
+    assert pub.json()["doi"] is None
     svg = client.get(f"/badge/{slug}/recorded.svg")
     assert svg.status_code == 200 and svg.headers["content-type"].startswith("image/svg")
     assert "recorded" in svg.text
@@ -104,9 +108,94 @@ def test_full_flow(client, bundle):
     bib = client.get(f"/api/v1/cards/{slug}/citation?format=bibtex")
     assert bib.status_code == 200 and "@misc" in bib.text
 
-    # public card page renders
+    # card summary surfaces Hellinger fidelity + verdict (reproduction ran above)
+    meta = client.get(f"/api/v1/cards/{slug}").json()
+    assert isinstance(meta["summary"]["hellinger_fidelity"], float)
+    assert meta["summary"]["verdict"] in ("reproducible", "drifted", "divergent", "irreproducible")
+
+    # public card page renders, including the verdict
     page = client.get(f"/cards/{slug}")
     assert page.status_code == 200 and slug in page.text
+    assert meta["summary"]["verdict"] in page.text
+
+    # embeddable card: framable, cached, branded, linking back
+    emb = client.get(f"/cards/{slug}/embed.html")
+    assert emb.status_code == 200
+    assert emb.headers["content-type"].startswith("text/html")
+    assert emb.headers["content-security-policy"] == "frame-ancestors *"
+    assert emb.headers["cache-control"].startswith("public, max-age=300")
+    assert emb.headers.get("etag")
+    assert "Provenova" in emb.text and f"/cards/{slug}" in emb.text
+    assert f"/badge/{slug}/recorded.svg" in emb.text
+    assert client.get("/cards/nonexistent/embed.html").status_code == 404
+
+    # embed snippets include the iframe variant; badge_type is constrained
+    snip = client.get(f"/api/v1/cards/{slug}/embed").json()
+    assert "iframe" in snip and f"/cards/{slug}/embed.html" in snip["iframe"]
+    assert client.get(f"/api/v1/cards/{slug}/embed",
+                      params={"badge_type": '"><script>'}).status_code == 400
+
+    # oEmbed: discovery tag on the card page + provider endpoint
+    from app.config import get_settings
+    base = get_settings().base_url
+    assert "application/json+oembed" in page.text
+    oe = client.get("/api/v1/oembed", params={"url": f"{base}/cards/{slug}"})
+    assert oe.status_code == 200
+    body = oe.json()
+    assert body["type"] == "rich" and "<iframe" in body["html"]
+    # a non-card path and a foreign host are both rejected
+    assert client.get("/api/v1/oembed", params={"url": f"{base}/pricing"}).status_code == 404
+    assert client.get("/api/v1/oembed",
+                      params={"url": f"https://evil.example/cards/{slug}"}).status_code == 404
+
+    # unpublished cards must not be embeddable
+    client.post(f"/api/v1/runs/{run_id}/card/unpublish")
+    assert client.get(f"/cards/{slug}/embed.html").status_code == 404
+    client.post(f"/api/v1/runs/{run_id}/card/publish")
+    assert client.get(f"/cards/{slug}/embed.html").status_code == 200
+
+    # opt-in DOI mint (Zenodo) — endpoint behavior with the provider stubbed
+    _exercise_mint_doi(client, run_id, slug)
+
+
+def _exercise_mint_doi(client, run_id, slug):
+    import pytest as _pytest
+    from app.services import doi as doi_svc
+    from app.services import cards as cards_svc
+    from app.services import limits as limits_svc
+
+    # not configured (no Zenodo token) -> 400
+    assert client.post(f"/api/v1/runs/{run_id}/card/mint-doi").status_code == 400
+
+    class _StubProvider(doi_svc.DoiProvider):
+        scheme = "doi"; provider = "zenodo"
+        def mint(self, card, base_url):
+            return doi_svc.MintResult("10.5072/zenodo.777", "doi", "zenodo",
+                                      url="https://sandbox.zenodo.org/record/777")
+
+    mp = _pytest.MonkeyPatch()
+    try:
+        mp.setattr(doi_svc, "zenodo_provider", lambda s: _StubProvider())
+        # over quota -> 402
+        mp.setattr(limits_svc, "doi_usage",
+                   lambda *a, **k: {"used": 5, "cap": 5, "unlimited": False,
+                                    "at_cap": True, "pct": 100})
+        assert client.post(f"/api/v1/runs/{run_id}/card/mint-doi").status_code == 402
+        # under quota -> 200, DOI stored, record url in summary, audit meter increments
+        mp.setattr(limits_svc, "doi_usage",
+                   lambda *a, **k: {"used": 0, "cap": 5, "unlimited": False,
+                                    "at_cap": False, "pct": 0})
+        r = client.post(f"/api/v1/runs/{run_id}/card/mint-doi")
+        assert r.status_code == 200, r.text
+        assert r.json()["doi"] == "10.5072/zenodo.777"
+        assert r.json()["doi_status"] == "minted"
+        meta = client.get(f"/api/v1/cards/{slug}").json()
+        assert meta["doi"] == "10.5072/zenodo.777"
+        assert meta["summary"]["zenodo"]["record_url"] == "https://sandbox.zenodo.org/record/777"
+        # second mint -> 409 exists (idempotent)
+        assert client.post(f"/api/v1/runs/{run_id}/card/mint-doi").status_code == 409
+    finally:
+        mp.undo()
 
 
 def test_compliance_and_attestation(client, bundle):
@@ -121,22 +210,29 @@ def test_compliance_and_attestation(client, bundle):
     r = client.post("/api/v1/ingest/runs", json=bundle)
     assert r.status_code == 200
 
-    # free tier: compliance is gated
+    # Free tier: can enable FAIR (read-only view) but NOT a non-FAIR framework,
+    # and cannot ISSUE attestations (issuance is paid).
     fw = client.get("/api/v1/frameworks").json()
     fair = next(f for f in fw if f["key"].startswith("fair"))
-    gated = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
-    assert gated.status_code == 402  # upgrade_required
+    ieee = next(f for f in fw if f["key"].startswith("ieee"))
+    free_fair = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
+    assert free_fair.status_code == 200, free_fair.text        # FAIR allowed on Free
+    free_ieee = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{ieee['id']}/enable")
+    assert free_ieee.status_code == 402                        # non-FAIR gated on Free
+    assert client.post(f"/api/v1/workspaces/{ws_id}/compliance/evaluate").status_code == 200
+    free_att = client.post(f"/api/v1/workspaces/{ws_id}/attestations?framework_id={fair['id']}")
+    assert free_att.status_code == 402                         # attestation issuance is paid
 
     # admin upgrades the org to pro (admin-driven, no payment)
     from app.db import SessionLocal
     from app.services.accounts import grant_plan
-    from quantumledger_core.models import Org
+    from provenova_core.models import Org
     s = SessionLocal()
     grant_plan(s, s.get(Org, org_id), "pro", source="admin_override")
     s.commit(); s.close()
 
-    # now enable + evaluate + attest
-    en = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
+    # now the non-FAIR framework + evaluate + attest all work
+    en = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{ieee['id']}/enable")
     assert en.status_code == 200, en.text
     ev = client.post(f"/api/v1/workspaces/{ws_id}/compliance/evaluate")
     assert ev.status_code == 200, ev.text

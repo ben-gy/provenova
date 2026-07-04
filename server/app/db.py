@@ -9,8 +9,8 @@ from typing import Iterator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-import quantumledger_core as qc
-from quantumledger_core.models import (
+import provenova_core as qc
+from provenova_core.models import (
     PLAN_ENTERPRISE,
     Account,
     Org,
@@ -78,7 +78,7 @@ def bootstrap(session: Session) -> None:
     Serialized with a Postgres advisory lock so concurrent workers/containers
     don't race on the framework/account unique constraints (no-op on SQLite).
     """
-    from quantumledger_core.db import advisory_lock
+    from provenova_core.db import advisory_lock
 
     from .services.compliance import load_all_frameworks
 
@@ -103,9 +103,14 @@ def bootstrap(session: Session) -> None:
             )
             session.add(admin)
             session.flush()
-        org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
+        org = session.scalar(select(Org).where(Org.slug == "provenova"))
         if org is None:
-            org = Org(name="QuantumLedger", slug="quantumledger", plan=PLAN_ENTERPRISE)
+            # migrate the pre-rename slug in place so existing deployments keep their org
+            org = session.scalar(select(Org).where(Org.slug == "quantumledger"))
+            if org is not None:
+                org.slug = "provenova"
+        if org is None:
+            org = Org(name="Provenova", slug="provenova", plan=PLAN_ENTERPRISE)
             session.add(org)
             session.flush()
             session.add(OrgMembership(account_id=admin.id, org_id=org.id, role="owner"))

@@ -1,4 +1,4 @@
-# QuantumLedger production stack for a single Oracle ARM VM.
+# Provenova production stack for a single Oracle ARM VM.
 #
 #   1. cp .env.example .env   (then edit — see comments in .env.example)
 #   2. docker compose up -d --build

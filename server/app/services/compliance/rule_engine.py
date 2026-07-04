@@ -29,7 +29,7 @@ from typing import Any, Iterable
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from quantumledger_core.models import (
+from provenova_core.models import (
     CalibrationSnapshot,
     Circuit,
     ComplianceAlert,

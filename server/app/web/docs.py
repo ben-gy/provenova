@@ -24,7 +24,7 @@ DOCS_DIR = Path(__file__).resolve().parent / "docs"
 # ``layout: "split"`` renders the page in the two-pane (prose + code rail) shell.
 DOCS_MANIFEST: list[dict] = [
     {"title": "Introduction", "pages": [
-        {"slug": "overview", "title": "What is QuantumLedger?", "source": "file:overview.md"},
+        {"slug": "overview", "title": "What is Provenova?", "source": "file:overview.md"},
         {"slug": "getting-started", "title": "Getting started", "source": "file:getting-started.md",
          "layout": "split"},
     ]},
@@ -39,6 +39,7 @@ DOCS_MANIFEST: list[dict] = [
     ]},
     {"title": "Using the app", "pages": [
         {"slug": "product-tour", "title": "Product tour (every page & button)", "source": "file:product-tour.md"},
+        {"slug": "pricing-faq", "title": "Pricing FAQ", "source": "file:pricing-faq.md"},
     ]},
     {"title": "Libraries & reference", "pages": [
         {"slug": "libraries", "title": "Libraries & downloads", "source": "file:libraries.md"},
@@ -47,6 +48,7 @@ DOCS_MANIFEST: list[dict] = [
         {"slug": "frameworks", "title": "Frameworks reference", "source": "gen:frameworks"},
         {"slug": "open-schemas", "title": "Open schemas (qlprov)", "source": "file:open-schemas.md"},
         {"slug": "deployment", "title": "Deployment & self-hosting", "source": "file:deployment.md"},
+        {"slug": "licensing", "title": "Licensing", "source": "file:licensing.md"},
     ]},
 ]
 
@@ -65,7 +67,7 @@ HOME_CARDS: list[dict] = [
     {"slug": "api", "eyebrow": "Reference", "title": "API reference",
      "desc": "Every REST endpoint with example requests and responses."},
     {"slug": "cli", "eyebrow": "Reference", "title": "CLI reference",
-     "desc": "The ql command-line tool: init, capture, list, show, reproduce, push."},
+     "desc": "The ql command-line tool: init, demo, capture-target, list, show, reproduce, push."},
     {"slug": "deployment", "eyebrow": "Operate", "title": "Deployment & self-hosting",
      "desc": "docker-compose, environment variables, SQLite vs PostgreSQL, air-gapped mode."},
 ]
@@ -82,6 +84,11 @@ for _section in DOCS_MANIFEST:
         _pg = {**_pg, "section": _section["title"]}
         _PAGES[_pg["slug"]] = _pg
         _ORDER.append(_pg["slug"])
+
+
+def all_slugs() -> list[str]:
+    """Every docs page slug, in manifest order (used by the sitemap)."""
+    return list(_ORDER)
 
 # --------------------------------------------------------------------------- #
 # Markdown rendering (mtime-cached) + callouts
@@ -153,7 +160,7 @@ def _h(text: Any) -> str:
 def _gen_frameworks(db) -> tuple[str, str]:
     from sqlalchemy import select
 
-    from quantumledger_core.models import ComplianceFramework, Control
+    from provenova_core.models import ComplianceFramework, Control
 
     from ..services import compliance as comp
 
@@ -162,7 +169,7 @@ def _gen_frameworks(db) -> tuple[str, str]:
         return ("<p>No frameworks are loaded. They are read from <code>frameworks/*.yaml</code> "
                 "at server startup.</p>", "")
 
-    parts = ["<p>The compliance standards QuantumLedger ships with, generated live from the definitions "
+    parts = ["<p>The compliance standards Provenova ships with, generated live from the definitions "
              "currently loaded. Each control lists what the standard requires, the automated checks used "
              "as evidence, and how to remediate a gap.</p>"]
     toc = ['<div class="toc"><ul>']
@@ -223,14 +230,14 @@ _GROUP_ORDER = ["Ingest", "Runs", "Result cards", "Badges", "Corpus & leaderboar
 # back to the route summary; examples are optional.
 _API_META: dict[tuple[str, str], dict] = {
     ("POST", "/api/v1/ingest/runs"): {
-        "desc": "Ingest a run bundle from the SDK. Idempotent by run_hash — re-sending the same run is a no-op.",
+        "desc": "Ingest a run bundle from the SDK. Idempotent by run_hash — re-sending the same run returns \"status\": \"exists\" with the original run_id.",
         "curl": "curl -X POST {base}/api/v1/ingest/runs \\\n  -H \"Authorization: Bearer $QL_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  --data @run.qlprov.json",
-        "resp": '{\n  "run_id": "01J...",\n  "run_hash": "b3f1...e9",\n  "deduplicated": false\n}',
+        "resp": '{\n  "status": "created",\n  "run_id": "01J...",\n  "run_hash": "b3f1...e9",\n  "hash_matched_client": true\n}',
     },
     ("GET", "/api/v1/runs"): {
         "desc": "List runs in your workspace, most recent first.",
         "curl": "curl {base}/api/v1/runs \\\n  -H \"Authorization: Bearer $QL_TOKEN\"",
-        "resp": '[\n  { "run_id": "01J...", "backend": "ibm/ibm_kyiv", "shots": 4096, "status": "completed" }\n]',
+        "resp": '[\n  { "id": "01J...", "project": "bell-demo", "vendor": "ibm", "backend": "ibm_kyiv", "shots": 4096, "status": "completed", "run_hash": "b3f1...e9", "created_at": "2026-07-03T12:00:00+00:00" }\n]',
     },
     ("GET", "/api/v1/runs/{run_id}"): {
         "desc": "Fetch the full provenance document (qlprov/run/1.0) for a run. Verifies its own hash offline.",
@@ -238,8 +245,8 @@ _API_META: dict[tuple[str, str], dict] = {
     },
     ("POST", "/api/v1/runs/{run_id}/reproduce"): {
         "desc": "Re-run the stored circuit against a drifted device state and score the result.",
-        "curl": "curl -X POST {base}/api/v1/runs/01J.../reproduce \\\n  -H \"Authorization: Bearer $QL_TOKEN\" \\\n  -d '{\"days\": 90, \"profile\": \"bad_day\"}'",
-        "resp": '{\n  "reproduced_run_id": "01K...",\n  "verdict": "drifted",\n  "hellinger_fidelity": 0.947\n}',
+        "curl": "curl -X POST \"{base}/api/v1/runs/01J.../reproduce?days=90&profile=bad_day\" \\\n  -H \"Authorization: Bearer $QL_TOKEN\"",
+        "resp": '{\n  "reproduced_run_id": "01K...",\n  "verdict": "drifted",\n  "reproducibility_score": 0.947,\n  "report": { ... }\n}',
     },
     ("POST", "/api/v1/runs/{run_id}/card/publish"): {
         "desc": "Publish a run as a public, citable Result Card with provenance and badges.",
@@ -264,9 +271,9 @@ _API_META: dict[tuple[str, str], dict] = {
     ("GET", "/api/v1/attestations/{att_id}/verify"): {
         "desc": "Verify an attestation's signature and evidence root (public — no auth).",
         "curl": "curl {base}/api/v1/attestations/01J.../verify",
-        "resp": '{\n  "valid": true,\n  "revoked": false,\n  "evidence_root": "9c2a...f0"\n}',
+        "resp": '{\n  "attestation_id": "01J...",\n  "kid": "ql-att-...",\n  "evidence_root": "9c2a...f0",\n  "valid": true,\n  "checks": { "signature": true, "expired": false, "revoked": false, "tampered": false },\n  "reason": null\n}',
     },
-    ("GET", "/.well-known/quantumledger-jwks.json"): {
+    ("GET", "/.well-known/provenova-jwks.json"): {
         "desc": "Public JWKS for verifying attestation signatures yourself.",
     },
     ("GET", "/api/v1/me"): {
@@ -320,7 +327,7 @@ def _gen_api(request) -> tuple[str, str]:
             groups.setdefault(group, []).append((m, path, fallback))
 
     intro = (
-        "<p>The QuantumLedger REST API. All responses are JSON. Authenticate with an API key as a bearer "
+        "<p>The Provenova REST API. All responses are JSON. Authenticate with an API key as a bearer "
         "token — create one under <a href=\"/app/settings\">Settings → API keys</a>:</p>"
         f'<div class="code-block"><div class="code-block__bar"><span class="code-block__lang">Shell</span></div>'
         f'<pre><code class="language-bash">export QL_TOKEN=ql_live_...\n'
@@ -362,17 +369,17 @@ def _gen_cli() -> tuple[str, str]:
         import typer  # noqa: F401
         from typer.main import get_command
 
-        from quantumledger.cli.__main__ import app as cli_app  # type: ignore
+        from provenova.cli.__main__ import app as cli_app  # type: ignore
 
         group = get_command(cli_app)
         commands = getattr(group, "commands", {})
     except Exception:
-        return ("<p>The <code>ql</code> CLI ships with the <code>quantumledger</code> SDK "
-                "(<code>pip install quantumledger</code>). Install it to see the generated command "
+        return ("<p>The <code>ql</code> CLI ships with the <code>provenova</code> SDK "
+                "(<code>pip install provenova</code>). Install it to see the generated command "
                 "reference here, or run <code>ql --help</code>.</p>", "")
 
     parts = ["<p>The <code>ql</code> command-line tool ships with the open-source "
-             "<code>quantumledger</code> SDK. Generated from the installed CLI.</p>"]
+             "<code>provenova</code> SDK. Generated from the installed CLI.</p>"]
     toc = ['<div class="toc"><ul>']
     for name in sorted(commands):
         cmd = commands[name]

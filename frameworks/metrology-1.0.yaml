@@ -11,7 +11,7 @@ description: >-
   a recorded calibration snapshot of the measuring device and declares its shot
   count (measurement sample size).
 spec:
-  source: QuantumLedger metrology baseline
+  source: Provenova metrology baseline
 controls:
   - key: MET-TRACE
     title: Measurement is traceable to a calibrated device state

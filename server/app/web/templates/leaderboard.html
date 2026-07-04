@@ -1,23 +1,17 @@
 {% extends "base.html" %}
-{% from "_helpers.html" import page_intro, empty_state, term %}
-{% block title %}State of Quantum Hardware — QuantumLedger{% endblock %}
+{% from "_helpers.html" import page_intro, term, source_badge %}
+{% block title %}State of Quantum Hardware — Provenova{% endblock %}
+{% block meta_description %}Live cross-vendor quantum hardware leaderboard: 2-qubit fidelity, EPLG, CLOPS, T1/T2 and benchmark rankings across IBM, IonQ, Quantinuum, IQM, Rigetti and Origin — every row labelled by source and licence.{% endblock %}
 
 {% block content %}
-{% set metrics = [
-  ('median_2q_error', 'Median 2Q error'),
-  ('best_2q_fidelity', 'Best 2Q fidelity'),
-  ('median_t1_us', 'Median T1 (µs)'),
-  ('median_t2_us', 'Median T2 (µs)')
-] %}
-
-{% set lb_desc %}A cross-vendor ranking of quantum devices, built from the {{ term("public corpus") }} of {{ term("calibration snapshot") }}s. Switch the ranking metric below; lower error and higher T1/T2 coherence are better.{% endset %}
+{% set lb_desc %}A cross-vendor ranking of quantum devices, built from the {{ term("public corpus") }} of {{ term("calibration snapshot") }}s and openly-licensed benchmarks. Switch the ranking metric below. Rows are labelled by source & licence — <b>vendor-reported</b> rows are manufacturer claims, not independently reproduced here.{% endset %}
 {{ page_intro("State of Quantum Hardware", lb_desc, "/docs/corpus-and-leaderboard", "How the corpus works") }}
 
 <div class="mb-4 flex flex-wrap gap-2 text-sm">
-  {% for key, label in metrics %}
-  <a href="/leaderboard?metric={{ key }}"
-     class="rounded-full border px-3 py-1 {{ 'bg-indigo-600 text-white border-indigo-600' if metric == key else 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50' }}">
-    {{ label }}
+  {% for m in metrics %}
+  <a href="/leaderboard?metric={{ m.key }}"
+     class="rounded-full border px-3 py-1 {{ 'bg-indigo-600 text-white border-indigo-600' if metric == m.key else 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50' }}">
+    {{ m.label }}
   </a>
   {% endfor %}
 </div>
@@ -29,7 +23,8 @@
         <th class="px-4 py-2 font-medium">Rank</th>
         <th class="px-4 py-2 font-medium">Provider</th>
         <th class="px-4 py-2 font-medium">Backend</th>
-        <th class="px-4 py-2 font-medium">{{ metric }}</th>
+        <th class="px-4 py-2 font-medium">{{ metric_label }}</th>
+        <th class="px-4 py-2 font-medium">Source / licence</th>
         <th class="px-4 py-2 font-medium">Captured</th>
       </tr>
     </thead>
@@ -37,15 +32,25 @@
       {% for e in entries %}
       <tr class="hover:bg-slate-50">
         <td class="px-4 py-2 font-semibold text-slate-900">#{{ e.rank }}</td>
-        <td class="px-4 py-2">{{ e.provider }}</td>
-        <td class="px-4 py-2 mono text-slate-600">{{ e.backend_id }}</td>
+        <td class="px-4 py-2 capitalize">{{ e.provider }}</td>
+        <td class="px-4 py-2 mono"><a href="/hardware/{{ e.provider | lower }}/{{ e.backend_id | lower }}" class="text-indigo-600 hover:underline">{{ e.backend_id }}</a></td>
         <td class="px-4 py-2 font-medium">{{ e.value | round(4) if e.value is number else e.value }}</td>
-        <td class="px-4 py-2 text-slate-500">{{ e.captured_at }}</td>
+        <td class="px-4 py-2">{{ source_badge(e.source, e.license_ref) }}</td>
+        <td class="px-4 py-2 text-slate-500">{{ e.captured_at[:10] if e.captured_at else '—' }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">No corpus data yet — the crawler ingests calibration snapshots from <span class="mono">fixtures/</span> or live vendor APIs. See the <a href="/docs/corpus-and-leaderboard" class="text-indigo-600 hover:underline">corpus guide</a>.</td></tr>
+      <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">No corpus data yet — the crawler ingests calibration snapshots from <span class="mono">datasets/</span> or live vendor APIs. See the <a href="/docs/corpus-and-leaderboard" class="text-indigo-600 hover:underline">corpus guide</a>.</td></tr>
       {% endfor %}
     </tbody>
   </table>
+</div>
+
+<div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-500">
+  <b class="text-slate-600">Sources &amp; attribution.</b>
+  IBM rows are real device calibration snapshots from Qiskit's <span class="mono">fake_provider</span> (Apache-2.0).
+  <b>Metriq</b> rows are community benchmark submissions from <a href="https://metriq.info" class="text-indigo-600 hover:underline" rel="noopener">metriq.info</a> (CC-BY-4.0).
+  <b>Zenodo</b> rows are openly-licensed raw calibration datasets (CC-BY/CC0), cited per row.
+  <b>Vendor-reported</b> rows are specifications published by the manufacturer and are shown as claims, with the press/source link recorded in each snapshot's provenance.
+  Metrics differ in what they measure and how they're obtained, so compare within a metric and mind the source badge.
 </div>
 {% endblock %}

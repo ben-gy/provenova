@@ -1,9 +1,9 @@
 # Open schemas (qlprov)
 
-QuantumLedger's provenance format is an **open, versioned standard** called `qlprov`, not a proprietary
-blob. The schemas are JSON Schema (draft 2020-12) and ship inside `quantumledger-core` at
-`quantumledger_core/schemas/qlprov/`. Because the format is open and self-verifying, a run you export can be
-read, validated, and hash-checked by anyone — no QuantumLedger server required.
+Provenova's provenance format is an **open, versioned standard** called `qlprov`, not a proprietary
+blob. The schemas are JSON Schema (draft 2020-12) and ship inside `provenova-core` at
+`provenova_core/schemas/qlprov/`. Because the format is open and self-verifying, a run you export can be
+read, validated, and hash-checked by anyone — no Provenova server required.
 
 ## `qlprov/run/1.0`
 
@@ -14,13 +14,17 @@ and what `GET /api/v1/runs/<id>` returns.
 **Self-verifying.** An exported `qlprov/run/1.0` document **recomputes its own `run_hash`** offline:
 
 ```python
-from quantumledger_core import verify_run_hash
-assert verify_run_hash(document)   # True iff the document is intact
+from provenova_core import verify_run_hash
+assert verify_run_hash(document)   # True iff the leaf hashes still produce run_hash
 ```
 
-The `run_hash` is a Merkle root over canonicalized leaves, so any alteration changes the hash and the check
-fails. It is also stable across the local and hosted stores, which is why it doubles as the idempotency key
-for `ql push`.
+The `run_hash` is the SHA-256 of a Merkle root over the seven labeled leaf hashes embedded in
+`merkle.leaves` (schema, circuit, compilation, backend, calibration, execution, results) — any alteration
+to those bound hashes changes the recomputed root and the check fails. The human-readable body fields can
+be validated by cross-checking them against the leaves: `circuit.content_sha256`, `backend.identity_hash`,
+and `calibration.content_sha256` equal their leaves directly, and the `results` leaf is the Merkle root of
+each result's `counts_sha256`. The hash is also stable across the local and hosted stores, which is why it
+doubles as the idempotency key for `ql push`.
 
 ## `qlprov/calibration/1.0`
 
