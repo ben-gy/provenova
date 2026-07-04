@@ -72,6 +72,23 @@ def create_app() -> FastAPI:
     if STATIC_DIR.exists():
         app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+    # Browser-facing 404s get the branded page; API paths and non-HTML clients
+    # keep the JSON error body.
+    from fastapi.exception_handlers import http_exception_handler
+    from starlette.exceptions import HTTPException as StarletteHTTPException
+
+    @app.exception_handler(StarletteHTTPException)
+    async def _handle_http_exception(request, exc):
+        wants_html = "text/html" in (request.headers.get("accept") or "")
+        if exc.status_code == 404 and wants_html and not request.url.path.startswith("/api/"):
+            from .web.routes import templates
+
+            return templates.TemplateResponse(
+                request, "404.html",
+                {"principal": None, "settings": settings, "detail": exc.detail if exc.detail != "Not Found" else None},
+                status_code=404)
+        return await http_exception_handler(request, exc)
+
     @app.get("/api/v1/health", tags=["public"])
     def health():
         return {"status": "ok", "service": "provenova", "version": "0.1.0",

@@ -52,7 +52,8 @@ Badges reflect a result's maturity as a ladder — each rung is a stronger claim
 Rungs 1–3 are reachable on the **Free** plan for your own runs — capture, reproduce, then hit
 **Benchmark vs fleet** on the record page to record a benchmark entry and light the
 **Benchmarked** badge, no upgrade required. Rung 4 needs an enabled framework and rung 5 needs a
-signed attestation (a paid feature — see the [pricing FAQ](/docs/pricing-faq)).
+signed attestation (included from the free Academic tier and all paid tiers — see the
+[pricing FAQ](/docs/pricing-faq)).
 
 External parties can even submit their own reproductions of a public card
 (`POST /api/v1/cards/<slug>/reproductions`) — independent verification that upgrades the card's
