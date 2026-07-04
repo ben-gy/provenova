@@ -154,6 +154,49 @@ def test_full_flow(client, bundle):
     client.post(f"/api/v1/runs/{run_id}/card/publish")
     assert client.get(f"/cards/{slug}/embed.html").status_code == 200
 
+    # opt-in DOI mint (Zenodo) — endpoint behavior with the provider stubbed
+    _exercise_mint_doi(client, run_id, slug)
+
+
+def _exercise_mint_doi(client, run_id, slug):
+    import pytest as _pytest
+    from app.services import doi as doi_svc
+    from app.services import cards as cards_svc
+    from app.services import limits as limits_svc
+
+    # not configured (no Zenodo token) -> 400
+    assert client.post(f"/api/v1/runs/{run_id}/card/mint-doi").status_code == 400
+
+    class _StubProvider(doi_svc.DoiProvider):
+        scheme = "doi"; provider = "zenodo"
+        def mint(self, card, base_url):
+            return doi_svc.MintResult("10.5072/zenodo.777", "doi", "zenodo",
+                                      url="https://sandbox.zenodo.org/record/777")
+
+    mp = _pytest.MonkeyPatch()
+    try:
+        mp.setattr(doi_svc, "zenodo_provider", lambda s: _StubProvider())
+        # over quota -> 402
+        mp.setattr(limits_svc, "doi_usage",
+                   lambda *a, **k: {"used": 5, "cap": 5, "unlimited": False,
+                                    "at_cap": True, "pct": 100})
+        assert client.post(f"/api/v1/runs/{run_id}/card/mint-doi").status_code == 402
+        # under quota -> 200, DOI stored, record url in summary, audit meter increments
+        mp.setattr(limits_svc, "doi_usage",
+                   lambda *a, **k: {"used": 0, "cap": 5, "unlimited": False,
+                                    "at_cap": False, "pct": 0})
+        r = client.post(f"/api/v1/runs/{run_id}/card/mint-doi")
+        assert r.status_code == 200, r.text
+        assert r.json()["doi"] == "10.5072/zenodo.777"
+        assert r.json()["doi_status"] == "minted"
+        meta = client.get(f"/api/v1/cards/{slug}").json()
+        assert meta["doi"] == "10.5072/zenodo.777"
+        assert meta["summary"]["zenodo"]["record_url"] == "https://sandbox.zenodo.org/record/777"
+        # second mint -> 409 exists (idempotent)
+        assert client.post(f"/api/v1/runs/{run_id}/card/mint-doi").status_code == 409
+    finally:
+        mp.undo()
+
 
 def test_compliance_and_attestation(client, bundle):
     # a fresh workspace-bearing user; upgrade via bootstrap superadmin

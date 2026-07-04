@@ -12,7 +12,7 @@ From a run at `/app/records/<run_id>`, use **Publish** to create a Result Card. 
 - the run's **provenance** (backend, calibration, `run_hash`),
 - the **result distribution**,
 - **visibility** — `private` or `public`,
-- an optional **DOI** (or other persistent identifier) and license.
+- a free **persistent identifier (PID)**, an optional real **DOI** minted on demand via Zenodo, and a license.
 
 Cards can be unpublished (retracted) later.
 
@@ -25,8 +25,9 @@ The card page and API offer ready-made citations:
 - `GET /api/v1/cards/<slug>` — machine-readable metadata (JSON).
 - `GET /api/v1/cards/<slug>/embed` — an embeddable HTML snippet.
 
-Minting a DOI/PID for a card is also what satisfies the FAIR persistent-identifier control
-(FAIR-F1) — see [Compliance](/docs/compliance).
+A card's free **PID** already satisfies the FAIR persistent-identifier control (FAIR-F1); an optional
+**DOI** — minted for free on demand via Zenodo, which also archives the provenance record — strengthens
+it with an external, globally-resolvable identifier. See [Compliance](/docs/compliance).
 
 ## Badges
 

@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     datacite_password: str = ""
     datacite_prefix: str = ""  # e.g. "10.82521"
 
+    # Zenodo DOI minting (FREE, opt-in). Set zenodo_token to enable the explicit
+    # "Mint a DOI" action, which archives a run's provenance JSON on Zenodo and
+    # mints a real, resolvable DOI at no cost. Never used by the auto-publish
+    # path. Start against the sandbox (throwaway 10.5072 DOIs) before prod.
+    zenodo_endpoint: str = "https://zenodo.org"  # sandbox: https://sandbox.zenodo.org
+    zenodo_token: str = ""  # personal token, scopes: deposit:write deposit:actions
+
     # Growth engine (autonomous content pipeline)
     indexnow_key: str = ""  # serves /<key>.txt + enables IndexNow pings when set
     growth_max_cards_per_day: int = 3

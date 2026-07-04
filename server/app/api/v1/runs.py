@@ -112,3 +112,33 @@ def unpublish(run_id: str, db: Session = Depends(get_db),
           resource_type="card", resource_id=card.id)
     db.commit()
     return {"slug": card.slug, "visibility": card.visibility}
+
+
+@router.post("/runs/{run_id}/card/mint-doi")
+def mint_doi(run_id: str, db: Session = Depends(get_db),
+             p: Principal = Depends(require_feature("public_result_cards"))):
+    """Explicit, opt-in DOI mint via Zenodo for an already-public card."""
+    if not p.can("publish"):
+        raise HTTPException(403, "forbidden")
+    run = owned_run(db, run_id, p)
+    card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
+    if card is None or card.visibility != VIS_PUBLIC:
+        raise HTTPException(409, "card must be published first")
+    if card.doi:
+        raise HTTPException(409, {"error": "exists", "doi": card.doi})
+    provider = doi_svc.zenodo_provider(get_settings())
+    if provider is None:
+        raise HTTPException(400, "DOI minting is not configured (no Zenodo token)")
+    info = cards_svc.mint_card_doi(db, card, provider=provider, plan=p.plan,
+                                   base_url=get_settings().base_url)
+    if info["status"] == "quota_exceeded":
+        raise HTTPException(402, {"error": "quota_exceeded", **info})
+    if info["status"] == "mint_failed":
+        raise HTTPException(502, {"error": "mint_failed", **info})
+    if info["status"] == "exists":
+        raise HTTPException(409, {"error": "exists", "doi": info["doi"]})
+    audit(db, workspace_id=run.workspace_id, account_id=p.account_id,
+          action="card.doi.mint", resource_type="card", resource_id=card.id, detail=info)
+    db.commit()
+    return {"slug": card.slug, "doi": card.doi, "doi_status": info["status"],
+            "record_url": info.get("record_url")}

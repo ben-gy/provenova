@@ -72,7 +72,7 @@
           <div class="mono break-all text-[11px] text-slate-700">b3f1c2a4…e9 &nbsp;<span class="text-slate-400">(Merkle-bound)</span></div>
         </div>
         <div class="mt-3 flex flex-wrap gap-1.5 text-[11px]">
-          <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">DOI</span>
+          <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">PID</span>
           <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">BibTeX</span>
           <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">RIS</span>
           <span class="rounded-md border border-slate-300 px-2 py-1 text-slate-600">Embed badge</span>
@@ -91,7 +91,7 @@
     {% set steps = [
       ('1', 'Capture', 'Wrap your job with @ql.capture. The circuit, backend, calibration and result are recorded locally — offline, no account.'),
       ('2', 'Reproduce', 'Re-run against a drifted device state and score how much changed, with a Hellinger fidelity and a plain-language verdict.'),
-      ('3', 'Publish', 'Turn any run into a public, citable Result Card with a DOI/PID, provenance hash and embeddable badges.'),
+      ('3', 'Publish', 'Turn any run into a public, citable Result Card with a permanent persistent identifier — plus an optional, free DOI via Zenodo — provenance hash and embeddable badges.'),
       ('4', 'Attest', 'Map runs to standards like FAIR or IEEE P7131 and issue signed, publicly-verifiable attestations.')
     ] %}
     {% for n, title, body in steps %}
@@ -111,7 +111,7 @@
     {% set pillars = [
       ('document-check', 'Immutable provenance', 'A Merkle run-hash binds circuit, backend, calibration and result into a tamper-evident, hash-chained ledger.', '/docs/core-concepts'),
       ('arrow-path', 'Reproduce & drift', 'Deterministic drift profiles + Hellinger / TVD scoring show exactly why a result changed.', '/docs/reproduce-and-drift'),
-      ('document-text', 'Citable result cards', 'Public cards with DOIs, citations (BibTeX/RIS) and shields.io-style badges.', '/docs/result-cards-and-badges'),
+      ('document-text', 'Citable result cards', 'Public cards with a free persistent identifier — plus an optional, free DOI via Zenodo — citations (BibTeX/RIS) and shields.io-style badges.', '/docs/result-cards-and-badges'),
       ('shield-check', 'Compliance & attestations', 'Evidence auto-collected from your runs; issue Ed25519-signed, revocable attestations.', '/docs/compliance'),
       ('chart-bar', 'Cross-vendor corpus', 'A longitudinal, public calibration corpus powering the hardware leaderboard.', '/docs/corpus-and-leaderboard'),
       ('cpu-chip', 'Vendor-neutral SDK', 'One @ql.capture decorator; pluggable connectors for IBM, IonQ, Braket, Azure & simulators.', '/docs/capturing-runs')

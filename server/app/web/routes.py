@@ -557,6 +557,31 @@ def web_publish(run_id: str, request: Request, db: Session = Depends(get_db),
     return RedirectResponse(f"/cards/{card.slug}", status_code=303)
 
 
+@router.post("/app/records/{run_id}/mint-doi")
+def web_mint_doi(run_id: str, request: Request, db: Session = Depends(get_db),
+                 p: Principal | None = Depends(current_principal)):
+    if p is None:
+        return RedirectResponse("/login", status_code=303)
+    run = _owned_run(db, run_id, p)
+    card = db.scalar(select(ResultCard).where(ResultCard.run_id == run_id))
+    if card is None or card.visibility != "public":
+        raise HTTPException(409, "publish the card first")
+    settings = get_settings()
+    provider = doi_svc.zenodo_provider(settings)
+    if provider is None:
+        return RedirectResponse(f"/cards/{card.slug}?doi=unconfigured", status_code=303)
+    if card.doi:
+        return RedirectResponse(f"/cards/{card.slug}?doi=exists", status_code=303)
+    info = cards_svc.mint_card_doi(db, card, provider=provider, plan=p.plan,
+                                   base_url=settings.base_url)
+    if info["status"] == "minted":
+        acc_svc.audit(db, workspace_id=run.workspace_id, account_id=p.account_id,
+                      action="card.doi.mint", resource_type="card", resource_id=card.id,
+                      detail=info)
+    db.commit()
+    return RedirectResponse(f"/cards/{card.slug}?doi={info['status']}", status_code=303)
+
+
 # -- public result card -----------------------------------------------------
 
 @router.get("/cards/{slug}", response_class=HTMLResponse)

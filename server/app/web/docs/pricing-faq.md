@@ -47,10 +47,13 @@ earns the **Benchmarked** badge. Every rung up to **Compliant** is reachable on 
 
 ## Do you issue DOIs?
 
-Every published result card already gets a **free, citable internal PID** on every tier — that never
-costs anything. External **DOIs are minted via DataCite** when the server is configured with
-DataCite credentials, metered per month (Free: 5/month; unlimited on Academic and paid tiers).
-Hitting the cap never blocks publishing — the card simply keeps its always-free PID.
+Every published result card gets a **free, citable persistent identifier (PID)** on every tier — no
+network, no cost, works self-hosted and air-gapped. If the server is configured with a **Zenodo**
+token, you can also **mint a real, free DOI** with one click: Provenova archives the run's provenance
+record on Zenodo and stores the resulting DOI on the card. DOIs are metered per month (Free: 5/month;
+unlimited on Academic and paid tiers) and, being permanent, are minted only by the explicit action —
+never automatically. Hitting the cap never blocks publishing; the card keeps its always-free PID.
+(A DataCite path also exists for operators who have their own membership, but it's off by default.)
 
 ## Can I self-host?
 

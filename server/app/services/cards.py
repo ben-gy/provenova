@@ -121,6 +121,50 @@ def _maybe_mint_doi(session: Session, card: ResultCard, *, plan: str,
     return {"status": "minted", "doi": card.doi, "provider": result.provider}
 
 
+def mint_card_doi(session: Session, card: ResultCard, *, provider, plan: str,
+                  base_url: str) -> dict:
+    """Explicit, opt-in DOI mint for an already-public card.
+
+    Distinct from publish-time ``_maybe_mint_doi``: here a real DOI is the whole
+    point, so an over-cap quota is a hard stop (not a silent degrade to PID),
+    and provider failure is surfaced rather than swallowed.
+    """
+    from . import limits
+    from .doi import DoiMintError
+
+    if card.doi:
+        return {"status": "exists", "doi": card.doi}
+    # Serialize concurrent mints of the same card (no double-registration).
+    session.execute(select(ResultCard.id).where(ResultCard.id == card.id).with_for_update())
+    session.refresh(card, attribute_names=["doi"])
+    if card.doi:
+        return {"status": "exists", "doi": card.doi}
+    usage = limits.doi_usage(session, plan, card.workspace_id)
+    if usage["at_cap"]:
+        return {"status": "quota_exceeded", "used": usage["used"], "cap": usage["cap"]}
+    # Build + stash the offline-verifiable provenance doc for the provider to
+    # archive (Zenodo requires a file to mint a DOI).
+    run = session.get(Run, card.run_id)
+    from provenova_core.provenance import build_run_doc
+    import json as _json
+
+    card.__dict__["_provenance_json"] = _json.dumps(build_run_doc(run), indent=2).encode()
+    try:
+        result = provider.mint(card, base_url)
+    except DoiMintError as e:
+        return {"status": "mint_failed", "error": str(e)}
+    finally:
+        card.__dict__.pop("_provenance_json", None)
+    card.doi = result.identifier
+    # Persist the Zenodo record URL in the summary JSON (no schema change).
+    summ = dict(card.summary or {})
+    summ["zenodo"] = {"record_url": result.url, "doi": result.identifier}
+    card.summary = summ
+    session.flush()
+    return {"status": "minted", "doi": card.doi, "provider": result.provider,
+            "record_url": result.url}
+
+
 def unpublish_card(session: Session, card: ResultCard, *, provider=None) -> ResultCard:
     card.visibility = VIS_PRIVATE
     card.published_at = None
