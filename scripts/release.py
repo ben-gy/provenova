@@ -8,7 +8,8 @@ Usage:
 
 check:
   1. preflight — clean git tree, identical versions across pyprojects,
-     no stray legacy imports, README/LICENSE present per package
+     no stray legacy imports, README/LICENSE present per package,
+     server BUSL Change Date fresh (release date + 4 years)
   2. python -m build each package into dist/
   3. twine check dist/*
   4. fresh temp venv (removed after): install the pinned built wheels
@@ -24,6 +25,7 @@ publish (runs check first):
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import os
 import re
 import shutil
@@ -89,6 +91,26 @@ def preflight():
         for f in ("README.md", "LICENSE", "pyproject.toml"):
             if not (ROOT / p / f).exists():
                 die(f"{p}/{f} missing")
+
+    # The server's BUSL Change Date is per-release ("each release converts to
+    # Apache-2.0 four years after it ships") — releasing with a stale date
+    # ships an earlier conversion than intended. Require release date + 4y,
+    # with 60 days of slack so a check shortly after a bump still passes.
+    lic = (ROOT / "server" / "LICENSE").read_text()
+    m = re.search(r"^Change Date:\s+(\d{4}-\d{2}-\d{2})", lic, re.M)
+    if not m:
+        die("server/LICENSE: no ISO Change Date found")
+    change = dt.date.fromisoformat(m.group(1))
+    today = dt.date.today()
+    try:
+        target = today.replace(year=today.year + 4)
+    except ValueError:  # Feb 29
+        target = today.replace(year=today.year + 4, day=28)
+    if not (target - dt.timedelta(days=60) <= change <= target):
+        die(f"server/LICENSE Change Date {change} is stale — set it to {target} "
+            "(release date + 4 years) before releasing")
+    print(f"  BUSL Change Date fresh: {change}")
+
     print("  preflight OK")
     return next(iter(versions.values()))
 

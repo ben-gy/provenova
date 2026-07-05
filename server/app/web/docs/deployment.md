@@ -2,7 +2,8 @@
 
 Provenova can run anywhere from a single SQLite file to a full PostgreSQL-backed cluster.
 Self-hosting is free — production included, no license key — under the server's BUSL-1.1 license,
-which reserves only offering Provenova as a competing hosted service; see [Licensing](/docs/licensing).
+which reserves only offering the server to third parties as a hosted, managed, or embedded
+service or product (paid or free); see [Licensing](/docs/licensing).
 
 Two things to know before you deploy:
 

@@ -54,7 +54,8 @@ All of it is developed in the open at
 connectors, provenance schema, reproduce engine and calibration crawler are **Apache-2.0**. The
 server (web app, cards, compliance rule engine, attestations, governance) is source-available
 under **BUSL-1.1** — free to self-host, production included; the only reserved right is offering
-it as a competing hosted service. See [Licensing](/docs/licensing) and
+it to third parties as a hosted, managed, or embedded service or product (paid or free). See
+[Licensing](/docs/licensing) and
 [Libraries & downloads](/docs/libraries).
 
 ## What Provenova is *not*
