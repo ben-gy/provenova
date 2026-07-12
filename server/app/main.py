@@ -72,6 +72,27 @@ def create_app() -> FastAPI:
                 "Strict-Transport-Security", "max-age=63072000; includeSubDomains")
         return response
 
+    # CSRF defense-in-depth: reject a cross-origin Origin on cookie-authenticated
+    # state-changing requests. Complements SameSite=Lax (which already blocks
+    # cross-site cookie POSTs) and is template-free. A missing Origin is allowed
+    # (older browsers / non-browser clients rely on the SameSite cookie); Bearer/
+    # API requests carry no session cookie and are exempt.
+    from starlette.responses import JSONResponse
+
+    _unsafe_methods = {"POST", "PUT", "PATCH", "DELETE"}
+
+    @app.middleware("http")
+    async def _csrf_origin_check(request, call_next):
+        if request.method in _unsafe_methods and request.cookies.get("session"):
+            origin = request.headers.get("origin")
+            if origin:
+                o_host = (urlparse(origin).hostname or "").lower()
+                req_host = (request.headers.get("host") or "").split(":")[0].lower()
+                if o_host and req_host and o_host != req_host:
+                    return JSONResponse({"detail": "cross-origin request blocked"},
+                                        status_code=403)
+        return await call_next(request)
+
     from .api.v1 import auth_admin, compliance, growth, ingest, public, runs
     from .web import hardware as web_hardware
     from .web import reports as web_reports

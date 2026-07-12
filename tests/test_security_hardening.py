@@ -168,6 +168,20 @@ def test_registration_rejects_short_password(client):
 
 # --- P3: security headers -----------------------------------------------------
 
+def test_csrf_cross_origin_post_blocked(client):
+    # Establish a session, then a cookie-authed POST carrying a foreign Origin
+    # is rejected; the same POST from the app's own Origin is allowed.
+    _register(client, "csrf-user@lab.example")
+    evil = client.post("/app/settings/profile",
+                       data={"display_name": "x"},
+                       headers={"Origin": "https://evil.example"})
+    assert evil.status_code == 403
+    ok = client.post("/app/settings/profile",
+                     data={"display_name": "x"},
+                     headers={"Origin": "http://testserver"})
+    assert ok.status_code == 200
+
+
 def test_security_headers_present(client):
     r = client.get("/api/v1/health")
     assert r.headers.get("X-Content-Type-Options") == "nosniff"
