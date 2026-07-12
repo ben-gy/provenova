@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import false, select
 from sqlalchemy.orm import Session
 
 from provenova_core.models import ReproductionEvent, ResultCard, Run, VIS_PUBLIC, Workspace
@@ -13,7 +13,7 @@ from provenova_core.reproduce.report import build_report
 
 from ...config import get_settings
 from ...db import get_db
-from ...deps import Principal, current_principal, owned_run, require_feature, require_principal
+from ...deps import Principal, owned_run, require_feature, require_principal
 from ...services import cards as cards_svc
 from ...services import doi as doi_svc
 from ...services.accounts import audit
@@ -21,16 +21,21 @@ from ...services.accounts import audit
 router = APIRouter(prefix="/api/v1", tags=["runs"])
 
 
-def _visible_runs(db: Session, principal: Principal | None):
+def _visible_runs(db: Session, principal: Principal):
+    """Runs the caller may list. Fail closed: superadmins see everything, an
+    ordinary principal sees only its own workspace, and a principal without a
+    workspace sees nothing (never the whole table)."""
     stmt = select(Run).order_by(Run.created_at.desc())
-    if principal and principal.workspace_id:
-        stmt = stmt.where(Run.workspace_id == principal.workspace_id)
-    return stmt
+    if principal.is_superadmin:
+        return stmt
+    if not principal.workspace_id:
+        return stmt.where(false())
+    return stmt.where(Run.workspace_id == principal.workspace_id)
 
 
 @router.get("/runs")
 def list_runs(limit: int = Query(50, le=500), db: Session = Depends(get_db),
-              p: Principal | None = Depends(current_principal)):
+              p: Principal = Depends(require_principal)):
     runs = db.scalars(_visible_runs(db, p).limit(limit)).all()
     return [
         {"id": r.id, "project": r.project, "vendor": r.backend.vendor, "backend": r.backend.name,

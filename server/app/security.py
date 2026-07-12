@@ -75,3 +75,37 @@ def decode_access_token(token: str) -> dict | None:
         return dict(claims)
     except Exception:
         return None
+
+
+# -- Email verification tokens ----------------------------------------------
+# Signed (HS256) tokens proving control of an email inbox. Reuses the app
+# secret; a distinct ``purpose`` claim keeps them from being usable as access
+# tokens and vice-versa.
+
+_EMAIL_VERIFY_PURPOSE = "email_verify"
+
+
+def create_email_verification_token(account_id: str, email: str, ttl_hours: int = 24) -> str:
+    settings = get_settings()
+    now = _dt.datetime.now(_dt.timezone.utc)
+    payload = {
+        "sub": account_id,
+        "email": email,
+        "purpose": _EMAIL_VERIFY_PURPOSE,
+        "iat": int(now.timestamp()),
+        "exp": int((now + _dt.timedelta(hours=ttl_hours)).timestamp()),
+    }
+    return _jwt.encode({"alg": "HS256"}, payload, settings.secret_key).decode("utf-8")
+
+
+def verify_email_verification_token(token: str) -> dict | None:
+    """Return the claims for a valid, unexpired email-verification token, else None."""
+    settings = get_settings()
+    try:
+        claims = _jwt.decode(token, settings.secret_key)
+        claims.validate()  # exp/iat
+        if claims.get("purpose") != _EMAIL_VERIFY_PURPOSE:
+            return None
+        return dict(claims)
+    except Exception:
+        return None

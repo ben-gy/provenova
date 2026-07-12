@@ -62,9 +62,13 @@ def test_health(client):
 
 
 def test_full_flow(client, bundle):
-    # register + login (academic domain -> Academic grant on email verify)
-    _register_admin_login(client)
-    client.post("/api/v1/auth/verify-email")
+    # register, then verify email by redeeming a signed token (proves inbox
+    # ownership; academic domain -> Academic grant only AFTER redemption)
+    reg = _register_admin_login(client)
+    from app.security import create_email_verification_token
+    token = create_email_verification_token(reg["account_id"], "researcher@cern.ch")
+    r = client.post("/api/v1/auth/verify-email", json={"token": token})
+    assert r.status_code == 200 and r.json()["academic_verified"] is True
     me = client.get("/api/v1/me").json()
     assert me["authenticated"] is True
     # academic verification should lift plan to academic (Pro-free)

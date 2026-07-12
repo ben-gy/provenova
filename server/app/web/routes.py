@@ -170,6 +170,8 @@ def app_start_key(request: Request, db: Session = Depends(get_db),
                   p: Principal | None = Depends(current_principal)):
     if p is None:
         return RedirectResponse("/login", status_code=303)
+    if not p.can("manage"):
+        raise HTTPException(403, "manage role required to mint API keys")
     full, prefix, key_hash = generate_api_key()
     db.add(ApiKey(org_id=p.org_id, account_id=p.account_id, name="quickstart",
                   prefix=prefix, key_hash=key_hash))
@@ -325,12 +327,26 @@ def do_register(request: Request, email: str = Form(...), password: str = Form(.
                 display_name: str = Form(None), db: Session = Depends(get_db)):
     try:
         acc = acc_svc.register(db, email=email, password=password, display_name=display_name)
-        acc_svc.verify_email(db, acc)  # demo: auto-verify (grants academic if applicable)
+        # Send a confirmation link instead of blindly verifying. Academic
+        # entitlements are only granted once the link is redeemed (proven inbox).
+        acc_svc.request_email_verification(db, acc, base_url=get_settings().base_url)
         db.commit()
     except ValueError as e:
         return render(request, "login.html", None, mode="register", error=str(e))
     _establish_session(request, db, acc)
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?verify=sent", status_code=303)
+
+
+@router.get("/verify-email")
+def verify_email_redeem(request: Request, token: str = "", db: Session = Depends(get_db)):
+    """Redeem the emailed verification link, then bounce to a sensible page."""
+    try:
+        acc_svc.redeem_email_verification(db, token)
+        db.commit()
+    except ValueError:
+        return RedirectResponse("/login?verify=error", status_code=303)
+    dest = "/app/settings" if request.session.get("account_id") else "/login"
+    return RedirectResponse(f"{dest}?verify=ok", status_code=303)
 
 
 @router.post("/logout")
@@ -444,6 +460,9 @@ def settings_create_key(request: Request, name: str = Form("default"), db: Sessi
                         p: Principal | None = Depends(current_principal)):
     if p is None:
         return RedirectResponse("/login", status_code=303)
+    if not p.can("manage"):
+        return render(request, "settings.html", p,
+                      **_settings_ctx(db, p, error="You need the manage role to create API keys."))
     full, prefix, key_hash = generate_api_key()
     db.add(ApiKey(org_id=p.org_id, account_id=p.account_id, name=name or "default",
                   prefix=prefix, key_hash=key_hash))

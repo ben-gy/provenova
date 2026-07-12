@@ -51,6 +51,16 @@ class Settings(BaseSettings):
     zenodo_endpoint: str = "https://zenodo.org"  # sandbox: https://sandbox.zenodo.org
     zenodo_token: str = ""  # personal token, scopes: deposit:write deposit:actions
 
+    # Outbound email (account verification). When smtp_host is unset the mailer
+    # logs messages instead of sending — fine for local/selfhost; production
+    # academic verification needs a real SMTP relay configured here.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""  # defaults to admin_email when blank
+    smtp_starttls: bool = True
+
     # Growth engine (autonomous content pipeline)
     indexnow_key: str = ""  # serves /<key>.txt + enables IndexNow pings when set
     growth_max_cards_per_day: int = 3

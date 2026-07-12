@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from provenova_core.models import Account, ApiKey, Org, OrgMembership, Workspace
 
+from ...config import get_settings
 from ...db import get_db
 from ...deps import Principal, current_principal, require_principal
 from ...entitlements import effective_plan, features_for
@@ -29,6 +30,10 @@ class LoginIn(BaseModel):
     password: str
 
 
+class VerifyEmailIn(BaseModel):
+    token: str
+
+
 def _login_session(request: Request, db: Session, account: Account) -> None:
     request.session["account_id"] = account.id
     request.session["tv"] = account.token_version  # session-revocation stamp
@@ -47,8 +52,15 @@ def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(409, str(e))
     db.commit()
+    token = acc_svc.request_email_verification(db, acc, base_url=get_settings().base_url)
+    db.commit()
     _login_session(request, db, acc)
-    return {"account_id": acc.id, "email": acc.email}
+    out = {"account_id": acc.id, "email": acc.email, "email_verified": acc.email_verified}
+    # Selfhost is single-operator/trusted: surface the token so local flows work
+    # without a mail relay. Hosted NEVER returns it (would defeat verification).
+    if get_settings().deployment == "selfhost":
+        out["dev_verification_token"] = token
+    return out
 
 
 @router.post("/auth/login")
@@ -78,10 +90,28 @@ def logout_all(request: Request, db: Session = Depends(get_db),
     return {"ok": True}
 
 
-@router.post("/auth/verify-email")
-def verify_email(db: Session = Depends(get_db), p: Principal = Depends(require_principal)):
+@router.post("/auth/request-email-verification")
+def request_email_verification(db: Session = Depends(get_db),
+                               p: Principal = Depends(require_principal)):
+    """(Re)send the verification email for the current account."""
     acc = db.get(Account, p.account_id)
-    acc_svc.verify_email(db, acc)
+    token = acc_svc.request_email_verification(db, acc, base_url=get_settings().base_url)
+    db.commit()
+    out = {"sent": True}
+    if get_settings().deployment == "selfhost":
+        out["dev_verification_token"] = token
+    return out
+
+
+@router.post("/auth/verify-email")
+def verify_email(body: VerifyEmailIn, db: Session = Depends(get_db)):
+    """Redeem an email-verification token. The token itself is the proof of
+    inbox ownership, so this endpoint is intentionally unauthenticated (the link
+    is clicked from an email client, possibly without a session)."""
+    try:
+        acc = acc_svc.redeem_email_verification(db, body.token)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
     db.commit()
     return {"email_verified": acc.email_verified, "academic_verified": acc.academic_verified}
 
@@ -110,6 +140,10 @@ def create_api_key(org_id: str, body: ApiKeyIn | None = None, name: str = "defau
                    p: Principal = Depends(require_principal)):
     if p.org_id != org_id and not p.is_superadmin:
         raise HTTPException(403, "forbidden")
+    # Minting an org credential is a privileged action — viewers/members must not
+    # be able to do it. RBAC 'manage' is the org admin/owner gate.
+    if not p.can("manage"):
+        raise HTTPException(403, "forbidden: manage role required to mint API keys")
     body = body or ApiKeyIn(name=name)
     scopes = list(dict.fromkeys(body.scopes or []))  # dedupe, keep order
     if any(s in PRIVILEGED_SCOPES for s in scopes) and not p.is_superadmin:

@@ -112,7 +112,10 @@ def authenticate(session: Session, *, email: str, password: str) -> Account | No
 
 
 def verify_email(session: Session, account: Account) -> Account:
-    """Mark email verified; auto-grant Academic (=Pro-free) for academic domains."""
+    """Apply verification: mark verified and grant Academic (=Pro-free) for
+    academic domains. INTERNAL — only call after proving inbox ownership via
+    ``redeem_email_verification``; never grant on an unproven address.
+    """
     account.email_verified = True
     if is_academic_domain(account.email):
         account.academic_verified = True
@@ -122,6 +125,41 @@ def verify_email(session: Session, account: Account) -> Account:
                        expires_at=_dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(days=365))
     session.flush()
     return account
+
+
+def request_email_verification(session: Session, account: Account, *, base_url: str) -> str:
+    """Email a confirmation link and return the token. The token reaches the user
+    only via email (or the server log when SMTP is unconfigured); callers expose
+    it in an HTTP response ONLY in trusted selfhost contexts."""
+    from ..security import create_email_verification_token
+    from .mailer import send_email
+
+    token = create_email_verification_token(account.id, account.email)
+    link = f"{base_url.rstrip('/')}/verify-email?token={token}"
+    send_email(
+        account.email,
+        "Confirm your Provenova email",
+        ("Confirm your email address to activate your Provenova account:\n\n"
+         f"{link}\n\nThis link expires in 24 hours. If you didn't sign up, "
+         "you can ignore this message."),
+    )
+    audit(session, workspace_id=None, account_id=account.id, action="account.verify_email_sent")
+    return token
+
+
+def redeem_email_verification(session: Session, token: str) -> Account:
+    """Validate a verification token and apply verification (+ academic grant for
+    eligible domains). Raises ValueError on an invalid/expired token or if the
+    account's email changed since the token was minted."""
+    from ..security import verify_email_verification_token
+
+    claims = verify_email_verification_token(token)
+    if not claims:
+        raise ValueError("invalid or expired verification link")
+    account = session.get(Account, claims.get("sub"))
+    if account is None or account.email != claims.get("email"):
+        raise ValueError("verification link is no longer valid")
+    return verify_email(session, account)
 
 
 def grant_plan(session: Session, org: Org, plan: str, *, source: str = "admin_override",
