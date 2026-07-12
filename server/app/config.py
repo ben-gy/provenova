@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
+import logging
 import os
+import secrets as _secrets
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_log = logging.getLogger(__name__)
+
+# Signing keys we refuse to run on in a real deployment: the empty default and
+# the placeholders shipped in the example env files. Any of these means the
+# operator never set QL_SECRET_KEY.
+_WEAK_SECRET_KEYS = {"", "dev-insecure-change-me", "change-me-in-production"}
 
 
 class Settings(BaseSettings):
@@ -14,7 +24,9 @@ class Settings(BaseSettings):
     deployment: str = "hosted"  # hosted | selfhost
     database_url: str = "sqlite:///./quantumledger.db"
     base_url: str = "http://localhost:8000"
-    secret_key: str = "dev-insecure-change-me"
+    # Signs session cookies AND JWT access tokens. MUST be set in production.
+    # Empty by default so a missing QL_SECRET_KEY fails closed (see validator).
+    secret_key: str = ""
     attestation_key_path: str = "./data/attestation_ed25519.key"
     attestation_key_b64: str = ""
     public_cards: bool = True
@@ -49,6 +61,32 @@ class Settings(BaseSettings):
     @property
     def is_sqlite(self) -> bool:
         return self.database_url.startswith("sqlite")
+
+    @model_validator(mode="after")
+    def _enforce_secret_key(self) -> "Settings":
+        """Fail closed on a missing/placeholder signing key.
+
+        In a real deployment an unset QL_SECRET_KEY would silently sign sessions
+        and JWTs with a publicly-known constant (full auth forgery). For local
+        selfhost/dev we instead mint an ephemeral per-process key so nobody has
+        to configure anything, at the cost of sessions not surviving a restart.
+        """
+        if self.secret_key in _WEAK_SECRET_KEYS:
+            if self.deployment == "selfhost":
+                self.secret_key = _secrets.token_hex(32)
+                _log.warning(
+                    "QL_SECRET_KEY is unset; generated an ephemeral key for this "
+                    "selfhost process. Sessions/JWTs will not survive a restart. "
+                    "Set QL_SECRET_KEY to a persistent value (openssl rand -hex 32)."
+                )
+            else:
+                raise RuntimeError(
+                    f"QL_SECRET_KEY is unset or a known-insecure placeholder and "
+                    f"deployment={self.deployment!r}. Refusing to start: it signs "
+                    f"session cookies and JWTs. Set QL_SECRET_KEY to a strong "
+                    f"random value, e.g. `openssl rand -hex 32`."
+                )
+        return self
 
 
 @lru_cache

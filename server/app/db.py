@@ -6,7 +6,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterator
 
-from sqlalchemy import select
+from sqlalchemy import inspect as sa_inspect, select, text
 from sqlalchemy.orm import Session
 
 import provenova_core as qc
@@ -72,6 +72,32 @@ def default_workspace(session: Session) -> Workspace:
     return ws
 
 
+# Additive column migrations for deployments whose tables predate a column.
+# ``Base.metadata.create_all`` only creates missing *tables*, never missing
+# *columns*, so a new mapped column would be absent on an existing DB and every
+# ORM query touching it would error. Each entry is an idempotent ADD COLUMN with
+# a constant default (required by SQLite for a NOT NULL add). Applied before any
+# ORM read so the models and the physical schema agree.
+_COLUMN_MIGRATIONS: dict[str, dict[str, str]] = {
+    "accounts": {"token_version": "INTEGER NOT NULL DEFAULT 0"},
+    "mfa_credentials": {"last_used_counter": "BIGINT"},
+}
+
+
+def _apply_column_migrations(session: Session) -> None:
+    bind = session.get_bind()
+    insp = sa_inspect(bind)
+    tables = set(insp.get_table_names())
+    for table, cols in _COLUMN_MIGRATIONS.items():
+        if table not in tables:
+            continue  # create_all already made it with the column present
+        have = {c["name"] for c in insp.get_columns(table)}
+        for col, ddl in cols.items():
+            if col not in have:
+                session.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}"))
+    session.commit()
+
+
 def bootstrap(session: Session) -> None:
     """Idempotent startup seed: frameworks, keys, admin, default org/workspace.
 
@@ -85,6 +111,9 @@ def bootstrap(session: Session) -> None:
     settings = get_settings()
 
     with advisory_lock(session.get_bind()):
+        # Bring an existing DB's columns up to date before any ORM read below.
+        _apply_column_migrations(session)
+
         # frameworks-as-data
         if FRAMEWORKS_DIR.exists():
             load_all_frameworks(session, directory=FRAMEWORKS_DIR)

@@ -278,6 +278,7 @@ def register_form(request: Request, p: Principal | None = Depends(current_princi
 
 def _establish_session(request: Request, db: Session, acc: Account) -> None:
     request.session["account_id"] = acc.id
+    request.session["tv"] = acc.token_version  # session-revocation stamp
     request.session.pop("mfa_pending", None)
     mem = db.scalar(select(OrgMembership).where(OrgMembership.account_id == acc.id))
     if mem:
@@ -387,6 +388,9 @@ def settings_password(request: Request, current_password: str = Form(...), new_p
     except ValueError as e:
         db.rollback()
         return render(request, "settings.html", p, **_settings_ctx(db, p, error=str(e)))
+    # change_password bumped token_version to revoke OTHER sessions; keep the
+    # current one alive by re-stamping this cookie with the new value.
+    request.session["tv"] = account.token_version
     return render(request, "settings.html", p, **_settings_ctx(db, p, ok="Password changed."))
 
 

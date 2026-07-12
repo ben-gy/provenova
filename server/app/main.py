@@ -24,7 +24,17 @@ def create_app() -> FastAPI:
     app = FastAPI(title="Provenova", version="0.1.0",
                   description="The vendor-neutral system of record for quantum.",
                   docs_url=None, redoc_url=None)
-    app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, same_site="lax")
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=settings.secret_key,
+        same_site="lax",
+        # Mark the cookie Secure whenever we serve over HTTPS (prod), so it can't
+        # ride a plaintext downgrade. Stays off for local http:// dev.
+        https_only=settings.base_url.lower().startswith("https"),
+        # Stateless signed cookie — cap its lifetime (was Starlette's 14-day
+        # default). Revocation before expiry is via Account.token_version.
+        max_age=60 * 60 * 12,
+    )
 
     # Canonical-host 301s: fold the legacy public host + www onto the canonical
     # host (from QL_BASE_URL). No-op until QL_BASE_URL is the new domain — the

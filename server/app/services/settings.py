@@ -38,6 +38,9 @@ def change_password(session: Session, account: Account, *, current: str, new: st
     if len(new) < 8:
         raise ValueError("new password must be at least 8 characters")
     account.password_hash = hash_password(new)
+    # Revoke every other outstanding session for this account: a password change
+    # must not leave an attacker's stolen cookie valid.
+    account.token_version = (account.token_version or 0) + 1
     session.flush()
     audit(session, workspace_id=None, account_id=account.id, action="account.password_change")
 

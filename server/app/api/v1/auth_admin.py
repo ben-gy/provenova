@@ -31,6 +31,7 @@ class LoginIn(BaseModel):
 
 def _login_session(request: Request, db: Session, account: Account) -> None:
     request.session["account_id"] = account.id
+    request.session["tv"] = account.token_version  # session-revocation stamp
     m = db.scalar(select(OrgMembership).where(OrgMembership.account_id == account.id))
     if m:
         ws = db.scalar(select(Workspace).where(Workspace.org_id == m.org_id))
@@ -61,6 +62,18 @@ def login(body: LoginIn, request: Request, db: Session = Depends(get_db)):
 
 @router.post("/auth/logout")
 def logout(request: Request):
+    request.session.clear()
+    return {"ok": True}
+
+
+@router.post("/auth/logout-all")
+def logout_all(request: Request, db: Session = Depends(get_db),
+               p: Principal = Depends(require_principal)):
+    """Revoke every session/cookie for this account by bumping its token_version."""
+    acc = db.get(Account, p.account_id)
+    if acc is not None:
+        acc.token_version = (acc.token_version or 0) + 1
+        db.commit()
     request.session.clear()
     return {"ok": True}
 

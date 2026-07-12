@@ -7,11 +7,16 @@ import secrets
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from authlib.jose import jwt
+from authlib.jose import JsonWebToken
 
 from .config import get_settings
 
 _ph = PasswordHasher()
+
+# Pin the accepted JWT algorithm to HS256. Constructing JsonWebToken with an
+# explicit allowlist means a token whose header claims any other alg (e.g. a
+# "none"/RS256 alg-confusion attempt) is rejected at decode time.
+_jwt = JsonWebToken(["HS256"])
 
 
 def hash_password(password: str) -> str:
@@ -59,13 +64,13 @@ def create_access_token(sub: str, org_id: str, plan: str, ttl_minutes: int = 60)
         "iat": int(now.timestamp()),
         "exp": int((now + _dt.timedelta(minutes=ttl_minutes)).timestamp()),
     }
-    return jwt.encode(header, payload, settings.secret_key).decode("utf-8")
+    return _jwt.encode(header, payload, settings.secret_key).decode("utf-8")
 
 
 def decode_access_token(token: str) -> dict | None:
     settings = get_settings()
     try:
-        claims = jwt.decode(token, settings.secret_key)
+        claims = _jwt.decode(token, settings.secret_key)
         claims.validate()
         return dict(claims)
     except Exception:
