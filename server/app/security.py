@@ -61,6 +61,7 @@ def create_access_token(sub: str, org_id: str, plan: str, ttl_minutes: int = 60)
         "sub": sub,
         "org_id": org_id,
         "plan": plan,
+        "purpose": "access",  # bind context: not usable where another purpose is required
         "iat": int(now.timestamp()),
         "exp": int((now + _dt.timedelta(minutes=ttl_minutes)).timestamp()),
     }
@@ -72,6 +73,11 @@ def decode_access_token(token: str) -> dict | None:
     try:
         claims = _jwt.decode(token, settings.secret_key)
         claims.validate()
+        # Context binding: reject tokens minted for another purpose (e.g. an
+        # email-verification token) so they can't double as access credentials.
+        # Legacy access tokens carry no purpose claim, hence the None allowance.
+        if claims.get("purpose") not in (None, "access"):
+            return None
         return dict(claims)
     except Exception:
         return None

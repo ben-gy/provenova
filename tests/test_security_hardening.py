@@ -51,6 +51,26 @@ def test_jwt_roundtrip_hs256():
     assert claims and claims["sub"] == "acc"
 
 
+def test_email_verification_token_is_not_an_access_token():
+    # A verification token must NOT authenticate as an access/bearer token — else
+    # a leaked verify link would be a full 24h account credential (MFA bypass).
+    from app import security
+
+    vtok = security.create_email_verification_token("acc", "user@x.example")
+    assert security.decode_access_token(vtok) is None
+
+
+def test_email_verification_token_bearer_does_not_authenticate(client):
+    # End-to-end: presenting a verify token as a Bearer must not yield a principal.
+    reg = _register(client, "vt-bearer@lab.example")
+    from app.security import create_email_verification_token
+
+    vtok = create_email_verification_token(reg["account_id"], "vt-bearer@lab.example")
+    anon = TestClient(client.app)
+    me = anon.get("/api/v1/me", headers={"Authorization": f"Bearer {vtok}"}).json()
+    assert me["authenticated"] is False
+
+
 # --- P1: /api/v1/runs no longer leaks across tenants --------------------------
 
 def test_runs_requires_authentication(client):
