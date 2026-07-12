@@ -1,4 +1,4 @@
-"""SEO plumbing: robots.txt + dynamic sitemap.xml.
+"""SEO plumbing: robots.txt + dynamic sitemap.xml + security.txt.
 
 The sitemap is assembled per-request from the DB (Fly disks are ephemeral and
 the app runs on >1 machine, so nothing is ever written to disk) behind a small
@@ -9,6 +9,7 @@ cards, hardware device pages, eligible comparison pairs and published reports.
 from __future__ import annotations
 
 import time
+from datetime import datetime, timedelta, timezone
 from xml.etree import ElementTree as ET
 
 from fastapi import APIRouter, Depends
@@ -40,6 +41,28 @@ def robots_txt() -> PlainTextResponse:
         f"Sitemap: {base}/sitemap.xml\n"
     )
     return PlainTextResponse(body)
+
+
+@router.get("/.well-known/security.txt", include_in_schema=False)
+@router.get("/security.txt", include_in_schema=False)  # convenience alias
+def security_txt() -> PlainTextResponse:
+    """RFC 9116 security.txt. Expires is computed ~1 year out per-request so the
+    file never goes stale (a hardcoded date would silently expire)."""
+    s = get_settings()
+    base = s.base_url.rstrip("/")
+    expires = (
+        (datetime.now(timezone.utc) + timedelta(days=365))
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+    body = (
+        f"Contact: mailto:{s.admin_email}\n"
+        f"Expires: {expires}\n"
+        "Preferred-Languages: en\n"
+        f"Canonical: {base}/.well-known/security.txt\n"
+    )
+    return PlainTextResponse(body, media_type="text/plain; charset=utf-8")
 
 
 def _iso_date(dt) -> str | None:
