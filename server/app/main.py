@@ -54,6 +54,24 @@ def create_app() -> FastAPI:
             return RedirectResponse(str(target), status_code=301)
         return await call_next(request)
 
+    # Security response headers. Applied app-wide here (not just in the reverse
+    # proxy) because production runs on Fly.io directly, bypassing Caddy.
+    _serve_https = settings.base_url.lower().startswith("https")
+
+    @app.middleware("http")
+    async def _security_headers(request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        # Restrict framing by default, but never clobber a route that set its own
+        # CSP — the embed card deliberately uses `frame-ancestors *`.
+        if "content-security-policy" not in response.headers:
+            response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
+        if _serve_https:
+            response.headers.setdefault(
+                "Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+        return response
+
     from .api.v1 import auth_admin, compliance, growth, ingest, public, runs
     from .web import hardware as web_hardware
     from .web import reports as web_reports

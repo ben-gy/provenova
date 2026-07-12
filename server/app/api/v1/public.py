@@ -4,6 +4,7 @@ reproduction submission."""
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 
@@ -31,6 +32,8 @@ from ...deps import Principal, require_principal
 from ...ratelimit import rate_limit
 from ...services import badges as badge_svc
 from ...services import cards as cards_svc
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(tags=["public"])
 
@@ -202,8 +205,9 @@ def leaderboard(metric: str = "median_2q_error", period: str | None = None,
 
         return {"metric": metric, "metrics": LEADERBOARD_METRICS,
                 "entries": fleet_leaderboard(db, metric=metric, period=period)}
-    except Exception as e:  # crawler not installed / no corpus
-        return {"metric": metric, "entries": [], "note": str(e)}
+    except Exception:  # crawler not installed / no corpus
+        log.exception("leaderboard unavailable")
+        return {"metric": metric, "entries": [], "note": "leaderboard temporarily unavailable"}
 
 
 @router.get("/api/v1/backends/{provider}/{backend_id}/trend")
@@ -213,8 +217,10 @@ def device_trend(provider: str, backend_id: str, db: Session = Depends(get_db)):
 
         return {"provider": provider, "backend_id": backend_id,
                 "series": device_timeseries(db, provider, backend_id)}
-    except Exception as e:
-        return {"provider": provider, "backend_id": backend_id, "series": [], "note": str(e)}
+    except Exception:
+        log.exception("device trend unavailable for %s/%s", provider, backend_id)
+        return {"provider": provider, "backend_id": backend_id, "series": [],
+                "note": "trend temporarily unavailable"}
 
 
 @router.get("/.well-known/provenova-jwks.json")

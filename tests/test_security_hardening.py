@@ -164,3 +164,14 @@ def test_registration_rejects_short_password(client):
     r = client.post("/api/v1/auth/register",
                     json={"email": "shorty@lab.example", "password": "short1"})
     assert r.status_code == 409  # < 8 chars rejected
+
+
+# --- P3: security headers -----------------------------------------------------
+
+def test_security_headers_present(client):
+    r = client.get("/api/v1/health")
+    assert r.headers.get("X-Content-Type-Options") == "nosniff"
+    assert r.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
+    # Default framing policy is restrictive (the embed route overrides this to
+    # frame-ancestors * via its own CSP, which the middleware leaves untouched).
+    assert r.headers.get("Content-Security-Policy") == "frame-ancestors 'self'"
