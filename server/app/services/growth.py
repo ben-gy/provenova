@@ -19,7 +19,6 @@ Cards record REAL deterministic simulator runs via the existing immutable
 from __future__ import annotations
 
 import datetime as _dt
-import math
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
@@ -40,6 +39,14 @@ from provenova_core.models import (
 )
 from provenova_core.reproduce import runner
 from provenova_core.simulate import bridge
+from provenova_core.simulate.safety import (  # shared allowlist + caps (single source of truth)
+    ALLOWED_GATES,
+    MAX_GATES,
+    MAX_QUBITS,
+    MAX_SHOTS,
+    UnsafeCircuitError,
+    assert_safe_circuit,
+)
 
 from ..config import get_settings
 from . import cards as cards_svc
@@ -54,61 +61,23 @@ BOT_WS_SLUG = "research"
 SIM = {"vendor": "local_sim", "name": "aer_statevector", "kind": "simulator",
        "basis_gates": ["rz", "sx", "x", "cx", "id"], "coupling_map": None}
 
-# Gate allowlist: name -> (n_params, n_qubits). Everything else is rejected
-# BEFORE bridge.qiskit_from_ir's getattr fallback can see it.
-ALLOWED_GATES: dict[str, tuple[int, int]] = {
-    "h": (0, 1), "x": (0, 1), "y": (0, 1), "z": (0, 1),
-    "s": (0, 1), "sdg": (0, 1), "t": (0, 1), "tdg": (0, 1), "sx": (0, 1),
-    "id": (0, 1),
-    "rz": (1, 1), "rx": (1, 1), "ry": (1, 1),
-    "cx": (0, 2), "cz": (0, 2), "swap": (0, 2),
-    "ccx": (0, 3),
-}
-MAX_QUBITS = 10
-MAX_GATES = 256
-MAX_SHOTS = 8192
-
-
-class QlirValidationError(ValueError):
-    pass
+# The gate allowlist + caps now live in provenova_core.simulate.safety (imported
+# above) so ingest, growth and the bridge share one definition. QlirValidationError
+# stays as an alias for backward-compatible except-clauses in the growth API.
+QlirValidationError = UnsafeCircuitError
 
 
 def validate_qlir(circuit: dict) -> dict:
-    """Validate + canonicalise a qlir/1.0 dict. Raises QlirValidationError."""
+    """Validate + canonicalise a qlir/1.0 dict. Raises QlirValidationError.
+
+    Growth payloads must additionally carry the explicit schema tag; the gate
+    allowlist and size caps are enforced by the shared ``assert_safe_circuit``.
+    """
     if not isinstance(circuit, dict):
         raise QlirValidationError("circuit must be an object")
     if circuit.get("schema") != "qlir/1.0":
         raise QlirValidationError("circuit.schema must be 'qlir/1.0'")
-    n = circuit.get("n_qubits")
-    if not isinstance(n, int) or not (1 <= n <= MAX_QUBITS):
-        raise QlirValidationError(f"n_qubits must be an int in [1, {MAX_QUBITS}]")
-    gates = circuit.get("gates")
-    if not isinstance(gates, list) or not (1 <= len(gates) <= MAX_GATES):
-        raise QlirValidationError(f"gates must be a list of 1..{MAX_GATES}")
-    canon = []
-    for i, g in enumerate(gates):
-        if not isinstance(g, dict):
-            raise QlirValidationError(f"gate[{i}] must be an object")
-        name = g.get("name")
-        if name not in ALLOWED_GATES:
-            raise QlirValidationError(f"gate[{i}].name {name!r} not in allowlist")
-        n_params, n_qubits = ALLOWED_GATES[name]
-        qubits = g.get("qubits")
-        if (not isinstance(qubits, list) or len(qubits) != n_qubits
-                or not all(isinstance(q, int) and 0 <= q < n for q in qubits)
-                or len(set(qubits)) != len(qubits)):
-            raise QlirValidationError(
-                f"gate[{i}].qubits must be {n_qubits} distinct ints in [0, {n})")
-        params = g.get("params", [])
-        if not isinstance(params, list) or len(params) != n_params:
-            raise QlirValidationError(f"gate[{i}].params must have {n_params} entries")
-        fparams = []
-        for pv in params:
-            if not isinstance(pv, (int, float)) or isinstance(pv, bool) or not math.isfinite(pv):
-                raise QlirValidationError(f"gate[{i}].params must be finite numbers")
-            fparams.append(float(pv))
-        canon.append({"name": name, "qubits": list(qubits), "params": fparams})
-    return {"schema": "qlir/1.0", "n_qubits": n, "gates": canon}
+    return assert_safe_circuit(circuit)
 
 
 def circuit_sha256(canonical_qlir: dict) -> str:

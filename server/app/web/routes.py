@@ -34,6 +34,7 @@ from ..config import get_settings
 from ..db import attestation_key, get_db
 from ..deps import Principal, current_principal
 from ..entitlements import is_unlimited, quota_for
+from ..ratelimit import rate_limit
 from ..security import generate_api_key
 from ..services import accounts as acc_svc
 from ..services import cards as cards_svc
@@ -170,6 +171,8 @@ def app_start_key(request: Request, db: Session = Depends(get_db),
                   p: Principal | None = Depends(current_principal)):
     if p is None:
         return RedirectResponse("/login", status_code=303)
+    if not p.can("manage"):
+        raise HTTPException(403, "manage role required to mint API keys")
     full, prefix, key_hash = generate_api_key()
     db.add(ApiKey(org_id=p.org_id, account_id=p.account_id, name="quickstart",
                   prefix=prefix, key_hash=key_hash))
@@ -278,6 +281,7 @@ def register_form(request: Request, p: Principal | None = Depends(current_princi
 
 def _establish_session(request: Request, db: Session, acc: Account) -> None:
     request.session["account_id"] = acc.id
+    request.session["tv"] = acc.token_version  # session-revocation stamp
     request.session.pop("mfa_pending", None)
     mem = db.scalar(select(OrgMembership).where(OrgMembership.account_id == acc.id))
     if mem:
@@ -288,7 +292,8 @@ def _establish_session(request: Request, db: Session, acc: Account) -> None:
 
 @router.post("/login")
 def do_login(request: Request, email: str = Form(...), password: str = Form(...),
-             db: Session = Depends(get_db)):
+             db: Session = Depends(get_db),
+             _rl: None = Depends(rate_limit("web-login", limit=10, window_s=300))):
     acc = acc_svc.authenticate(db, email=email, password=password)
     if acc is None:
         return render(request, "login.html", None, mode="login", error="Invalid credentials")
@@ -307,29 +312,46 @@ def login_mfa_form(request: Request):
 
 
 @router.post("/login/mfa")
-def do_login_mfa(request: Request, code: str = Form(...), db: Session = Depends(get_db)):
+def do_login_mfa(request: Request, code: str = Form(...), db: Session = Depends(get_db),
+                 _rl: None = Depends(rate_limit("web-mfa", limit=10, window_s=300))):
     acc_id = request.session.get("mfa_pending")
     if not acc_id:
         return RedirectResponse("/login", status_code=303)
     acc = db.get(Account, acc_id)
     cred = settings_svc.get_mfa(db, acc) if acc else None
-    if not (cred and settings_svc.verify_code(cred.secret, code)):
+    if not (cred and settings_svc.verify_and_consume(db, cred, code)):
         return render(request, "login.html", None, mode="mfa", error="Invalid authentication code")
+    db.commit()  # persist the consumed TOTP step (anti-replay)
     _establish_session(request, db, acc)
     return RedirectResponse("/", status_code=303)
 
 
 @router.post("/register")
 def do_register(request: Request, email: str = Form(...), password: str = Form(...),
-                display_name: str = Form(None), db: Session = Depends(get_db)):
+                display_name: str = Form(None), db: Session = Depends(get_db),
+                _rl: None = Depends(rate_limit("web-register", limit=8, window_s=600))):
     try:
         acc = acc_svc.register(db, email=email, password=password, display_name=display_name)
-        acc_svc.verify_email(db, acc)  # demo: auto-verify (grants academic if applicable)
+        # Send a confirmation link instead of blindly verifying. Academic
+        # entitlements are only granted once the link is redeemed (proven inbox).
+        acc_svc.request_email_verification(db, acc, base_url=get_settings().base_url)
         db.commit()
     except ValueError as e:
         return render(request, "login.html", None, mode="register", error=str(e))
     _establish_session(request, db, acc)
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?verify=sent", status_code=303)
+
+
+@router.get("/verify-email")
+def verify_email_redeem(request: Request, token: str = "", db: Session = Depends(get_db)):
+    """Redeem the emailed verification link, then bounce to a sensible page."""
+    try:
+        acc_svc.redeem_email_verification(db, token)
+        db.commit()
+    except ValueError:
+        return RedirectResponse("/login?verify=error", status_code=303)
+    dest = "/app/settings" if request.session.get("account_id") else "/login"
+    return RedirectResponse(f"{dest}?verify=ok", status_code=303)
 
 
 @router.post("/logout")
@@ -387,6 +409,9 @@ def settings_password(request: Request, current_password: str = Form(...), new_p
     except ValueError as e:
         db.rollback()
         return render(request, "settings.html", p, **_settings_ctx(db, p, error=str(e)))
+    # change_password bumped token_version to revoke OTHER sessions; keep the
+    # current one alive by re-stamping this cookie with the new value.
+    request.session["tv"] = account.token_version
     return render(request, "settings.html", p, **_settings_ctx(db, p, ok="Password changed."))
 
 
@@ -440,6 +465,9 @@ def settings_create_key(request: Request, name: str = Form("default"), db: Sessi
                         p: Principal | None = Depends(current_principal)):
     if p is None:
         return RedirectResponse("/login", status_code=303)
+    if not p.can("manage"):
+        return render(request, "settings.html", p,
+                      **_settings_ctx(db, p, error="You need the manage role to create API keys."))
     full, prefix, key_hash = generate_api_key()
     db.add(ApiKey(org_id=p.org_id, account_id=p.account_id, name=name or "default",
                   prefix=prefix, key_hash=key_hash))

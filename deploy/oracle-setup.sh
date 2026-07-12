@@ -30,8 +30,22 @@ echo "    arch:        $(uname -m)"
 if command -v docker >/dev/null 2>&1; then
 	echo "==> Docker already installed: $(docker --version)"
 else
-	echo "==> Installing Docker Engine via get.docker.com ..."
-	curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+	# Supply-chain hardening: instead of piping the rolling get.docker.com script
+	# straight into a root shell, pin the official install script to a specific
+	# commit and verify its SHA-256 before running. Re-pin both values together
+	# when intentionally upgrading (see github.com/docker/docker-install).
+	DOCKER_INSTALL_COMMIT="1c2a765dbb0130b922c0a7b8163d0d3dfd2edfef"
+	DOCKER_INSTALL_SHA256="3e6595355ec14620dfa568e8e23abd45a3d13fd1a3bfffb642b0c1d5610b8367"
+	echo "==> Fetching pinned Docker install script (${DOCKER_INSTALL_COMMIT}) ..."
+	curl --proto '=https' --tlsv1.2 -fsSL \
+		"https://raw.githubusercontent.com/docker/docker-install/${DOCKER_INSTALL_COMMIT}/install.sh" \
+		-o /tmp/get-docker.sh
+	echo "==> Verifying checksum ..."
+	if ! echo "${DOCKER_INSTALL_SHA256}  /tmp/get-docker.sh" | sha256sum -c - >/dev/null 2>&1; then
+		echo "!! Docker install script checksum mismatch — refusing to run." >&2
+		rm -f /tmp/get-docker.sh
+		exit 1
+	fi
 	$SUDO sh /tmp/get-docker.sh
 	rm -f /tmp/get-docker.sh
 fi

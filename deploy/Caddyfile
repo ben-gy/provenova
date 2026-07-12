@@ -5,6 +5,17 @@
 # configurable without editing this file.
 {$QL_DOMAIN} {
 	encode gzip
+
+	# Defense-in-depth security headers (the app also sets these; belt-and-braces
+	# for the self-host path). The app owns Content-Security-Policy so the embed
+	# route can relax frame-ancestors — don't set CSP here.
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
 	reverse_proxy api:8000
 }
 

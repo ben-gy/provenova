@@ -117,9 +117,17 @@ def current_principal(request: Request, db: Session = Depends(get_db)) -> Princi
     )
     if account_id:
         acc = db.get(Account, account_id)
-        if acc:
+        # Session-revocation: the cookie carries the token_version it was minted
+        # with (default 0 for pre-existing cookies). A bump (logout-all / password
+        # change) invalidates every older cookie. Missing acc == deleted account.
+        if acc and request.session.get("tv", 0) == (acc.token_version or 0):
             org = _first_org(db, acc)
             return _build_principal(db, acc, org, workspace_id)
+        # stale or revoked cookie — drop it so the browser stops presenting it
+        try:
+            request.session.clear()
+        except Exception:
+            pass
     # 2) bearer token (API key or JWT)
     auth = request.headers.get("Authorization", "")
     if auth.startswith("Bearer "):

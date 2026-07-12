@@ -8,6 +8,7 @@ enforced here regardless of routine behaviour — see services/growth.py.
 from __future__ import annotations
 
 import datetime as _dt
+import logging
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -18,6 +19,8 @@ from sqlalchemy.orm import Session
 from provenova_core.models import AuditLog, Report
 
 from ...config import get_settings
+
+_log = logging.getLogger(__name__)
 from ...db import get_db
 from ...deps import Principal, require_scope
 from ...services import growth as growth_svc
@@ -57,8 +60,9 @@ def corpus_refresh(force: bool = False, db: Session = Depends(get_db),
     db.commit()
     try:
         result = metriq_svc.refresh_metriq_corpus(db)
-    except Exception as e:  # upstream (GitHub) failure — surface, don't 500-mask
-        raise HTTPException(502, detail={"error": "upstream_fetch_failed", "message": str(e)})
+    except Exception:  # upstream (GitHub) failure — surface a status, not internals
+        _log.exception("metriq corpus refresh failed")
+        raise HTTPException(502, detail={"error": "upstream_fetch_failed"})
     # Only stamp the throttle audit on a COMPLETE refresh — so a deadline-cut or
     # failed run doesn't lock refresh for 6h or mislabel corpus freshness, and
     # the routine's resumable "call again" contract holds.

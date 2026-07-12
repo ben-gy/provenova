@@ -9,7 +9,15 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, Timestamped, ULIDPk, new_ulid
@@ -47,6 +55,10 @@ class Account(ULIDPk, Timestamped, Base):
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     academic_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     is_superadmin: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Bumped to invalidate every existing session for this account ("log out
+    # everywhere"; forced on password change). The session cookie carries the
+    # value it was minted with; a mismatch is treated as unauthenticated.
+    token_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     memberships: Mapped[list["OrgMembership"]] = relationship(back_populates="account")
 
@@ -140,6 +152,9 @@ class MfaCredential(ULIDPk, Timestamped, Base):
     account_id: Mapped[str] = mapped_column(ForeignKey("accounts.id"), index=True)
     secret: Mapped[str] = mapped_column(String(64))
     enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    # Highest TOTP time-step already accepted; blocks code replay within the
+    # ~90s validation window. Null until the first successful verification.
+    last_used_counter: Mapped[int | None] = mapped_column(BigInteger, default=None)
 
 
 def bootstrap_local(session) -> "Workspace":

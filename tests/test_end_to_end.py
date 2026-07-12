@@ -51,7 +51,7 @@ def _register_admin_login(client):
     # via the API and rely on superadmin flag by using the bootstrap admin email.
     # For the test we register a normal user and separately upgrade via bootstrap admin.
     r = client.post("/api/v1/auth/register",
-                    json={"email": "researcher@cern.ch", "password": "pw12345", "display_name": "R"})
+                    json={"email": "researcher@cern.ch", "password": "pw123456", "display_name": "R"})
     assert r.status_code == 200, r.text
     return r.json()
 
@@ -62,9 +62,13 @@ def test_health(client):
 
 
 def test_full_flow(client, bundle):
-    # register + login (academic domain -> Academic grant on email verify)
-    _register_admin_login(client)
-    client.post("/api/v1/auth/verify-email")
+    # register, then verify email by redeeming a signed token (proves inbox
+    # ownership; academic domain -> Academic grant only AFTER redemption)
+    reg = _register_admin_login(client)
+    from app.security import create_email_verification_token
+    token = create_email_verification_token(reg["account_id"], "researcher@cern.ch")
+    r = client.post("/api/v1/auth/verify-email", json={"token": token})
+    assert r.status_code == 200 and r.json()["academic_verified"] is True
     me = client.get("/api/v1/me").json()
     assert me["authenticated"] is True
     # academic verification should lift plan to academic (Pro-free)
@@ -201,7 +205,7 @@ def _exercise_mint_doi(client, run_id, slug):
 def test_compliance_and_attestation(client, bundle):
     # a fresh workspace-bearing user; upgrade via bootstrap superadmin
     reg = client.post("/api/v1/auth/register",
-                      json={"email": "lead@lab.example", "password": "pw12345"})
+                      json={"email": "lead@lab.example", "password": "pw123456"})
     assert reg.status_code == 200
     me = client.get("/api/v1/me").json()
     org_id, ws_id = me["org_id"], me["workspace_id"]

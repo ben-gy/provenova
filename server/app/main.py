@@ -24,7 +24,17 @@ def create_app() -> FastAPI:
     app = FastAPI(title="Provenova", version="0.1.0",
                   description="The vendor-neutral system of record for quantum.",
                   docs_url=None, redoc_url=None)
-    app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, same_site="lax")
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=settings.secret_key,
+        same_site="lax",
+        # Mark the cookie Secure whenever we serve over HTTPS (prod), so it can't
+        # ride a plaintext downgrade. Stays off for local http:// dev.
+        https_only=settings.base_url.lower().startswith("https"),
+        # Stateless signed cookie — cap its lifetime (was Starlette's 14-day
+        # default). Revocation before expiry is via Account.token_version.
+        max_age=60 * 60 * 12,
+    )
 
     # Canonical-host 301s: fold the legacy public host + www onto the canonical
     # host (from QL_BASE_URL). No-op until QL_BASE_URL is the new domain — the
@@ -42,6 +52,45 @@ def create_app() -> FastAPI:
         if _canonical_host and host != _canonical_host and host in _legacy_hosts:
             target = request.url.replace(scheme="https", netloc=_canonical_host)
             return RedirectResponse(str(target), status_code=301)
+        return await call_next(request)
+
+    # Security response headers. Applied app-wide here (not just in the reverse
+    # proxy) because production runs on Fly.io directly, bypassing Caddy.
+    _serve_https = settings.base_url.lower().startswith("https")
+
+    @app.middleware("http")
+    async def _security_headers(request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        # Restrict framing by default, but never clobber a route that set its own
+        # CSP — the embed card deliberately uses `frame-ancestors *`.
+        if "content-security-policy" not in response.headers:
+            response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
+        if _serve_https:
+            response.headers.setdefault(
+                "Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+        return response
+
+    # CSRF defense-in-depth: reject a cross-origin Origin on cookie-authenticated
+    # state-changing requests. Complements SameSite=Lax (which already blocks
+    # cross-site cookie POSTs) and is template-free. A missing Origin is allowed
+    # (older browsers / non-browser clients rely on the SameSite cookie); Bearer/
+    # API requests carry no session cookie and are exempt.
+    from starlette.responses import JSONResponse
+
+    _unsafe_methods = {"POST", "PUT", "PATCH", "DELETE"}
+
+    @app.middleware("http")
+    async def _csrf_origin_check(request, call_next):
+        if request.method in _unsafe_methods and request.cookies.get("session"):
+            origin = request.headers.get("origin")
+            if origin:
+                o_host = (urlparse(origin).hostname or "").lower()
+                req_host = (request.headers.get("host") or "").split(":")[0].lower()
+                if o_host and req_host and o_host != req_host:
+                    return JSONResponse({"detail": "cross-origin request blocked"},
+                                        status_code=403)
         return await call_next(request)
 
     from .api.v1 import auth_admin, compliance, growth, ingest, public, runs

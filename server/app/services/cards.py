@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import datetime as _dt
+import logging
 import re
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
+_log = logging.getLogger(__name__)
 
 from provenova_core import hashing
 from provenova_core.models import (
@@ -115,8 +118,9 @@ def _maybe_mint_doi(session: Session, card: ResultCard, *, plan: str,
                 "used": usage["used"], "cap": usage["cap"]}
     try:
         result = provider.mint(card, base_url)
-    except DoiMintError as e:
-        return {"status": "mint_failed", "pid": card.pid, "error": str(e)}
+    except DoiMintError:
+        _log.exception("DOI mint failed for card %s", getattr(card, "id", "?"))
+        return {"status": "mint_failed", "pid": card.pid, "error": "DOI minting failed"}
     card.doi = result.identifier
     return {"status": "minted", "doi": card.doi, "provider": result.provider}
 
@@ -151,8 +155,9 @@ def mint_card_doi(session: Session, card: ResultCard, *, provider, plan: str,
     card.__dict__["_provenance_json"] = _json.dumps(build_run_doc(run), indent=2).encode()
     try:
         result = provider.mint(card, base_url)
-    except DoiMintError as e:
-        return {"status": "mint_failed", "error": str(e)}
+    except DoiMintError:
+        _log.exception("DOI mint failed for card %s", getattr(card, "id", "?"))
+        return {"status": "mint_failed", "error": "DOI minting failed"}
     finally:
         card.__dict__.pop("_provenance_json", None)
     card.doi = result.identifier

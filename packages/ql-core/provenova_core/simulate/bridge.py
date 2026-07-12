@@ -28,26 +28,45 @@ def qiskit_to_ir(qc) -> SimCircuit:
     return ir
 
 
+# Explicit gate -> builder dispatch. This is a hard allowlist: a gate name that
+# isn't here raises, instead of the old ``getattr(qc, name)(...)`` fallback which
+# would invoke ANY QuantumCircuit method with attacker-controlled arguments.
+# Covers exactly the gates that pass ``safety.assert_safe_circuit``.
+_GATE_BUILDERS = {
+    "h": lambda qc, p, q: qc.h(q[0]),
+    "x": lambda qc, p, q: qc.x(q[0]),
+    "y": lambda qc, p, q: qc.y(q[0]),
+    "z": lambda qc, p, q: qc.z(q[0]),
+    "s": lambda qc, p, q: qc.s(q[0]),
+    "sdg": lambda qc, p, q: qc.sdg(q[0]),
+    "t": lambda qc, p, q: qc.t(q[0]),
+    "tdg": lambda qc, p, q: qc.tdg(q[0]),
+    "sx": lambda qc, p, q: qc.sx(q[0]),
+    "id": lambda qc, p, q: qc.id(q[0]),
+    "rz": lambda qc, p, q: qc.rz(p[0], q[0]),
+    "rx": lambda qc, p, q: qc.rx(p[0], q[0]),
+    "ry": lambda qc, p, q: qc.ry(p[0], q[0]),
+    "cx": lambda qc, p, q: qc.cx(q[0], q[1]),
+    "cz": lambda qc, p, q: qc.cz(q[0], q[1]),
+    "swap": lambda qc, p, q: qc.swap(q[0], q[1]),
+    "ccx": lambda qc, p, q: qc.ccx(q[0], q[1], q[2]),
+}
+
+
 def qiskit_from_ir(ir: SimCircuit):
-    """Build a Qiskit QuantumCircuit from our IR (for re-transpilation on reproduce)."""
+    """Build a Qiskit QuantumCircuit from our IR (for re-transpilation on reproduce).
+
+    Only allowlisted gates are dispatched; an unknown gate name raises ValueError
+    rather than being passed to ``getattr(qc, name)`` (arbitrary method call).
+    """
     from qiskit import QuantumCircuit
 
     qc = QuantumCircuit(ir.n_qubits)
     for g in ir.gates:
-        if g.name == "h":
-            qc.h(g.qubits[0])
-        elif g.name == "x":
-            qc.x(g.qubits[0])
-        elif g.name == "sx":
-            qc.sx(g.qubits[0])
-        elif g.name == "id":
-            qc.id(g.qubits[0])
-        elif g.name == "rz":
-            qc.rz(g.params[0], g.qubits[0])
-        elif g.name == "cx":
-            qc.cx(g.qubits[0], g.qubits[1])
-        else:  # pragma: no cover - keep other named gates best-effort
-            getattr(qc, g.name)(*g.params, *g.qubits)
+        build = _GATE_BUILDERS.get(g.name)
+        if build is None:
+            raise ValueError(f"unsupported gate {g.name!r} in circuit IR")
+        build(qc, g.params, g.qubits)
     return qc
 
 

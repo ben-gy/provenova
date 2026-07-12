@@ -43,6 +43,7 @@ def record_run(
     backend_spec: dict,
     calibration_payload: dict | None = None,
     shots: int = 1024,
+    sim_shots: int | None = None,
     seed: int = 1337,
     seed_transpiler: int = 42,
     optimization_level: int = 1,
@@ -68,10 +69,14 @@ def record_run(
         coupling_map=backend_spec.get("coupling_map"),
     )
 
+    # ``sim_shots`` bounds the simulation/sampling loop independently of the
+    # recorded ``shots``. Ingest passes a clamped sim_shots (the user's real shot
+    # count is preserved on the Run) so a huge claimed shot count can't drive an
+    # unbounded sampling loop — the counts are overridden by precomputed values.
     result = engine.execute(
         qc,
         calibration=calibration_payload,
-        shots=shots,
+        shots=shots if sim_shots is None else sim_shots,
         seed=seed,
         seed_transpiler=seed_transpiler,
         basis_gates=backend_spec.get("basis_gates"),

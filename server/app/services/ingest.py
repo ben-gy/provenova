@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from provenova_core.models import Run, Workspace
 from provenova_core.reproduce import runner
 from provenova_core.simulate import bridge
+from provenova_core.simulate.safety import assert_safe_circuit, clamp_shots
 
 
 def materialize_bundle(session: Session, workspace: Workspace, bundle: dict) -> dict:
@@ -28,12 +29,24 @@ def materialize_bundle(session: Session, workspace: Workspace, bundle: dict) -> 
         return {"status": "exists", "run_id": existing.id, "run_hash": claimed}
 
     circ = bundle["circuit"]
-    ir = bridge.dict_to_ir(json.loads(circ["source"]))
+    # SECURITY: the circuit source is attacker-controlled JSON that we are about
+    # to reconstruct into a real QuantumCircuit and RE-SIMULATE (record_run always
+    # calls the 2**n statevector engine). Validate the gate allowlist and size
+    # caps BEFORE reconstruction, exactly like the growth path — otherwise a huge
+    # n_qubits OOMs the worker and unknown gate names hit the bridge dispatch.
+    safe_source = assert_safe_circuit(json.loads(circ["source"]))
+    ir = bridge.dict_to_ir(safe_source)
     qc = bridge.qiskit_from_ir(ir)
 
     be = bundle["backend"]
-    runinfo = bundle.get("run", {})
+    runinfo = bundle.get("run") or {}
     params = runinfo.get("execution_params") or {}
+    # Preserve the user's real shot count on the record, but bound the value that
+    # drives the re-simulation sampling loop (counts are overridden below anyway).
+    try:
+        real_shots = max(1, int(runinfo.get("shots") or bundle["result"].get("shots") or 1024))
+    except (TypeError, ValueError):
+        real_shots = 1024
     run = runner.record_run(
         session,
         workspace=workspace,
@@ -46,7 +59,8 @@ def materialize_bundle(session: Session, workspace: Workspace, bundle: dict) -> 
             "coupling_map": be.get("coupling_map"),
         },
         calibration_payload=bundle["calibration"],
-        shots=runinfo.get("shots") or bundle["result"].get("shots") or 1024,
+        shots=real_shots,
+        sim_shots=clamp_shots(real_shots),
         seed=runinfo.get("seed_simulator") or 1337,
         seed_transpiler=runinfo.get("seed_transpiler") or 42,
         optimization_level=params.get("optimization_level", 1),

@@ -15,6 +15,17 @@ import abc
 import datetime as _dt
 import logging
 from typing import NamedTuple
+from urllib.parse import urlparse
+
+
+def _https_endpoint(url: str) -> str:
+    """Require an https endpoint (localhost allowed for dev). Defense-in-depth so
+    a config typo/injection can't redirect DOI traffic to a plaintext or internal
+    host."""
+    p = urlparse(url)
+    if p.scheme != "https" and (p.hostname or "").lower() not in ("localhost", "127.0.0.1", "::1"):
+        raise ValueError(f"DOI endpoint must be https: {url!r}")
+    return url.rstrip("/")
 
 log = logging.getLogger("provenova.doi")
 
@@ -75,7 +86,7 @@ class DataCiteProvider(DoiProvider):
     provider = "datacite"
 
     def __init__(self, settings):
-        self._endpoint = settings.datacite_endpoint.rstrip("/")
+        self._endpoint = _https_endpoint(settings.datacite_endpoint)
         self._auth = (settings.datacite_repository_id, settings.datacite_password)
         self._prefix = settings.datacite_prefix
 
@@ -147,7 +158,7 @@ class ZenodoProvider(DoiProvider):
     provider = "zenodo"
 
     def __init__(self, settings):
-        self._endpoint = settings.zenodo_endpoint.rstrip("/")
+        self._endpoint = _https_endpoint(settings.zenodo_endpoint)
         self._token = settings.zenodo_token
         self._timeout = 30.0
 

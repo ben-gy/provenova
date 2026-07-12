@@ -7,11 +7,16 @@ import secrets
 
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from authlib.jose import jwt
+from authlib.jose import JsonWebToken
 
 from .config import get_settings
 
 _ph = PasswordHasher()
+
+# Pin the accepted JWT algorithm to HS256. Constructing JsonWebToken with an
+# explicit allowlist means a token whose header claims any other alg (e.g. a
+# "none"/RS256 alg-confusion attempt) is rejected at decode time.
+_jwt = JsonWebToken(["HS256"])
 
 
 def hash_password(password: str) -> str:
@@ -56,17 +61,57 @@ def create_access_token(sub: str, org_id: str, plan: str, ttl_minutes: int = 60)
         "sub": sub,
         "org_id": org_id,
         "plan": plan,
+        "purpose": "access",  # bind context: not usable where another purpose is required
         "iat": int(now.timestamp()),
         "exp": int((now + _dt.timedelta(minutes=ttl_minutes)).timestamp()),
     }
-    return jwt.encode(header, payload, settings.secret_key).decode("utf-8")
+    return _jwt.encode(header, payload, settings.secret_key).decode("utf-8")
 
 
 def decode_access_token(token: str) -> dict | None:
     settings = get_settings()
     try:
-        claims = jwt.decode(token, settings.secret_key)
+        claims = _jwt.decode(token, settings.secret_key)
         claims.validate()
+        # Context binding: reject tokens minted for another purpose (e.g. an
+        # email-verification token) so they can't double as access credentials.
+        # Legacy access tokens carry no purpose claim, hence the None allowance.
+        if claims.get("purpose") not in (None, "access"):
+            return None
+        return dict(claims)
+    except Exception:
+        return None
+
+
+# -- Email verification tokens ----------------------------------------------
+# Signed (HS256) tokens proving control of an email inbox. Reuses the app
+# secret; a distinct ``purpose`` claim keeps them from being usable as access
+# tokens and vice-versa.
+
+_EMAIL_VERIFY_PURPOSE = "email_verify"
+
+
+def create_email_verification_token(account_id: str, email: str, ttl_hours: int = 24) -> str:
+    settings = get_settings()
+    now = _dt.datetime.now(_dt.timezone.utc)
+    payload = {
+        "sub": account_id,
+        "email": email,
+        "purpose": _EMAIL_VERIFY_PURPOSE,
+        "iat": int(now.timestamp()),
+        "exp": int((now + _dt.timedelta(hours=ttl_hours)).timestamp()),
+    }
+    return _jwt.encode({"alg": "HS256"}, payload, settings.secret_key).decode("utf-8")
+
+
+def verify_email_verification_token(token: str) -> dict | None:
+    """Return the claims for a valid, unexpired email-verification token, else None."""
+    settings = get_settings()
+    try:
+        claims = _jwt.decode(token, settings.secret_key)
+        claims.validate()  # exp/iat
+        if claims.get("purpose") != _EMAIL_VERIFY_PURPOSE:
+            return None
         return dict(claims)
     except Exception:
         return None

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hmac
 import io
+import time
 
 import pyotp
 import qrcode
@@ -38,6 +40,9 @@ def change_password(session: Session, account: Account, *, current: str, new: st
     if len(new) < 8:
         raise ValueError("new password must be at least 8 characters")
     account.password_hash = hash_password(new)
+    # Revoke every other outstanding session for this account: a password change
+    # must not leave an attacker's stolen cookie valid.
+    account.token_version = (account.token_version or 0) + 1
     session.flush()
     audit(session, workspace_id=None, account_id=account.id, action="account.password_change")
 
@@ -69,9 +74,30 @@ def qr_svg(uri: str) -> str:
 
 
 def verify_code(secret: str, code: str) -> bool:
+    """Stateless TOTP check (used during enrollment, where replay is moot)."""
     if not secret or not code:
         return False
     return pyotp.TOTP(secret).verify(code.strip().replace(" ", ""), valid_window=1)
+
+
+def verify_and_consume(session: Session, cred: MfaCredential | None, code: str) -> bool:
+    """Verify a login TOTP code AND consume its time-step so it can't be replayed
+    within the ~90s validation window. Returns True on first use of a valid code.
+    """
+    if not cred or not cred.secret or not code:
+        return False
+    code = code.strip().replace(" ", "")
+    totp = pyotp.TOTP(cred.secret)
+    step = totp.interval  # 30s
+    current = int(time.time()) // step
+    for c in (current, current - 1, current + 1):  # mirrors valid_window=1
+        if hmac.compare_digest(totp.at(c * step), code):
+            if cred.last_used_counter is not None and c <= cred.last_used_counter:
+                return False  # already-used (or older) code — replay
+            cred.last_used_counter = c
+            session.flush()
+            return True
+    return False
 
 
 def enable_mfa(session: Session, account: Account, secret: str) -> MfaCredential:

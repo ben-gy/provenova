@@ -144,7 +144,8 @@ def test_datacite_failure_degrades_to_pid(monkeypatch):
     card = _card()
     info = cards_svc._maybe_mint_doi(None, card, plan="pro",
                                      provider=_FakeDataCite(fail=True), base_url="")
-    assert info["status"] == "mint_failed" and "boom" in info["error"]
+    # Error is generic (no upstream/internal text leaked); still degrades to PID.
+    assert info["status"] == "mint_failed" and info["error"] == "DOI minting failed"
     assert card.doi is None and card.pid.startswith("ql:card:")
 
 

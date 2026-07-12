@@ -45,6 +45,7 @@ export QL_E2E_ADMIN_EMAIL="$QL_ADMIN_EMAIL"
 export QL_E2E_ADMIN_PASSWORD="e2e-pass-123456"
 export QL_DEPLOYMENT="selfhost"
 export QL_PUBLIC_CARDS="true"
+export QL_RATELIMIT_ENABLED="false"   # e2e drives many requests from one IP
 
 PORT="$("$PY" -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')"
 export QL_E2E_ENDPOINT="http://127.0.0.1:$PORT"

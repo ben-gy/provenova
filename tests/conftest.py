@@ -11,3 +11,4 @@ os.environ.setdefault("QL_DATABASE_URL", f"sqlite:///{_TMP/'ql_test.db'}")
 os.environ.setdefault("QL_ATTESTATION_KEY_PATH", str(_TMP / "attestation.key"))
 os.environ.setdefault("QL_SECRET_KEY", "test-secret")
 os.environ.setdefault("QL_BASE_URL", "http://testserver")
+os.environ.setdefault("QL_RATELIMIT_ENABLED", "false")  # the suite hammers from one IP
