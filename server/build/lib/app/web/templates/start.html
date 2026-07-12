@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import page_intro, icon %}
+{% block title %}Connect the SDK — Provenova{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl">
+{{ page_intro(
+  "Connect the SDK",
+  "Four steps to get your quantum runs into Provenova. Capture happens locally with the open-source SDK, then you push runs to this server.",
+  "/docs/getting-started", "Full quickstart") }}
+
+<!-- Step 1 -->
+<section class="rounded-xl border border-slate-200 bg-white p-5">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Step 1 · Create an API key</h2>
+  <p class="mt-1 text-sm text-slate-600">The SDK authenticates to this server with an API key.</p>
+  {% if new_api_key %}
+  <div class="mt-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3">
+    <div class="text-sm font-medium text-amber-800">Copy your new key now — it won't be shown again.</div>
+    <code class="mt-2 block break-all rounded bg-white px-3 py-2 text-sm mono border border-amber-200">{{ new_api_key }}</code>
+  </div>
+  {% else %}
+  <form method="post" action="/app/start/api-key" class="mt-3">
+    <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Create API key</button>
+  </form>
+  {% if api_keys %}<p class="mt-2 text-xs text-slate-400">You already have {{ api_keys|length }} active key(s). Creating another is fine; each is shown once.</p>{% endif %}
+  {% endif %}
+</section>
+
+<!-- Step 2 -->
+<section class="mt-4 rounded-xl border border-slate-200 bg-white p-5">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Step 2 · Install the SDK</h2>
+  <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 px-4 py-3 text-sm text-slate-100 mono">pip install "provenova[aer]"</pre>
+</section>
+
+<!-- Step 3 -->
+<section class="mt-4 rounded-xl border border-slate-200 bg-white p-5">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Step 3 · Point the CLI at this server</h2>
+  <p class="mt-1 text-sm text-slate-600">Paste the key from step 1. This server's endpoint is prefilled.</p>
+  <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 px-4 py-3 text-sm text-slate-100 mono">ql login --token &lt;your-api-key&gt; --endpoint {{ endpoint }}</pre>
+  <p class="mt-2 text-xs text-slate-500"><code class="mono">ql login</code> verifies the token immediately. Hitting connection trouble? Run <code class="mono">ql doctor</code> — it pinpoints whether it's the endpoint, your network, the token, or a missing connector.</p>
+</section>
+
+<!-- Step 4 -->
+<section class="mt-4 rounded-xl border border-slate-200 bg-white p-5">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-indigo-600">Step 4 · Capture a run &amp; push it</h2>
+  <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 px-4 py-3 text-sm text-slate-100 mono"><code>import provenova as ql
+from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
+
+@ql.capture(project="bell")
+def run_bell():
+    qc = QuantumCircuit(2)
+    qc.h(0); qc.cx(0, 1); qc.measure_all()
+    return AerSimulator().run(qc, shots=4096)
+
+run_bell()</code></pre>
+  <pre class="mt-2 overflow-x-auto rounded-lg bg-slate-900 px-4 py-3 text-sm text-slate-100 mono">ql push          # syncs local runs here (idempotent)</pre>
+  <p class="mt-3 text-sm text-slate-600">Then your runs appear under <a href="/app/records" class="text-indigo-600 hover:underline">Records</a>.</p>
+</section>
+
+<div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+  Just want to look around first? <form method="post" action="/app/demo-seed" class="mt-2 inline"><button class="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700">{{ icon('sparkles', 'h-3.5 w-3.5') }} Load demo data instead</button></form>
+</div>
+</div>
+{% endblock %}

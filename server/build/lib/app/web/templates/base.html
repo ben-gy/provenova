@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Provenova{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Provenova is the vendor-neutral system of record for quantum computing: reproducible runs, verified hardware benchmarks, citable result cards and signed compliance attestations.{% endblock %}">
+  {%- if canonical_path %}
+  <link rel="canonical" href="{{ settings.base_url }}{{ canonical_path }}">
+  {%- endif %}
+  {%- if noindex %}
+  <meta name="robots" content="noindex">
+  {%- endif %}
+  <meta property="og:site_name" content="Provenova">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.meta_description() }}">
+  {%- if canonical_path %}
+  <meta property="og:url" content="{{ settings.base_url }}{{ canonical_path }}">
+  {%- endif %}
+  <meta name="twitter:card" content="summary">
+  <link rel="alternate" type="application/atom+xml" title="Provenova reports & result cards" href="/reports/feed.xml">
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-800 antialiased">
+  {% from "_brand.html" import mark %}
+  {# plan_labels is a Jinja global from PLAN_DISPLAY (provenova_core.models.accounts) — internal "pro" shows as "Team". #}
+  {% set nav_links = [
+    ('/', 'Home'),
+    ('/app/records', 'Records'),
+    ('/hardware', 'Hardware'),
+    ('/leaderboard', 'Leaderboard'),
+    ('/app/compliance', 'Compliance'),
+    ('/trust/provenova', 'Trust Center'),
+    ('/pricing', 'Pricing'),
+    ('/docs', 'Docs')
+  ] %}
+  <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4">
+      <a href="/" class="flex items-center gap-2 font-semibold text-slate-900 shrink-0">
+        {{ mark(26) }}
+        <span>Provenova</span>
+      </a>
+      <div class="hidden lg:flex items-center gap-1 text-sm text-slate-600">
+        {% for href, label in nav_links %}
+        <a href="{{ href }}" class="px-2 py-1 rounded hover:bg-slate-100 hover:text-slate-900 whitespace-nowrap">{{ label }}</a>
+        {% endfor %}
+        {% if principal and principal.is_superadmin %}
+        <a href="/app/admin" class="px-2 py-1 rounded hover:bg-slate-100 hover:text-slate-900">Admin</a>
+        {% endif %}
+      </div>
+      <div class="ml-auto hidden lg:flex items-center gap-3 text-sm">
+        {% if principal %}
+          <a href="/app/settings" class="max-w-[14rem] truncate text-slate-600 hover:text-slate-900" title="Account settings">{{ principal.email }}</a>
+          {% if principal.plan %}
+          <a href="/app/plans" title="View plans & what they unlock" class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium hover:bg-indigo-100">{{ plan_labels.get(principal.plan, principal.plan|capitalize) }}</a>
+          {% endif %}
+          <form method="post" action="/logout" class="inline">
+            <button type="submit" class="text-slate-500 hover:text-slate-900">Logout</button>
+          </form>
+        {% else %}
+          <a href="/login" class="text-slate-600 hover:text-slate-900">Login</a>
+          <a href="/register" class="rounded-md bg-indigo-600 text-white px-3 py-1.5 font-medium hover:bg-indigo-700 whitespace-nowrap">Register</a>
+        {% endif %}
+      </div>
+      <button type="button" class="ml-auto lg:hidden inline-flex items-center justify-center rounded p-2 text-slate-600 hover:bg-slate-100"
+              aria-label="Menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+    <!-- mobile menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 py-3">
+      <div class="flex flex-col gap-0.5 text-sm">
+        {% for href, label in nav_links %}
+        <a href="{{ href }}" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ label }}</a>
+        {% endfor %}
+        {% if principal and principal.is_superadmin %}
+        <a href="/app/admin" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">Admin</a>
+        {% endif %}
+        <div class="my-1 border-t border-slate-100"></div>
+        {% if principal %}
+          <a href="/app/settings" class="truncate rounded px-2 py-2 text-slate-700 hover:bg-slate-100">{{ principal.email }}{% if principal.plan %} · <span>{{ plan_labels.get(principal.plan, principal.plan|capitalize) }}</span>{% endif %}</a>
+          <form method="post" action="/logout"><button type="submit" class="w-full rounded px-2 py-2 text-left text-slate-600 hover:bg-slate-100">Logout</button></form>
+        {% else %}
+          <a href="/login" class="rounded px-2 py-2 text-slate-700 hover:bg-slate-100">Login</a>
+          <a href="/register" class="mt-1 rounded-md bg-indigo-600 px-2 py-2 text-center font-medium text-white hover:bg-indigo-700">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-4 py-10 text-xs text-slate-400 border-t border-slate-200 mt-8">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+      <span>Provenova — the vendor-neutral system of record for quantum.</span>
+      <a href="/hardware" class="hover:text-slate-600">Hardware</a>
+      <a href="/reports" class="hover:text-slate-600">Reports</a>
+      <a href="/reports/feed.xml" class="hover:text-slate-600">RSS</a>
+      <a href="/docs" class="hover:text-slate-600">Docs</a>
+      <a href="/pricing" class="hover:text-slate-600">Pricing</a>
+      <a href="/docs/licensing" class="hover:text-slate-600">License</a>
+      <a href="https://github.com/ben-gy/provenova" class="hover:text-slate-600">GitHub</a>
+      <a href="https://pypi.org/project/provenova/" class="hover:text-slate-600">PyPI</a>
+      {% if settings and settings.deployment == "selfhost" %}<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5">Self-hosted instance</span>{% endif %}
+    </div>
+  </footer>
+</body>
+</html>

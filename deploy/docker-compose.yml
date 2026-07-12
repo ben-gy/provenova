@@ -35,7 +35,7 @@ services:
       QL_ATTESTATION_KEY_B64: ${QL_ATTESTATION_KEY_B64}
       QL_PUBLIC_CARDS: ${QL_PUBLIC_CARDS:-true}
       QL_ADMIN_EMAIL: ${QL_ADMIN_EMAIL:-admin@quantumledger.local}
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--proxy-headers", "--forwarded-allow-ips", "*"]
     expose:
       - "8000"
     depends_on:

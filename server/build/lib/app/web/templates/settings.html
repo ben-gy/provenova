@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Account settings — Provenova{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-2xl font-bold tracking-tight text-slate-900">Account settings</h1>
+  <p class="mt-1 text-sm text-slate-500">Manage your profile, password, two-factor authentication, and the API keys used to push runs from the SDK.</p>
+
+  {% if ok %}
+  <div class="mt-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">{{ ok }}</div>
+  {% endif %}
+  {% if error %}
+  <div class="mt-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</div>
+  {% endif %}
+
+  {% if new_api_key %}
+  <div class="mt-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-3">
+    <div class="text-sm font-medium text-amber-800">New API key — copy it now, it won't be shown again.</div>
+    <code class="mt-2 block mono text-sm bg-white border border-amber-200 rounded px-3 py-2 break-all">{{ new_api_key }}</code>
+  </div>
+  {% endif %}
+
+  {# ---- Profile ---- #}
+  <section class="mt-8 rounded-xl border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Profile</h2>
+    <form method="post" action="/app/settings/profile" class="mt-4 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700">Display name</label>
+        <input type="text" name="display_name" value="{{ account.display_name | default('') }}"
+               class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700">Email
+          {% if account.email_verified %}<span class="ml-2 text-xs text-green-600">verified</span>
+          {% else %}<span class="ml-2 text-xs text-amber-600">unverified</span>{% endif %}
+          {% if account.academic_verified %}<span class="ml-2 text-xs text-indigo-600">academic</span>{% endif %}
+        </label>
+        <input type="email" name="email" value="{{ account.email }}"
+               class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+        <p class="mt-1 text-xs text-slate-400">Changing your email marks it unverified until re-confirmed.</p>
+      </div>
+      <button type="submit" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Save profile</button>
+    </form>
+  </section>
+
+  {# ---- Password ---- #}
+  <section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">Password</h2>
+    <form method="post" action="/app/settings/password" class="mt-4 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700">Current password</label>
+        <input type="password" name="current_password" required
+               class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700">New password</label>
+        <input type="password" name="new_password" required minlength="8"
+               class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+        <p class="mt-1 text-xs text-slate-400">At least 8 characters.</p>
+      </div>
+      <button type="submit" class="rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Change password</button>
+    </form>
+  </section>
+
+  {# ---- Two-factor ---- #}
+  <section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-slate-900">Two-factor authentication (TOTP)</h2>
+      {% if mfa_on %}
+      <span class="inline-flex items-center rounded-full bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-xs font-medium">Enabled</span>
+      {% else %}
+      <span class="inline-flex items-center rounded-full bg-slate-100 text-slate-500 px-2.5 py-0.5 text-xs font-medium">Disabled</span>
+      {% endif %}
+    </div>
+    {% if mfa_on %}
+    <p class="mt-2 text-sm text-slate-600">An authenticator code is required at sign-in. To turn it off, confirm your password.</p>
+    <form method="post" action="/app/settings/mfa/disable" class="mt-4 flex items-end gap-3">
+      <div>
+        <label class="block text-sm font-medium text-slate-700">Password</label>
+        <input type="password" name="password" required
+               class="mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+      </div>
+      <button type="submit" class="rounded-md border border-red-300 bg-white text-red-700 px-4 py-2 text-sm font-medium hover:bg-red-50">Disable 2FA</button>
+    </form>
+    {% else %}
+    <p class="mt-2 text-sm text-slate-600">Add a second factor with any TOTP app (1Password, Authy, Google Authenticator).</p>
+    <a href="/app/settings/mfa/setup" class="mt-4 inline-block rounded-md bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700">Set up 2FA</a>
+    {% endif %}
+  </section>
+
+  {# ---- API keys ---- #}
+  <section class="mt-6 rounded-xl border border-slate-200 bg-white p-6">
+    <h2 class="text-lg font-semibold text-slate-900">API keys</h2>
+    <p class="mt-1 text-sm text-slate-500">Create a key, then <code class="mono">ql login --token …</code> and <code class="mono">ql push</code> to sync local runs here. <a href="/docs/cli" class="text-indigo-600 hover:underline">CLI reference →</a></p>
+    <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200">
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-50 text-slate-500 text-left">
+          <tr><th class="px-4 py-2 font-medium">Name</th><th class="px-4 py-2 font-medium">Prefix</th><th class="px-4 py-2 font-medium">Created</th><th class="px-4 py-2"></th></tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for k in api_keys %}
+          <tr>
+            <td class="px-4 py-2">{{ k.name }}</td>
+            <td class="px-4 py-2 mono text-slate-500">{{ k.prefix }}…</td>
+            <td class="px-4 py-2 text-slate-500">{{ k.created_at }}</td>
+            <td class="px-4 py-2 text-right">
+              <form method="post" action="/app/settings/api-keys/{{ k.id }}/revoke" class="inline">
+                <button class="text-red-600 hover:underline text-xs">Revoke</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">No API keys.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <form method="post" action="/app/settings/api-keys" class="mt-4 flex items-end gap-3">
+      <div>
+        <label class="block text-sm font-medium text-slate-700">New key name</label>
+        <input type="text" name="name" value="default"
+               class="mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+      </div>
+      <button type="submit" class="rounded-md bg-slate-800 text-white px-4 py-2 text-sm font-medium hover:bg-slate-900">Create API key</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Trust Center — {{ org.name }}{% endblock %}
+
+{% block content %}
+{% from "_helpers.html" import term %}
+{% set status_colors = {
+  'pass': 'bg-green-50 text-green-700 border-green-200',
+  'gap': 'bg-amber-50 text-amber-700 border-amber-200',
+  'unknown': 'bg-slate-100 text-slate-600 border-slate-200'
+} %}
+
+<div class="mb-6">
+  <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium">Trust Center</span>
+  <h1 class="mt-3 text-2xl font-bold text-slate-900">{{ org.name }}</h1>
+  <p class="text-sm text-slate-500 mono">{{ org.slug }}</p>
+  <p class="mt-3 max-w-2xl text-sm text-slate-600">
+    Every {{ term("attestation") }} below is cryptographically tied to the underlying record and its {{ term("calibration snapshot") }},
+    and can be independently verified offline via the <b>Verify</b> link. Attestations are revocable — a revoked attestation no longer validates.
+    <a href="/docs/compliance#attestations" class="font-medium text-indigo-600 hover:underline">Learn how →</a>
+  </p>
+</div>
+
+{% if not trust_center_active %}
+<div class="rounded-xl border border-slate-200 bg-white p-8 text-center">
+  <div class="text-sm font-medium text-slate-700">This organization's Trust Center isn't active.</div>
+  <p class="mx-auto mt-2 max-w-md text-sm text-slate-500">
+    A public Trust Center — live compliance posture and signed attestations — is part of the
+    <a href="/pricing" class="text-indigo-600 hover:underline">Lab plan</a>.
+  </p>
+</div>
+{% else %}
+<h2 class="text-lg font-semibold text-slate-900">Compliance posture</h2>
+<div class="mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-white">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-slate-500 text-left">
+      <tr>
+        <th class="px-4 py-2 font-medium">Framework</th>
+        <th class="px-4 py-2 font-medium">Status</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for f in frameworks %}
+      <tr>
+        <td class="px-4 py-2 text-slate-800">{{ f.name }}</td>
+        <td class="px-4 py-2">
+          {% set sc = status_colors.get(f.status, 'bg-slate-100 text-slate-600 border-slate-200') %}
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium {{ sc }}">{{ f.status }}</span>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="2" class="px-4 py-6 text-center text-slate-400">This organization hasn't published any framework status yet. Framework status appears here once a workspace enables and evaluates a framework in the <a href="/docs/compliance" class="text-indigo-600 hover:underline">Compliance console</a>.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2 class="mt-8 text-lg font-semibold text-slate-900">Signed attestations</h2>
+<div class="mt-3 overflow-x-auto rounded-xl border border-slate-200 bg-white">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-50 text-slate-500 text-left">
+      <tr>
+        <th class="px-4 py-2 font-medium">ID</th>
+        <th class="px-4 py-2 font-medium">Evidence root</th>
+        <th class="px-4 py-2 font-medium">Point in time</th>
+        <th class="px-4 py-2 font-medium"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for a in attestations %}
+      <tr class="hover:bg-slate-50">
+        <td class="px-4 py-2 mono text-slate-500">{{ a.id[:10] }}</td>
+        <td class="px-4 py-2 mono text-slate-600">{{ a.evidence_root[:16] }}…</td>
+        <td class="px-4 py-2 text-slate-500">{{ a.point_in_time | default('—') }}</td>
+        <td class="px-4 py-2 text-right">
+          <a href="/verify/{{ a.id }}" class="text-indigo-600 hover:underline">Verify</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">No signed attestations published yet. Once a framework passes, an attestation issued from the Compliance console will appear here — publicly verifiable and revocable.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

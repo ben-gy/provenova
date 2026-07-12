@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quantumledger.io/schemas/qlprov/calibration/1.0",
+  "title": "Provenova Calibration Snapshot",
+  "type": "object",
+  "required": ["schema", "backend", "captured_at"],
+  "properties": {
+    "schema": { "const": "qlprov/calibration/1.0" },
+    "backend": {
+      "type": "object",
+      "required": ["vendor", "name"],
+      "properties": {
+        "vendor": { "type": "string" },
+        "name": { "type": "string" },
+        "n_qubits": { "type": ["integer", "null"] },
+        "kind": { "type": "string", "enum": ["qpu", "simulator"] }
+      }
+    },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "qubits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["index"],
+        "properties": {
+          "index": { "type": "integer" },
+          "T1_us": { "type": ["number", "null"] },
+          "T2_us": { "type": ["number", "null"] },
+          "frequency_ghz": { "type": ["number", "null"] },
+          "anharmonicity_ghz": { "type": ["number", "null"] },
+          "readout_error": { "type": ["number", "null"] },
+          "prob_meas0_prep1": { "type": ["number", "null"] },
+          "prob_meas1_prep0": { "type": ["number", "null"] },
+          "readout_length_ns": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["gate", "qubits"],
+        "properties": {
+          "gate": { "type": "string" },
+          "qubits": { "type": "array", "items": { "type": "integer" } },
+          "error": { "type": ["number", "null"] },
+          "length_ns": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "general": { "type": "object" },
+    "fleet_metrics": { "type": "object" },
+    "provenance": { "type": "object" },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field", "reason"],
+        "properties": {
+          "field": { "type": "string" },
+          "reason": { "type": "string" },
+          "detail": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

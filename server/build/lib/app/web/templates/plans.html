@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_helpers.html" import page_intro, plan_matrix %}
+{% block title %}Plans — Provenova{% endblock %}
+
+{% block content %}
+{{ page_intro(
+  "Plans & what they unlock",
+  "Provenova is open-core: capture, reproduce, public cards and badges are free at every tier — and self-hosting is free under the server license. Higher tiers add compliance, attestations, trust and enterprise controls. Your current plan is highlighted.",
+  "/pricing", "See pricing") }}
+
+{{ plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current, plan_display) }}
+
+<div class="mt-6 flex flex-col items-start justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-5 sm:flex-row sm:items-center">
+  <div>
+    <div class="font-semibold text-slate-900">Need a higher tier?</div>
+    <p class="mt-0.5 max-w-2xl text-sm text-slate-600">Team, Lab and Enterprise plans are provisioned by our team (invoicing handled off-platform). Request an upgrade and we'll enable it on your workspace.</p>
+  </div>
+  <a href="mailto:hi@ben.gy?subject=Provenova%20upgrade%20request&body=Workspace%20plan%20upgrade%20request%20from%20{{ principal.email if principal else '' }}."
+     class="shrink-0 rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">Request an upgrade</a>
+</div>
+
+<p class="mt-4 text-xs text-slate-400">Full open-format export (<span class="mono">qlprov</span>) is available at every tier and is never gated. See the <a href="/docs/libraries" class="text-indigo-600 hover:underline">libraries</a> and <a href="/docs/open-schemas" class="text-indigo-600 hover:underline">open schemas</a>.</p>
+{% endblock %}
