@@ -82,3 +82,44 @@ def test_api_key_mint_requires_manage_role():
 
     assert can(org_role="member", ws_role="viewer", action="manage") is False
     assert can(org_role="owner", ws_role=None, action="manage") is True
+
+
+# --- P2: untrusted circuit validation (allowlist + caps) ----------------------
+
+def test_assert_safe_circuit_blocks_oversized_and_unknown_gates():
+    from provenova_core.simulate.safety import UnsafeCircuitError, assert_safe_circuit
+
+    # oversized qubit count would allocate a 2**34 statevector -> rejected
+    with pytest.raises(UnsafeCircuitError):
+        assert_safe_circuit({"n_qubits": 34, "gates": [{"name": "h", "qubits": [0]}]})
+    # a gate name outside the allowlist (the old getattr gadget) -> rejected
+    with pytest.raises(UnsafeCircuitError):
+        assert_safe_circuit({"n_qubits": 2, "gates": [{"name": "__init__", "qubits": [0]}]})
+    # a well-formed small circuit is accepted + canonicalised
+    ok = assert_safe_circuit({"n_qubits": 2, "gates": [
+        {"name": "h", "qubits": [0]}, {"name": "cx", "qubits": [0, 1]}]})
+    assert ok["n_qubits"] == 2 and len(ok["gates"]) == 2
+
+
+def test_bridge_rejects_unknown_gate_name():
+    from provenova_core.simulate.bridge import qiskit_from_ir
+    from provenova_core.simulate.pure_python import Gate, SimCircuit
+
+    ir = SimCircuit(n_qubits=1)
+    ir.gates.append(Gate("save_statevector", (0,), ()))  # not a real allowlisted gate
+    with pytest.raises(ValueError):
+        qiskit_from_ir(ir)
+
+
+def test_ingest_rejects_malicious_circuit(client):
+    _register(client, "ingest-user@lab.example")
+    bad = {
+        "provenance": {"run_hash": "deadbeef"},
+        "circuit": {"source": '{"schema":"qlir/1.0","n_qubits":34,'
+                              '"gates":[{"name":"h","qubits":[0]}]}'},
+        "backend": {"vendor": "v", "name": "b"},
+        "calibration": {},
+        "result": {"counts": {}, "shots": 1},
+    }
+    r = client.post("/api/v1/ingest/runs", json=bad)
+    assert r.status_code == 422  # rejected fast, no 2**34 allocation
