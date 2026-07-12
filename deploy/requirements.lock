@@ -3,7 +3,7 @@
 # compromised/yanked upstream can't silently change what ships.
 # Regenerate: fresh py3.12 venv ->
 #   pip install ./packages/ql-core './packages/ql-sdk[aer]' ./packages/ql-crawler \
-#     ./server 'psycopg[binary]>=3.1'  ->  pip freeze (drop the four provenova* pkgs).
+#     ./server 'psycopg[binary]>=3.1'  ->  pip freeze | grep -vi '^provenova'.
 # Used as a constraints file (-c) in deploy/Dockerfile.
 annotated-doc==0.0.4
 annotated-types==0.7.0
@@ -37,10 +37,6 @@ MarkupSafe==3.0.3
 mdurl==0.1.2
 mpmath==1.3.0
 numpy==2.5.1
-provenova @ file:///Users/benrichardson/Code/provenova/packages/ql-sdk
-provenova-core @ file:///Users/benrichardson/Code/provenova/packages/ql-core
-provenova-crawler @ file:///Users/benrichardson/Code/provenova/packages/ql-crawler
-provenova-server @ file:///Users/benrichardson/Code/provenova/server
 psutil==7.2.2
 psycopg-binary==3.3.4
 psycopg==3.3.4
