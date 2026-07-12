@@ -51,7 +51,7 @@ def _register_admin_login(client):
     # via the API and rely on superadmin flag by using the bootstrap admin email.
     # For the test we register a normal user and separately upgrade via bootstrap admin.
     r = client.post("/api/v1/auth/register",
-                    json={"email": "researcher@cern.ch", "password": "pw12345", "display_name": "R"})
+                    json={"email": "researcher@cern.ch", "password": "pw123456", "display_name": "R"})
     assert r.status_code == 200, r.text
     return r.json()
 
@@ -205,7 +205,7 @@ def _exercise_mint_doi(client, run_id, slug):
 def test_compliance_and_attestation(client, bundle):
     # a fresh workspace-bearing user; upgrade via bootstrap superadmin
     reg = client.post("/api/v1/auth/register",
-                      json={"email": "lead@lab.example", "password": "pw12345"})
+                      json={"email": "lead@lab.example", "password": "pw123456"})
     assert reg.status_code == 200
     me = client.get("/api/v1/me").json()
     org_id, ws_id = me["org_id"], me["workspace_id"]

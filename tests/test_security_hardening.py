@@ -111,6 +111,20 @@ def test_bridge_rejects_unknown_gate_name():
         qiskit_from_ir(ir)
 
 
+def test_rate_limiter_trips_after_limit(monkeypatch):
+    from app import ratelimit
+
+    monkeypatch.setattr(ratelimit, "_enabled", lambda: True)
+    ratelimit.reset()
+    for _ in range(3):
+        ratelimit.check("t", "1.2.3.4", limit=3, window_s=60)  # within limit
+    with pytest.raises(Exception) as ei:
+        ratelimit.check("t", "1.2.3.4", limit=3, window_s=60)  # 4th over the limit
+    assert getattr(ei.value, "status_code", None) == 429
+    # a different IP has its own bucket
+    ratelimit.check("t", "9.9.9.9", limit=3, window_s=60)
+
+
 def test_ingest_rejects_malicious_circuit(client):
     _register(client, "ingest-user@lab.example")
     bad = {
@@ -123,3 +137,30 @@ def test_ingest_rejects_malicious_circuit(client):
     }
     r = client.post("/api/v1/ingest/runs", json=bad)
     assert r.status_code == 422  # rejected fast, no 2**34 allocation
+
+
+# --- P2: auth hygiene ---------------------------------------------------------
+
+def test_totp_code_is_single_use():
+    import pyotp
+
+    from app.services import settings as settings_svc
+
+    class _Cred:
+        secret = pyotp.random_base32()
+        last_used_counter = None
+
+    class _Sess:
+        def flush(self):
+            pass
+
+    cred, sess = _Cred(), _Sess()
+    code = pyotp.TOTP(cred.secret).now()
+    assert settings_svc.verify_and_consume(sess, cred, code) is True   # first use OK
+    assert settings_svc.verify_and_consume(sess, cred, code) is False  # replay blocked
+
+
+def test_registration_rejects_short_password(client):
+    r = client.post("/api/v1/auth/register",
+                    json={"email": "shorty@lab.example", "password": "short1"})
+    assert r.status_code == 409  # < 8 chars rejected

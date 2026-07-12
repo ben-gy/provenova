@@ -34,6 +34,7 @@ from ..config import get_settings
 from ..db import attestation_key, get_db
 from ..deps import Principal, current_principal
 from ..entitlements import is_unlimited, quota_for
+from ..ratelimit import rate_limit
 from ..security import generate_api_key
 from ..services import accounts as acc_svc
 from ..services import cards as cards_svc
@@ -291,7 +292,8 @@ def _establish_session(request: Request, db: Session, acc: Account) -> None:
 
 @router.post("/login")
 def do_login(request: Request, email: str = Form(...), password: str = Form(...),
-             db: Session = Depends(get_db)):
+             db: Session = Depends(get_db),
+             _rl: None = Depends(rate_limit("web-login", limit=10, window_s=300))):
     acc = acc_svc.authenticate(db, email=email, password=password)
     if acc is None:
         return render(request, "login.html", None, mode="login", error="Invalid credentials")
@@ -310,21 +312,24 @@ def login_mfa_form(request: Request):
 
 
 @router.post("/login/mfa")
-def do_login_mfa(request: Request, code: str = Form(...), db: Session = Depends(get_db)):
+def do_login_mfa(request: Request, code: str = Form(...), db: Session = Depends(get_db),
+                 _rl: None = Depends(rate_limit("web-mfa", limit=10, window_s=300))):
     acc_id = request.session.get("mfa_pending")
     if not acc_id:
         return RedirectResponse("/login", status_code=303)
     acc = db.get(Account, acc_id)
     cred = settings_svc.get_mfa(db, acc) if acc else None
-    if not (cred and settings_svc.verify_code(cred.secret, code)):
+    if not (cred and settings_svc.verify_and_consume(db, cred, code)):
         return render(request, "login.html", None, mode="mfa", error="Invalid authentication code")
+    db.commit()  # persist the consumed TOTP step (anti-replay)
     _establish_session(request, db, acc)
     return RedirectResponse("/", status_code=303)
 
 
 @router.post("/register")
 def do_register(request: Request, email: str = Form(...), password: str = Form(...),
-                display_name: str = Form(None), db: Session = Depends(get_db)):
+                display_name: str = Form(None), db: Session = Depends(get_db),
+                _rl: None = Depends(rate_limit("web-register", limit=8, window_s=600))):
     try:
         acc = acc_svc.register(db, email=email, password=password, display_name=display_name)
         # Send a confirmation link instead of blindly verifying. Academic

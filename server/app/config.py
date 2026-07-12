@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     public_cards: bool = True
     admin_email: str = "admin@quantumledger.local"
     data_dir: str = "./data"
+    # In-process rate limiting on auth + compute endpoints. On by default;
+    # disabled in the test/e2e harnesses (which hammer from one IP).
+    ratelimit_enabled: bool = True
 
     # DOI minting. "local" (default) mints stable offline PIDs; "datacite"
     # registers real DOIs (permanent — prefix/repository must stay stable

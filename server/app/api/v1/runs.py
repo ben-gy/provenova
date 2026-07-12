@@ -14,6 +14,7 @@ from provenova_core.reproduce.report import build_report
 from ...config import get_settings
 from ...db import get_db
 from ...deps import Principal, owned_run, require_feature, require_principal
+from ...ratelimit import rate_limit
 from ...services import cards as cards_svc
 from ...services import doi as doi_svc
 from ...services.accounts import audit
@@ -68,9 +69,14 @@ def run_report(run_id: str, db: Session = Depends(get_db),
 
 
 @router.post("/runs/{run_id}/reproduce")
-def reproduce(run_id: str, days: float = 30.0, profile: str = "typical",
+def reproduce(run_id: str, days: float = Query(30.0, ge=0, le=365), profile: str = "typical",
               db: Session = Depends(get_db),
-              p: Principal = Depends(require_feature("reproduce"))):
+              p: Principal = Depends(require_feature("reproduce")),
+              _rl: None = Depends(rate_limit("reproduce", limit=30, window_s=300))):
+    from provenova_core.simulate.drift import PROFILES
+
+    if profile not in PROFILES:
+        raise HTTPException(422, f"unknown profile; choose one of {sorted(PROFILES)}")
     run = owned_run(db, run_id, p)
     ws = db.get(Workspace, run.workspace_id)
     new_run, ev = runner.reproduce_run(db, run, workspace=ws, days=days, profile=profile,

@@ -100,7 +100,7 @@ def test_growth_accepts_scoped_key(client, growth_key):
 def test_privileged_scope_mint_requires_superadmin(client):
     # a fresh normal user cannot mint a growth-scoped key
     client.post("/api/v1/auth/register",
-                json={"email": "normie@acme.com", "password": "pw12345"})
+                json={"email": "normie@acme.com", "password": "pw123456"})
     me = client.get("/api/v1/me").json()
     r = client.post(f"/api/v1/orgs/{me['org_id']}/api-keys",
                     json={"name": "sneaky", "scopes": ["growth"]})

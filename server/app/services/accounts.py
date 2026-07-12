@@ -22,6 +22,13 @@ from provenova_core.models import (
 
 from ..security import hash_password, verify_password
 
+# Minimum password length, enforced at registration (mirrors change_password).
+MIN_PASSWORD_LEN = 8
+
+# A fixed valid hash used to spend Argon2 work even when an account doesn't
+# exist, so login timing doesn't reveal whether an email is registered.
+_DUMMY_PASSWORD_HASH = hash_password("timing-equalizer-not-a-real-password")
+
 # Academic email-domain verification. Rules derived from the JetBrains `swot`
 # academic-TLD set, applied at the domain-*label* level to avoid false positives
 # (e.g. "communi-cations.com" must NOT match on "uni-", "universitypizza.com"
@@ -80,6 +87,8 @@ def audit(session: Session, *, workspace_id, account_id, action, resource_type=N
 
 
 def register(session: Session, *, email: str, password: str, display_name: str | None = None) -> Account:
+    if not password or len(password) < MIN_PASSWORD_LEN:
+        raise ValueError(f"password must be at least {MIN_PASSWORD_LEN} characters")
     existing = session.scalar(select(Account).where(Account.email == email))
     if existing is not None:
         raise ValueError("email already registered")
@@ -106,7 +115,12 @@ def register(session: Session, *, email: str, password: str, display_name: str |
 
 def authenticate(session: Session, *, email: str, password: str) -> Account | None:
     acc = session.scalar(select(Account).where(Account.email == email))
-    if acc and verify_password(password, acc.password_hash):
+    if acc is None or not acc.password_hash:
+        # Spend equivalent Argon2 work so a missing/passwordless account can't be
+        # distinguished from a wrong password by response time.
+        verify_password(password, _DUMMY_PASSWORD_HASH)
+        return None
+    if verify_password(password, acc.password_hash):
         return acc
     return None
 

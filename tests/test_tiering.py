@@ -137,7 +137,7 @@ def _capture_bundle():
 def test_private_run_cap_enforced_and_publish_frees_slot(client, monkeypatch):
     # A fresh Free workspace.
     reg = client.post("/api/v1/auth/register",
-                      json={"email": "capuser@acme.com", "password": "pw12345"})
+                      json={"email": "capuser@acme.com", "password": "pw123456"})
     assert reg.status_code == 200, reg.text
     me = client.get("/api/v1/me").json()
     assert me["plan"] == "free"

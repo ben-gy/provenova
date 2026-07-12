@@ -13,6 +13,7 @@ from ...config import get_settings
 from ...db import get_db
 from ...deps import Principal, current_principal, require_principal
 from ...entitlements import effective_plan, features_for
+from ...ratelimit import rate_limit
 from ...security import generate_api_key
 from ...services import accounts as acc_svc
 
@@ -45,7 +46,8 @@ def _login_session(request: Request, db: Session, account: Account) -> None:
 
 
 @router.post("/auth/register")
-def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)):
+def register(body: RegisterIn, request: Request, db: Session = Depends(get_db),
+             _rl: None = Depends(rate_limit("auth-register", limit=8, window_s=600))):
     try:
         acc = acc_svc.register(db, email=body.email, password=body.password,
                                display_name=body.display_name)
@@ -64,7 +66,8 @@ def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)):
 
 
 @router.post("/auth/login")
-def login(body: LoginIn, request: Request, db: Session = Depends(get_db)):
+def login(body: LoginIn, request: Request, db: Session = Depends(get_db),
+          _rl: None = Depends(rate_limit("auth-login", limit=10, window_s=300))):
     acc = acc_svc.authenticate(db, email=body.email, password=body.password)
     if acc is None:
         raise HTTPException(401, "invalid credentials")

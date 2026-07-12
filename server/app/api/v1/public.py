@@ -28,6 +28,7 @@ from provenova_core.models import (
 from ...config import get_settings
 from ...db import attestation_key, get_db
 from ...deps import Principal, require_principal
+from ...ratelimit import rate_limit
 from ...services import badges as badge_svc
 from ...services import cards as cards_svc
 
@@ -164,16 +165,29 @@ def oembed(url: str = Query(...), maxwidth: int = 400, maxheight: int = 420,
 
 
 @router.post("/api/v1/cards/{slug}/reproductions")
-def submit_reproduction(slug: str, days: float = 20.0, profile: str = "typical",
-                        db: Session = Depends(get_db), p: Principal = Depends(require_principal)):
+def submit_reproduction(slug: str,
+                        days: float = Query(20.0, ge=0, le=365),
+                        profile: str = Query("typical"),
+                        db: Session = Depends(get_db),
+                        p: Principal = Depends(require_principal),
+                        _rl: None = Depends(rate_limit("reproduce", limit=30, window_s=300))):
     """Another user reproduces a public result → records a ReproductionEvent →
-    the 'reproduced' badge upgrades to green (E5.3)."""
-    from provenova_core.reproduce import runner
+    the 'reproduced' badge upgrades to green (E5.3).
 
+    Bounded (days/profile), rate-limited (each call runs 2 sims + 2 transpiles),
+    and written into the CALLER's own workspace — never the card owner's.
+    """
+    from provenova_core.reproduce import runner
+    from provenova_core.simulate.drift import PROFILES
+
+    if profile not in PROFILES:
+        raise HTTPException(422, f"unknown profile; choose one of {sorted(PROFILES)}")
     card = _public_card(db, slug)
     run = db.get(Run, card.run_id)
-    ws = db.get(Workspace, run.workspace_id)
-    new_run, ev = runner.reproduce_run(db, run, workspace=ws, days=days, profile=profile,
+    caller_ws = db.get(Workspace, p.workspace_id) if p.workspace_id else None
+    if caller_ws is None:
+        raise HTTPException(400, "no workspace for this account")
+    new_run, ev = runner.reproduce_run(db, run, workspace=caller_ws, days=days, profile=profile,
                                        account_id=p.account_id)
     db.commit()
     return {"status": "recorded", "verdict": ev.verdict,
