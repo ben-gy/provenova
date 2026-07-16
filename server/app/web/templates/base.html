@@ -22,6 +22,14 @@
   <link rel="alternate" type="application/atom+xml" title="Provenova reports & result cards" href="/reports/feed.xml">
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <script src="https://cdn.tailwindcss.com"></script>
+  {#- Cloudflare Web Analytics: anonymous, cookie-less page-view counts, shared
+      catalog-wide token, feeding the hub's Trending/Popular rankings.
+      Hosted-only on purpose: a self-hosted instance must never phone home to
+      our analytics account. Routes carry no identifiers, so no personal data
+      reaches Cloudflare via URLs. #}
+  {%- if settings and settings.deployment == "hosted" %}
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "ba2bab2193ba42c1bea3d6714fcd0e28"}'></script>
+  {%- endif %}
   <style>
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
   </style>
