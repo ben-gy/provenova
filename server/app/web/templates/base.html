@@ -120,5 +120,11 @@
       {% if settings and settings.deployment == "selfhost" %}<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5">Self-hosted instance</span>{% endif %}
     </div>
   </footer>
+  {#- Feedback widget, served centrally from the collector. Hosted-only for the
+      same reason as the analytics beacon above: a self-hosted instance must not
+      route its users' reports into our issue tracker. #}
+  {%- if settings and settings.deployment == "hosted" %}
+  <script defer src="https://feedback.benrichardson.dev/w.js"></script>
+  {%- endif %}
 </body>
 </html>
