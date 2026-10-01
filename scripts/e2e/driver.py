@@ -9,7 +9,7 @@ Runs after the server is up (see run.sh). Exercises, with real data:
   F. reproduce + cards      (reproduce, publish, public card, citation, badge)
   G. compliance             (frameworks, enable, evaluate, status, gaps, attest, verify, revoke)
   H. corpus / leaderboard
-  I. web UI smoke           (dashboard, docs, pricing, app pages, run detail)
+  I. web UI smoke           (dashboard, docs, app pages, pricing redirects, run detail)
   J. multi-tenant security  (anon/cross-tenant denied, ?workspace_id= rejected, free gating)
   K. interop error clarity  (ql doctor at a dead endpoint; ql login with a bad token)
 
@@ -281,15 +281,18 @@ def phase_web(admin: httpx.Client, run_id: str) -> None:
         "GET / (dashboard)": ("/", "Dashboard"),
         "GET /docs (home)": ("/docs", "documentation"),
         "GET /docs/api (narrative)": ("/docs/api", "endpoint"),
-        "GET /pricing (public)": ("/pricing", "pricing"),
         "GET /app/records": ("/app/records", "Records"),
         "GET /app/compliance": ("/app/compliance", "Compliance"),
-        "GET /app/plans": ("/app/plans", "Plans"),
         "GET /app/start": ("/app/start", "Connect the SDK"),
     }
     for name, (path, needle) in pages.items():
         resp = admin.get(path, follow_redirects=True)
         R.check(name, resp.status_code == 200 and needle.lower() in resp.text.lower(),
+                f"status={resp.status_code}")
+    for old, target in (("/pricing", "/"), ("/app/plans", "/app/settings")):
+        resp = admin.get(old, follow_redirects=False)
+        R.check(f"GET {old} -> 301 {target} (free, no pricing)",
+                resp.status_code == 301 and resp.headers.get("location") == target,
                 f"status={resp.status_code}")
     rd = admin.get(f"/app/records/{run_id}", follow_redirects=True)
     R.check("GET /app/records/{id} (owned)", rd.status_code == 200 and "Provenance".lower() in rd.text.lower(),
@@ -311,12 +314,12 @@ def phase_security(ctx: dict, admin_run_id: str) -> None:
     a3 = httpx.get(f"{ENDPOINT}/api/v1/workspaces/{admin_ws}/gaps", timeout=15)
     R.check("anon GET /workspaces/{ws}/gaps -> 401", a3.status_code == 401, f"status={a3.status_code}")
 
-    # a second, unrelated free-tier user
+    # a second, unrelated user (default free plan)
     u2 = httpx.Client(base_url=ENDPOINT, timeout=20)
     reg = u2.post("/api/v1/auth/register", json={"email": "e2e-user2@example.com", "password": "user2-pass-123"})
     R.check("register second user", reg.status_code == 200, f"status={reg.status_code}")
     me2 = u2.get("/api/v1/me").json()
-    R.check("second user is free tier", me2.get("plan") == "free", f"plan={me2.get('plan')}")
+    R.check("second user is on the default plan", me2.get("plan") == "free", f"plan={me2.get('plan')}")
 
     r = u2.get(f"/api/v1/runs/{admin_run_id}")
     R.check("cross-tenant GET run -> 404", r.status_code == 404, f"status={r.status_code}")
@@ -331,13 +334,13 @@ def phase_security(ctx: dict, admin_run_id: str) -> None:
     R.check("?workspace_id=<victim> leaks nothing", isinstance(rows, list) and len(rows) == 0,
             f"n={len(rows) if isinstance(rows, list) else '?'}")
 
-    # free tier includes the FAIR checklist (evaluate succeeds); the paid gate
-    # is attestation signing (402 upgrade_required)
+    # everything is free: evaluation and attestation signing are never 402-gated
     r = u2.post(f"/api/v1/workspaces/{me2.get('workspace_id')}/compliance/evaluate")
-    R.check("free tier can evaluate (FAIR checklist)", r.status_code == 200, f"status={r.status_code}")
+    R.check("default plan can evaluate", r.status_code == 200, f"status={r.status_code}")
     r = u2.post(f"/api/v1/workspaces/{me2.get('workspace_id')}/attestations",
                 params={"framework_id": "any"})
-    R.check("free tier attestation signing gated (402)", r.status_code == 402, f"status={r.status_code}")
+    R.check("default plan attestation signing not gated (no 402)", r.status_code != 402,
+            f"status={r.status_code}")
     u2.close()
 
 

@@ -1,7 +1,7 @@
 """End-to-end server test via FastAPI TestClient.
 
 Exercises the whole loop: capture (SDK) -> push (ingest) -> read -> reproduce ->
-publish card -> badge SVG -> admin upgrade -> compliance evaluate -> attest ->
+publish card -> badge SVG -> compliance evaluate -> attest ->
 verify (and tamper -> invalid).
 """
 
@@ -203,41 +203,25 @@ def _exercise_mint_doi(client, run_id, slug):
 
 
 def test_compliance_and_attestation(client, bundle):
-    # a fresh workspace-bearing user; upgrade via bootstrap superadmin
+    # a fresh workspace-bearing user on the (free) default plan
     reg = client.post("/api/v1/auth/register",
                       json={"email": "lead@lab.example", "password": "pw123456"})
     assert reg.status_code == 200
     me = client.get("/api/v1/me").json()
-    org_id, ws_id = me["org_id"], me["workspace_id"]
+    ws_id = me["workspace_id"]
 
     # push a run into this workspace so evidence exists
     r = client.post("/api/v1/ingest/runs", json=bundle)
     assert r.status_code == 200
 
-    # Free tier: can enable FAIR (read-only view) but NOT a non-FAIR framework,
-    # and cannot ISSUE attestations (issuance is paid).
+    # Everything is free: any framework can be enabled and attestations issued
+    # on a brand-new (free) account, with no admin upgrade.
     fw = client.get("/api/v1/frameworks").json()
     fair = next(f for f in fw if f["key"].startswith("fair"))
     ieee = next(f for f in fw if f["key"].startswith("ieee"))
-    free_fair = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{fair['id']}/enable")
-    assert free_fair.status_code == 200, free_fair.text        # FAIR allowed on Free
-    free_ieee = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{ieee['id']}/enable")
-    assert free_ieee.status_code == 402                        # non-FAIR gated on Free
-    assert client.post(f"/api/v1/workspaces/{ws_id}/compliance/evaluate").status_code == 200
-    free_att = client.post(f"/api/v1/workspaces/{ws_id}/attestations?framework_id={fair['id']}")
-    assert free_att.status_code == 402                         # attestation issuance is paid
-
-    # admin upgrades the org to pro (admin-driven, no payment)
-    from app.db import SessionLocal
-    from app.services.accounts import grant_plan
-    from provenova_core.models import Org
-    s = SessionLocal()
-    grant_plan(s, s.get(Org, org_id), "pro", source="admin_override")
-    s.commit(); s.close()
-
-    # now the non-FAIR framework + evaluate + attest all work
-    en = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{ieee['id']}/enable")
-    assert en.status_code == 200, en.text
+    for f in (fair, ieee):
+        en = client.post(f"/api/v1/workspaces/{ws_id}/frameworks/{f['id']}/enable")
+        assert en.status_code == 200, en.text
     ev = client.post(f"/api/v1/workspaces/{ws_id}/compliance/evaluate")
     assert ev.status_code == 200, ev.text
     att = client.post(f"/api/v1/workspaces/{ws_id}/attestations?framework_id={fair['id']}")

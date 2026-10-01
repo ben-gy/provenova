@@ -74,66 +74,6 @@
 <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium {{ colors.get(status, colors['unknown']) }}">{{ status }}</span>
 {% endmacro %}
 
-{# Tier → feature comparison matrix, shared by /pricing and /app/plans. #}
-{% macro _qfmt(v) %}{% if v is none %}—{% elif v >= 9999 %}Unlimited{% else %}{{ v }}{% endif %}{% endmacro %}
-
-{% macro plan_matrix(plan_order, features, quotas, feature_labels, plan_blurbs, current=None, plan_display=None) %}
-<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-  <table class="min-w-full text-sm">
-    <thead>
-      <tr class="border-b border-slate-200">
-        <th class="px-4 py-3 text-left font-medium text-slate-500">Feature</th>
-        {% for pl in plan_order %}
-        <th class="px-4 py-3 text-center align-top {{ 'bg-indigo-50' if pl == current else '' }}">
-          <div class="font-semibold text-slate-900">{{ plan_display.get(pl, pl|capitalize) if plan_display else pl|capitalize }}</div>
-          {% if pl == current %}<div class="mt-1 inline-flex items-center rounded-full bg-indigo-600 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">Current</div>{% endif %}
-          {% if plan_blurbs %}<div class="mx-auto mt-1 max-w-[10rem] text-[11px] font-normal leading-snug text-slate-400">{{ plan_blurbs.get(pl, '') }}</div>{% endif %}
-        </th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-slate-100">
-      {% for feat, plans in features.items() %}
-      <tr class="hover:bg-slate-50/50">
-        <td class="px-4 py-2 text-slate-700">{{ feature_labels.get(feat, feat) }}</td>
-        {% for pl in plan_order %}
-        <td class="px-4 py-2 text-center {{ 'bg-indigo-50/60' if pl == current else '' }}">
-          {% if feat == 'compliance_frameworks' and pl == 'free' %}<span class="text-[11px] font-medium text-amber-600">FAIR only</span>
-          {% elif pl in plans %}<span class="text-green-600">✓</span>{% else %}<span class="text-slate-300">–</span>{% endif %}
-        </td>
-        {% endfor %}
-      </tr>
-      {% endfor %}
-      <tr class="bg-slate-50/60">
-        <td class="px-4 py-2 font-medium text-slate-600">Seats</td>
-        {% for pl in plan_order %}
-        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('seats')) }}</td>
-        {% endfor %}
-      </tr>
-      <tr class="bg-slate-50/60">
-        <td class="px-4 py-2 font-medium text-slate-600">Private records</td>
-        {% for pl in plan_order %}
-        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('private_run_cap')) }}</td>
-        {% endfor %}
-      </tr>
-      <tr class="bg-slate-50/60">
-        <td class="px-4 py-2 font-medium text-slate-600">Compliance frameworks</td>
-        {% for pl in plan_order %}
-        {% set fq = quotas.get(pl, {}).get('frameworks_allowed', 0) %}
-        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ 'FAIR only' if pl == 'free' else _qfmt(fq) }}</td>
-        {% endfor %}
-      </tr>
-      <tr class="bg-slate-50/60">
-        <td class="px-4 py-2 font-medium text-slate-600">DOIs / mo</td>
-        {% for pl in plan_order %}
-        <td class="px-4 py-2 text-center text-slate-600 {{ 'bg-indigo-50/60' if pl == current else '' }}">{{ _qfmt(quotas.get(pl, {}).get('doi_monthly_cap')) }}</td>
-        {% endfor %}
-      </tr>
-    </tbody>
-  </table>
-</div>
-{% endmacro %}
-
 {# A legend explaining what each compliance status means. #}
 {% macro status_legend() %}
 <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-600">

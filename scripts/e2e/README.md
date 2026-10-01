@@ -35,7 +35,7 @@ make e2e            # or: bash scripts/e2e/run.sh
 | G | Compliance | frameworks, enable, evaluate, status, gaps, attest, verify, revoke |
 | H | Corpus / leaderboard | leaderboard populated from the crawled corpus |
 | I | Web UI smoke | dashboard, docs (+ generated API ref), pricing, app pages, run detail |
-| J | Multi-tenant security | anon → 401, cross-tenant → 404, `?workspace_id=` leaks nothing, free-tier gating → 402 |
+| J | Multi-tenant security | anon → 401, cross-tenant → 404, `?workspace_id=` leaks nothing, no 402 gating (everything free) |
 | K | Interop error clarity | `ql doctor` at a dead endpoint fails clearly; `ql login` flags a bad token |
 
 ## Requirements

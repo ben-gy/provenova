@@ -49,11 +49,10 @@ Badges reflect a result's maturity as a ladder — each rung is a stronger claim
 4. **Compliant** — it satisfies an enabled compliance framework.
 5. **Audit-ready** — backed by a signed attestation.
 
-Rungs 1–3 are reachable on the **Free** plan for your own runs — capture, reproduce, then hit
-**Benchmark vs fleet** on the record page to record a benchmark entry and light the
-**Benchmarked** badge, no upgrade required. Rung 4 needs an enabled framework and rung 5 needs a
-signed attestation (included from the free Academic tier and all paid tiers — see the
-[pricing FAQ](/docs/pricing-faq)).
+Every rung is reachable on any account, free. Rungs 1–3 come from your own runs — capture,
+reproduce, then hit **Benchmark vs fleet** on the record page to record a benchmark entry and light
+the **Benchmarked** badge. Rung 4 needs an enabled [compliance framework](/docs/compliance) and
+rung 5 needs a signed attestation.
 
 External parties can even submit their own reproductions of a public card
 (`POST /api/v1/cards/<slug>/reproductions`) — independent verification that upgrades the card's

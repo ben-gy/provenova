@@ -145,9 +145,9 @@
   <h2 class="text-2xl font-bold tracking-tight text-slate-900">Built for how you work</h2>
   <div class="mt-6 grid gap-4 lg:grid-cols-3">
     {% set personas = [
-      ('Researchers', 'Make results reproducible and citable. Publish a Result Card with a citable identifier and prove it hasn\'t changed — free for academic email domains.', 'Start free', '/register'),
-      ('Labs & teams', 'Compliance frameworks, continuous monitoring, signed attestations and a public Trust Center to share your posture.', 'See Team & Lab', '/pricing'),
-      ('Enterprises', 'Supported self-hosting, SSO/SAML, data residency and an SLA — the vendor-neutral record of every quantum workload.', 'Talk to us', '/pricing')
+      ('Researchers', 'Make results reproducible and citable. Publish a Result Card with a citable identifier and prove it hasn\'t changed.', 'Start free', '/register'),
+      ('Labs & teams', 'Compliance frameworks, signed attestations and a public Trust Center to share your posture — all included, free.', 'Start free', '/register'),
+      ('Self-hosters', 'Run the whole server on your own infrastructure, production included, under its source-available license.', 'Self-hosting guide', '/docs/deployment')
     ] %}
     {% for who, body, cta, href in personas %}
     <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-6">
@@ -193,7 +193,6 @@ def run():
   <p class="mx-auto mt-2 max-w-xl text-indigo-100">Start free — no account needed to try it locally.</p>
   <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
     <a href="/register" class="rounded-md bg-white px-5 py-2.5 font-semibold text-indigo-700 hover:bg-indigo-50">Get started free</a>
-    <a href="/pricing" class="rounded-md border border-indigo-300 px-5 py-2.5 font-medium text-white hover:bg-indigo-500">See pricing</a>
     <a href="/docs/getting-started" class="px-3 py-2.5 font-medium text-indigo-100 hover:text-white">Quickstart →</a>
   </div>
 </section>
@@ -239,8 +238,7 @@ def run():
   </ul>
   <div class="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500">
     New here? Read the <a href="/docs/getting-started" class="text-indigo-600 hover:underline">quickstart</a>,
-    take the <a href="/docs/product-tour" class="text-indigo-600 hover:underline">product tour</a>, or
-    <a href="/app/plans" class="text-indigo-600 hover:underline">compare plans</a>.
+    or take the <a href="/docs/product-tour" class="text-indigo-600 hover:underline">product tour</a>.
   </div>
 </section>
 {% endif %}
@@ -259,22 +257,6 @@ def run():
     <div class="mt-1 text-sm text-slate-500">Public result cards</div>
   </div>
 </section>
-
-{% if usage and not usage.unlimited %}
-<section class="mt-4 rounded-xl border border-slate-200 bg-white p-5">
-  <div class="flex items-center justify-between text-sm">
-    <span class="font-medium text-slate-700">Private runs</span>
-    <span class="{{ 'text-amber-700 font-semibold' if usage.at_cap else 'text-slate-500' }}">{{ usage.used }} / {{ usage.cap }}</span>
-  </div>
-  <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
-    <div class="h-2 rounded-full {{ 'bg-amber-500' if usage.pct >= 80 else 'bg-indigo-500' }}" style="width: {{ usage.pct }}%"></div>
-  </div>
-  <p class="mt-2 text-xs text-slate-500">
-    {% if usage.at_cap %}You've hit your private-run limit — publish a run publicly to free a slot, or <a href="/app/plans" class="text-indigo-600 hover:underline">upgrade</a> for unlimited.
-    {% else %}Free includes {{ usage.cap }} private runs; public result cards are always unlimited. <a href="/app/plans" class="text-indigo-600 hover:underline">Compare plans →</a>{% endif %}
-  </p>
-</section>
-{% endif %}
 
 <section class="mt-8">
   <div class="flex items-center justify-between mb-3">

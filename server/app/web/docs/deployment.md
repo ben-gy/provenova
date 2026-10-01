@@ -7,14 +7,11 @@ service or product (paid or free); see [Licensing](/docs/licensing).
 
 Two things to know before you deploy:
 
-- **Plans bind on the hosted service, not yours.** On a self-hosted instance you are the
-  superadmin and administer your own plans and grants — entitlements exist to organize your
-  workspaces, not to meter you.
+- **Nothing is metered.** Every feature is on for every account, on your instance and on the
+  hosted service alike.
 - **Your instance signs with its own key.** Attestations from a self-hosted install verify against
   *your* key at `/.well-known/provenova-jwks.json` on your domain — third parties have no prior
-  reason to trust it. The Lab tier's **verified keys** registers your public key in Provenova's
-  trust directory so your attestations verify against provenova.net; see the
-  [pricing FAQ](/docs/pricing-faq#can-i-self-host).
+  reason to trust it, so publish that URL alongside the results you share.
 
 ## Self-host (Docker Compose)
 

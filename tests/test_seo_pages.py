@@ -184,7 +184,7 @@ def test_sitemap_content(client, seeded):
 
 
 def test_existing_pages_have_single_og_title(client):
-    for path in ("/", "/pricing", "/leaderboard", "/docs"):
+    for path in ("/", "/leaderboard", "/docs"):
         r = client.get(path)
         assert r.status_code == 200, path
         assert r.text.count('property="og:title"') == 1, path

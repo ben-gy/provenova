@@ -62,10 +62,10 @@ conventional terms exist for exactly this.
 
 An attestation is like an audit report: its value is not the PDF, it's *who signed it*. You can
 self-host the entire signing machinery, but an attestation signed by your own key proves nothing
-to a journal reviewer or a procurement office — just as a company can't self-issue its SOC 2. What
-paid tiers buy is the part that can't be forked: attestations that verify against provenova.net,
-a public [Trust Center](/docs/compliance), verified keys for self-hosted instances, and the
-public corpus behind the [leaderboard](/hardware). Keeping the code open costs us nothing we were
+to a journal reviewer or a procurement office — just as a company can't self-issue its SOC 2. What the
+hosted service adds is the part that can't be forked: attestations that verify against
+provenova.net, a public [Trust Center](/docs/compliance), and the public corpus behind the
+[leaderboard](/hardware) — all free for now. Keeping the code open costs us nothing we were
 selling — and it means you can audit the ledger you're trusting, which for a provenance product
 is rather the point.
 
@@ -83,5 +83,5 @@ once, via a bot comment on their first pull request. The CLA grants the relicens
 make the promises on this page keepable: without it, contributed server code couldn't legally
 follow the scheduled conversion to Apache-2.0, and commercial licenses couldn't cover it.
 
-See also: [Pricing FAQ](/docs/pricing-faq) · [Deployment & self-hosting](/docs/deployment) ·
+See also: [Deployment & self-hosting](/docs/deployment) ·
 [Libraries & downloads](/docs/libraries)

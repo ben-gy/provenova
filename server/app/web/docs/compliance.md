@@ -2,8 +2,8 @@
 
 Compliance in Provenova is "Vanta for quantum": you pick a standard, and the evidence is **collected
 automatically from the runs already in your ledger**. You don't upload documents or fill in checklists —
-your records *are* the evidence. The console lives at `/app/compliance` (available on every plan —
-Free is limited to the FAIR framework; issuing signed attestations requires Academic or a paid plan).
+your records *are* the evidence. The console lives at `/app/compliance`; every framework and signed attestations are available to
+every account at no cost.
 
 ## The model: frameworks → controls → evidence rules
 

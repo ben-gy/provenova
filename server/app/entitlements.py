@@ -1,8 +1,9 @@
-"""Tier entitlement model: plans -> features + quotas.
+"""Entitlement model: plans -> features + quotas.
 
-Entitlements are resolved from the org's plan (which is set by the highest active
-grant — admin override, academic, purchase). Full open-format export is available
-at EVERY tier per the NFR and is therefore never gated.
+Provenova is currently free: every plan resolves to every feature with no volume
+caps (see FEATURES/QUOTAS). Plans are still resolved from the org's stored plan
+and the highest active grant so tiers could be reintroduced without a schema
+change. Full open-format export is never gated.
 
 Self-hosting is never an entitlement: running the server is governed by the
 server license (BUSL-1.1, production use included), and plans only bind on the
@@ -30,41 +31,31 @@ from provenova_core.models import (
 # Sentinel for "no cap". Any quota >= UNLIMITED is displayed as "Unlimited".
 UNLIMITED = 9_999_999
 
+# Provenova is free for now: every plan gets every feature and no volume caps.
+# The plan/grant machinery is kept (dormant) so tiers can return later without a
+# schema change; until then the plan an org holds changes nothing.
+_ALL_PLANS = {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE}
+
 # feature_key -> set of plans that include it.
-# Free competes with the OSS alternatives: private records (capped by volume),
-# fleet comparison (for the Benchmarked badge), and a read-only FAIR compliance
-# view are all available at $0. Paid tiers own the *trust artifacts*
-# (attestation issuance, continuous monitoring, Trust Center).
 FEATURES: dict[str, set[str]] = {
-    "public_result_cards": {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "badges": {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "reproduce": {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "private_records": {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "compare_vs_fleet": {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    # Free gets a read-only FAIR view (see frameworks_allowed cap + FAIR-only rule);
-    # attestation *issuance* stays paid.
-    "compliance_frameworks": {PLAN_FREE, PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "workspace_sharing": {PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "analytics_depth": {PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "attestation_signing": {PLAN_ACADEMIC, PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "continuous_monitoring": {PLAN_PRO, PLAN_LAB, PLAN_ENTERPRISE},
-    "trust_center": {PLAN_LAB, PLAN_ENTERPRISE},
-    "verified_keys": {PLAN_LAB, PLAN_ENTERPRISE},
-    "sso_saml": {PLAN_LAB, PLAN_ENTERPRISE},
-    "data_residency": {PLAN_ENTERPRISE},
-    "sla": {PLAN_ENTERPRISE},
+    key: set(_ALL_PLANS)
+    for key in (
+        "public_result_cards", "badges", "reproduce", "private_records",
+        "compare_vs_fleet", "compliance_frameworks", "workspace_sharing",
+        "analytics_depth", "attestation_signing", "continuous_monitoring",
+        "trust_center", "verified_keys",
+    )
 }
 
+# Real (Zenodo/DataCite) DOIs are permanent and can never be deleted, so they
+# keep a per-workspace fair-use cap even while everything else is unlimited.
+# This is abuse protection, not a paid tier; local PIDs are never capped.
+DOI_FAIR_USE_MONTHLY = 20
+
 QUOTAS: dict[str, dict[str, int]] = {
-    PLAN_FREE: {"seats": 1, "frameworks_allowed": 1, "private_run_cap": 250, "doi_monthly_cap": 5},
-    PLAN_ACADEMIC: {"seats": 15, "frameworks_allowed": UNLIMITED, "private_run_cap": UNLIMITED,
-                    "doi_monthly_cap": UNLIMITED},
-    PLAN_PRO: {"seats": 10, "frameworks_allowed": 10, "private_run_cap": UNLIMITED,
-               "doi_monthly_cap": UNLIMITED},
-    PLAN_LAB: {"seats": 50, "frameworks_allowed": UNLIMITED, "private_run_cap": UNLIMITED,
-               "doi_monthly_cap": UNLIMITED},
-    PLAN_ENTERPRISE: {"seats": UNLIMITED, "frameworks_allowed": UNLIMITED,
-                      "private_run_cap": UNLIMITED, "doi_monthly_cap": UNLIMITED},
+    plan: {"seats": UNLIMITED, "frameworks_allowed": UNLIMITED,
+           "private_run_cap": UNLIMITED, "doi_monthly_cap": DOI_FAIR_USE_MONTHLY}
+    for plan in _ALL_PLANS
 }
 
 

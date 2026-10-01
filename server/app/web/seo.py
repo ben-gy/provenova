@@ -25,7 +25,7 @@ from . import docs as docs_mod
 
 router = APIRouter(tags=["seo"])
 
-_STATIC_PATHS = ["/", "/pricing", "/leaderboard", "/hardware", "/reports", "/docs"]
+_STATIC_PATHS = ["/", "/leaderboard", "/hardware", "/reports", "/docs"]
 _CACHE_TTL_S = 600
 _cache: dict[str, tuple[float, str]] = {}
 

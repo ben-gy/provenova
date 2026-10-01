@@ -28,19 +28,15 @@ from provenova_core.models import (
 from provenova_core.reproduce import runner
 from provenova_core.reproduce.report import build_report
 
-from provenova_core.models import PLAN_DISPLAY
-
 from ..config import get_settings
 from ..db import attestation_key, get_db
 from ..deps import Principal, current_principal
-from ..entitlements import is_unlimited, quota_for
 from ..ratelimit import rate_limit
 from ..security import generate_api_key
 from ..services import accounts as acc_svc
 from ..services import cards as cards_svc
 from ..services import compliance as comp
 from ..services import doi as doi_svc
-from ..services import limits as limits_svc
 from ..services import settings as settings_svc
 from ..services.attestation import create_attestation
 
@@ -51,8 +47,6 @@ from . import docs as docs_mod  # noqa: E402
 from .glossary import register as _register_glossary  # noqa: E402
 
 _register_glossary(templates)
-# Plan display names available to every template (base.html renders on all pages).
-templates.env.globals["plan_labels"] = PLAN_DISPLAY
 
 
 def render(request: Request, name: str, p: Principal | None = None, **ctx) -> HTMLResponse:
@@ -105,9 +99,8 @@ def landing(request: Request, db: Session = Depends(get_db),
         ) or 0
         stats = {"runs": runs_count, "reproductions": repro_count, "public_cards": cards_count}
     activation = _activation_state(db, p) if p else None
-    usage = limits_svc.private_run_usage(db, p.plan, p.workspace_id) if p else None
     return render(request, "landing.html", p, recent=recent, stats=stats, activation=activation,
-                  usage=usage, canonical_path="/")
+                  canonical_path="/")
 
 
 def _activation_state(db: Session, p: Principal) -> dict:
@@ -121,16 +114,13 @@ def _activation_state(db: Session, p: Principal) -> dict:
         ResultCard.workspace_id == p.workspace_id)) is not None
     has_att = db.scalar(select(Attestation.id).where(
         Attestation.workspace_id == p.workspace_id)) is not None
-    can_comp = p.has("compliance_frameworks")
     steps = [
         {"label": "Create an API key", "done": has_key, "href": "/app/start",
          "hint": "Authenticate the SDK so it can push runs here."},
         {"label": "Capture & push your first run", "done": n_runs > 0, "href": "/app/start",
          "hint": "Wrap a job with @ql.capture, then ql push."},
-        {"label": "Enable a compliance framework", "done": has_fw,
-         "href": "/app/compliance" if can_comp else "/app/plans",
-         "hint": "Map your runs to FAIR, IEEE P7131 and more." if can_comp else "Available on Pro and up.",
-         "locked": not can_comp},
+        {"label": "Enable a compliance framework", "done": has_fw, "href": "/app/compliance",
+         "hint": "Map your runs to FAIR, IEEE P7131 and more."},
         {"label": "Publish a card or issue an attestation", "done": has_card or has_att,
          "href": "/app/records", "hint": "Share a citable result, or sign your compliance evidence."},
     ]
@@ -181,90 +171,16 @@ def app_start_key(request: Request, db: Session = Depends(get_db),
     return RedirectResponse("/app/start", status_code=303)
 
 
-@router.get("/app/plans", response_class=HTMLResponse)
-def app_plans(request: Request, db: Session = Depends(get_db),
-              p: Principal | None = Depends(current_principal)):
-    if p is None:
-        return RedirectResponse("/login", status_code=303)
-    from provenova_core.models import PLAN_ORDER
-
-    from ..entitlements import FEATURES, QUOTAS
-
-    return render(request, "plans.html", p, plan_order=PLAN_ORDER, features=FEATURES,
-                  quotas=QUOTAS, current=p.plan, feature_labels=_FEATURE_LABELS,
-                  plan_blurbs=_PLAN_BLURBS, plan_display=PLAN_DISPLAY)
+# Provenova is free for now: the old pricing and plan pages permanently redirect
+# so indexed and bookmarked links keep resolving.
+@router.get("/pricing", include_in_schema=False)
+def pricing():
+    return RedirectResponse("/", status_code=301)
 
 
-_FEATURE_LABELS = {
-    "public_result_cards": "Public, citable result cards",
-    "badges": "Embeddable maturity badges",
-    "reproduce": "Reproduce & drift analysis",
-    "private_records": "Private records",
-    "workspace_sharing": "Workspace sharing / seats",
-    "analytics_depth": "Deep analytics",
-    "compare_vs_fleet": "Compare vs. the public fleet",
-    "compliance_frameworks": "Compliance frameworks",
-    "continuous_monitoring": "Continuous monitoring & alerts",
-    "attestation_signing": "Signed attestations",
-    "trust_center": "Public Trust Center",
-    "verified_keys": "Verified keys for self-hosted instances",
-    "sso_saml": "SSO / SAML",
-    "data_residency": "Data residency",
-    "sla": "Support SLA",
-}
-
-_PLAN_BLURBS = {
-    "free": "Everything you need to capture, reproduce, benchmark & publish — private by default.",
-    "academic": "Free for verified academic domains — unlimited private records & signed attestations.",
-    "pro": "For teams — compliance frameworks, continuous monitoring & signed attestations.",
-    "lab": "For labs — SSO, a public Trust Center & a self-hostable signing service.",
-    "enterprise": "Everything, plus data residency, custom controls & an SLA.",
-}
-
-# Indicative list pricing. Provisioning is admin-granted (no self-serve checkout);
-# paid tiers are "request access" to the contact address below.
-_CONTACT = "mailto:hi@ben.gy"
-_PRICING = {
-    "free": {"price": "$0", "cadence": "forever", "tagline": "For individuals getting started",
-             "highlights": ["Capture, reproduce & benchmark runs", "Unlimited public result cards & badges",
-                            "250 private records", "Compare vs. the public fleet",
-                            "FAIR compliance checklist", "Full qlprov export",
-                            "Self-host free (BUSL, production included)"],
-             "cta": ("Get started", "/register"), "highlight": False},
-    "academic": {"price": "$0", "cadence": "for verified academia", "tagline": "Free for .edu / .ac.* domains",
-                 "highlights": ["Everything in Free", "Unlimited private records",
-                                "Signed attestations (all frameworks)", "15 seats"],
-                 "cta": ("Sign up with your academic email", "/register"), "highlight": False},
-    "pro": {"price": "$199", "cadence": "per month · $1,990/yr", "tagline": "For research teams",
-            "highlights": ["Everything in Free", "Unlimited private records",
-                           "Up to 10 concurrent compliance frameworks", "Signed attestations",
-                           "Continuous monitoring & alerts", "10 seats"],
-            "cta": ("Request access", _CONTACT + "?subject=Provenova%20Team"),
-            "highlight": True},
-    "lab": {"price": "$499", "cadence": "per month", "tagline": "For labs & departments",
-            "highlights": ["Everything in Team", "SSO / SAML", "Public Trust Center",
-                           "Self-hostable signing service + verified keys", "50 seats"],
-            "cta": ("Request access", _CONTACT + "?subject=Provenova%20Lab"),
-            "highlight": False},
-    "enterprise": {"price": "Custom", "cadence": "", "tagline": "For organizations with scale & governance needs",
-                   "highlights": ["Everything in Lab", "Data residency", "Custom controls",
-                                  "Supported / air-gapped self-hosting",
-                                  "Commercial license for procurement", "Support SLA", "Unlimited seats"],
-                   "cta": ("Contact us", _CONTACT + "?subject=Provenova%20Enterprise"),
-                   "highlight": False},
-}
-
-
-@router.get("/pricing", response_class=HTMLResponse)
-def pricing(request: Request, p: Principal | None = Depends(current_principal)):
-    """Public pricing page — no login required."""
-    from provenova_core.models import PLAN_ORDER
-
-    from ..entitlements import FEATURES, QUOTAS
-
-    return render(request, "pricing.html", p, canonical_path="/pricing", plan_order=PLAN_ORDER, features=FEATURES,
-                  quotas=QUOTAS, feature_labels=_FEATURE_LABELS, plan_blurbs=_PLAN_BLURBS,
-                  pricing=_PRICING, current=(p.plan if p else None), plan_display=PLAN_DISPLAY)
+@router.get("/app/plans", include_in_schema=False)
+def app_plans():
+    return RedirectResponse("/app/settings", status_code=301)
 
 
 # -- auth -------------------------------------------------------------------
@@ -654,6 +570,11 @@ def docs_index(request: Request, p: Principal | None = Depends(current_principal
                   manifest=docs_mod.DOCS_MANIFEST, active_slug=None, canonical_path="/docs")
 
 
+@router.get("/docs/pricing-faq", include_in_schema=False)
+def docs_pricing_faq():
+    return RedirectResponse("/docs", status_code=301)
+
+
 @router.get("/docs/{slug}", response_class=HTMLResponse)
 def docs_page(slug: str, request: Request, db: Session = Depends(get_db),
               p: Principal | None = Depends(current_principal)):
@@ -678,11 +599,6 @@ def compliance_console(request: Request, evaluated: str | None = None,
         select(WorkspaceFramework).where(WorkspaceFramework.workspace_id == p.workspace_id))}
     atts = db.scalars(select(Attestation).where(Attestation.workspace_id == p.workspace_id)).all()
 
-    # Plan limits: Free may only enable FAIR, and is capped by frameworks_allowed.
-    fw_cap = quota_for(p.plan, "frameworks_allowed")
-    enabled_count = len(enabled)
-    under_cap = is_unlimited(fw_cap) or enabled_count < fw_cap
-
     # Per-framework rollup: how many of its controls are currently passing.
     cards = []
     for fw in frameworks:
@@ -690,10 +606,7 @@ def compliance_console(request: Request, evaluated: str | None = None,
         wf = enabled.get(fw.id)
         detail = (wf.status_detail if wf else None) or {}
         passing = sum(1 for d in detail.values() if d.get("status") == "pass") if detail else None
-        plan_allows = (p.plan != "free") or fw.key.startswith("fair")
-        lock = None if (plan_allows and under_cap) else ("plan" if not plan_allows else "cap")
-        cards.append({"fw": fw, "wf": wf, "total_controls": total, "passing": passing,
-                      "enableable": lock is None, "lock": lock})
+        cards.append({"fw": fw, "wf": wf, "total_controls": total, "passing": passing})
 
     # Post-evaluation summary banner (recomputed from the freshly-stored status).
     summary = None
@@ -704,30 +617,18 @@ def compliance_console(request: Request, evaluated: str | None = None,
         summary = {"frameworks": len(enabled), "controls": n_controls, "gaps": n_gaps}
 
     return render(request, "compliance.html", p, cards=cards, enabled=enabled,
-                  attestations=atts, has_compliance=p.has("compliance_frameworks"),
-                  can_attest=p.has("attestation_signing"), plan_display=PLAN_DISPLAY,
-                  summary=summary)
+                  attestations=atts, summary=summary)
 
 
 @router.post("/app/compliance/enable")
 def web_enable(request: Request, framework_id: str = Form(...), db: Session = Depends(get_db),
                p: Principal | None = Depends(current_principal)):
-    if p is None or not p.has("compliance_frameworks"):
-        raise HTTPException(402, "compliance requires a paid plan")
+    if p is None:
+        return RedirectResponse("/login", status_code=303)
     ws = db.get(Workspace, p.workspace_id)
     fw = db.get(ComplianceFramework, framework_id)
     if fw is None:
         raise HTTPException(404, "framework not found")
-    # Plan limits: Free may enable only FAIR, and every plan is capped by
-    # frameworks_allowed. Enabling an already-enabled framework is idempotent.
-    already = db.scalar(select(WorkspaceFramework).where(
-        WorkspaceFramework.workspace_id == ws.id, WorkspaceFramework.framework_id == fw.id))
-    if already is None:
-        if p.plan == "free" and not fw.key.startswith("fair"):
-            raise HTTPException(402, "Free includes FAIR only — upgrade to add more frameworks")
-        cap = quota_for(p.plan, "frameworks_allowed")
-        if not is_unlimited(cap) and limits_svc.frameworks_enabled_count(db, ws.id) >= cap:
-            raise HTTPException(402, f"framework limit reached ({cap}) on your plan")
     comp.enable_framework(db, ws, fw)
     comp.evaluate_framework(db, ws, fw)
     db.commit()
@@ -737,8 +638,8 @@ def web_enable(request: Request, framework_id: str = Form(...), db: Session = De
 @router.post("/app/compliance/evaluate")
 def web_evaluate(request: Request, db: Session = Depends(get_db),
                  p: Principal | None = Depends(current_principal)):
-    if p is None or not p.has("compliance_frameworks"):
-        raise HTTPException(402, "compliance requires Pro or above")
+    if p is None:
+        return RedirectResponse("/login", status_code=303)
     ws = db.get(Workspace, p.workspace_id)
     comp.evaluate_all(db, ws)
     db.commit()
@@ -788,16 +689,14 @@ def compliance_framework_detail(fw_id: str, request: Request, db: Session = Depe
 
     n_pass = sum(1 for v in control_views if v["status"] == "pass")
     return render(request, "compliance_framework.html", p, fw=fw, wf=wf,
-                  control_views=control_views, n_pass=n_pass, n_total=len(control_views),
-                  has_compliance=p.has("compliance_frameworks"),
-                  can_attest=p.has("attestation_signing"))
+                  control_views=control_views, n_pass=n_pass, n_total=len(control_views))
 
 
 @router.post("/app/compliance/evaluate/{fw_id}")
 def web_evaluate_one(fw_id: str, request: Request, db: Session = Depends(get_db),
                      p: Principal | None = Depends(current_principal)):
-    if p is None or not p.has("compliance_frameworks"):
-        raise HTTPException(402, "compliance requires Pro or above")
+    if p is None:
+        return RedirectResponse("/login", status_code=303)
     ws = db.get(Workspace, p.workspace_id)
     fw = db.get(ComplianceFramework, fw_id)
     if fw is None:
@@ -810,10 +709,12 @@ def web_evaluate_one(fw_id: str, request: Request, db: Session = Depends(get_db)
 @router.post("/app/compliance/attest")
 def web_attest(request: Request, framework_id: str = Form(...), db: Session = Depends(get_db),
                p: Principal | None = Depends(current_principal)):
-    if p is None or not p.has("attestation_signing"):
-        raise HTTPException(402, "attestation requires Pro or above")
+    if p is None:
+        return RedirectResponse("/login", status_code=303)
     ws = db.get(Workspace, p.workspace_id)
     fw = db.get(ComplianceFramework, framework_id)
+    if fw is None:
+        raise HTTPException(404, "framework not found")
     control_ids = [c.id for c in db.scalars(select(Control).where(Control.framework_id == fw.id))]
     items = db.scalars(select(EvidenceItem).where(EvidenceItem.workspace_id == ws.id,
                                                   EvidenceItem.control_id.in_(control_ids))).all()
@@ -851,24 +752,21 @@ def verify_attestation_page(att_id: str, request: Request, db: Session = Depends
 @router.get("/trust/{org_slug}", response_class=HTMLResponse)
 def trust_center(org_slug: str, request: Request, db: Session = Depends(get_db),
                  p: Principal | None = Depends(current_principal)):
-    from ..entitlements import effective_plan, has_feature
-
     org = db.scalar(select(Org).where(Org.slug == org_slug))
     if org is None:
         raise HTTPException(404)
-    active = has_feature(effective_plan(db, org), "trust_center")
     frameworks = []
     attestations = []
-    if active:
-        ws_ids = [w.id for w in db.scalars(select(Workspace).where(Workspace.org_id == org.id))]
-        if ws_ids:
-            for wf in db.scalars(select(WorkspaceFramework).where(WorkspaceFramework.workspace_id.in_(ws_ids))):
-                fw = db.get(ComplianceFramework, wf.framework_id)
-                frameworks.append({"name": fw.name if fw else "?", "status": wf.status})
-            attestations = db.scalars(select(Attestation).where(
-                Attestation.workspace_id.in_(ws_ids), Attestation.revoked.is_(False))).all()
+    # Every org has a Trust Center while Provenova is free.
+    ws_ids = [w.id for w in db.scalars(select(Workspace).where(Workspace.org_id == org.id))]
+    if ws_ids:
+        for wf in db.scalars(select(WorkspaceFramework).where(WorkspaceFramework.workspace_id.in_(ws_ids))):
+            fw = db.get(ComplianceFramework, wf.framework_id)
+            frameworks.append({"name": fw.name if fw else "?", "status": wf.status})
+        attestations = db.scalars(select(Attestation).where(
+            Attestation.workspace_id.in_(ws_ids), Attestation.revoked.is_(False))).all()
     return render(request, "trust.html", p, org=org, frameworks=frameworks, attestations=attestations,
-                  trust_center_active=active, canonical_path=f"/trust/{org_slug}")
+                  canonical_path=f"/trust/{org_slug}")
 
 
 # -- admin ------------------------------------------------------------------
@@ -879,18 +777,4 @@ def admin_page(request: Request, db: Session = Depends(get_db),
     if p is None or not p.is_superadmin:
         raise HTTPException(403, "superadmin only")
     orgs = db.scalars(select(Org)).all()
-    from ..entitlements import effective_plan
-
-    rows = [{"org": o, "effective": effective_plan(db, o)} for o in orgs]
-    return render(request, "admin.html", p, rows=rows)
-
-
-@router.post("/app/admin/upgrade")
-def web_upgrade(request: Request, org_id: str = Form(...), plan: str = Form(...),
-                db: Session = Depends(get_db), p: Principal | None = Depends(current_principal)):
-    if p is None or not p.is_superadmin:
-        raise HTTPException(403, "superadmin only")
-    org = db.get(Org, org_id)
-    acc_svc.grant_plan(db, org, plan, source="admin_override", granted_by=p.account_id)
-    db.commit()
-    return RedirectResponse("/app/admin", status_code=303)
+    return render(request, "admin.html", p, orgs=orgs)
