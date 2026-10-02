@@ -1,0 +1,22 @@
+# Litestream: replicate the SQLite database to Cloudflare R2.
+# Values come from the container's environment (set by the Worker from its
+# secrets/vars — see cloudflare/src/index.ts — and defaulted in entrypoint.sh).
+dbs:
+  - path: /data/provenova.db
+    replica:
+      type: s3
+      bucket: ${LITESTREAM_BUCKET}
+      path: ${LITESTREAM_PATH}
+      # R2 by default (entrypoint.sh derives it from CLOUDFLARE_ACCOUNT_ID);
+      # CI points these at MinIO.
+      endpoint: ${LITESTREAM_ENDPOINT}
+      region: ${LITESTREAM_REGION}
+      force-path-style: true
+      access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+      secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+      # Ship WAL changes to R2 every second; a container can be stopped at any
+      # time (sleep, deploy, host move), and SIGTERM triggers a final sync.
+      sync-interval: 1s
+    snapshot:
+      interval: 6h
+      retention: 168h

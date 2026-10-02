@@ -12,7 +12,6 @@ import datetime as _dt
 from sqlalchemy import (
     BigInteger,
     Boolean,
-    DateTime,
     ForeignKey,
     Integer,
     String,
@@ -20,7 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base, Timestamped, ULIDPk, new_ulid
+from .base import Base, Timestamped, ULIDPk, UTCDateTime, new_ulid
 
 # Plan tiers (ordered weakest -> strongest for "highest grant wins").
 PLAN_FREE = "free"
@@ -125,7 +124,7 @@ class Grant(ULIDPk, Timestamped, Base):
     plan: Mapped[str] = mapped_column(String(20))
     source: Mapped[str] = mapped_column(String(30), default="admin_override")
     granted_by: Mapped[str | None] = mapped_column(String(26))
-    expires_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     org: Mapped[Org] = relationship(back_populates="grants")

@@ -55,7 +55,7 @@ for reliable, machine-independent scheduling.
 
 ## One-time bootstrap
 
-The growth-scoped API key is minted by `scripts/bootstrap_growth.py` (run once against the
-prod DB over a `fly proxy` tunnel). It creates the `ql-research` bot org + workspace and
+The growth-scoped API key is minted by `scripts/bootstrap_growth.py` (run once inside the
+production container — see `deploy/HOSTING-cloudflare.md`, "Running scripts against production"). It creates the `ql-research` bot org + workspace and
 prints a `ql_live_…` key. Revoke it anytime by setting `revoked = true` on the
 `growth-routine` API key.

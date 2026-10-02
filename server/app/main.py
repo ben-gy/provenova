@@ -55,7 +55,7 @@ def create_app() -> FastAPI:
         return await call_next(request)
 
     # Security response headers. Applied app-wide here (not just in the reverse
-    # proxy) because production runs on Fly.io directly, bypassing Caddy.
+    # proxy) because production runs behind a Cloudflare Worker, not Caddy.
     _serve_https = settings.base_url.lower().startswith("https")
 
     @app.middleware("http")

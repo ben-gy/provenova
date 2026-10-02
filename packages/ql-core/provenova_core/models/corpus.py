@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from sqlalchemy import Boolean, DateTime, String, UniqueConstraint
+from sqlalchemy import Boolean, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base, Timestamped, ULIDPk
+from .base import Base, Timestamped, ULIDPk, UTCDateTime
 
 
 class CorpusSnapshot(ULIDPk, Timestamped, Base):
@@ -23,8 +23,8 @@ class CorpusSnapshot(ULIDPk, Timestamped, Base):
 
     provider: Mapped[str] = mapped_column(String(40), index=True)
     backend_id: Mapped[str] = mapped_column(String(120), index=True)
-    captured_at: Mapped[_dt.datetime] = mapped_column(DateTime(timezone=True), index=True)
-    vendor_updated_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    captured_at: Mapped[_dt.datetime] = mapped_column(UTCDateTime(), index=True)
+    vendor_updated_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
     content_hash: Mapped[str] = mapped_column(String(64), index=True)
     snapshot_json: Mapped[dict] = mapped_column()  # normalized CalibrationSnapshot
     derived_metrics: Mapped[dict | None] = mapped_column(default=None)

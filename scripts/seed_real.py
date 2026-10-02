@@ -11,7 +11,8 @@
 - Publishes a few Result Cards, records genuine reproductions, evaluates FAIR +
   IEEE P7131 against the real evidence, and issues a signed attestation.
 
-Run against a database via QL_DATABASE_URL (e.g. a `fly proxy` tunnel to prod):
+Run against a database via QL_DATABASE_URL (for production, run it inside the
+container: deploy/HOSTING-cloudflare.md, "Running scripts against production"):
     QL_DATABASE_URL=postgresql+psycopg://... PYTHONPATH=server python scripts/seed_real.py
 """
 

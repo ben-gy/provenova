@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base, Timestamped, ULIDPk
+from .base import Base, Timestamped, ULIDPk, UTCDateTime
 
 
 class SchemaVersion(ULIDPk, Timestamped, Base):
@@ -29,4 +29,4 @@ class CheckpointAnchor(ULIDPk, Timestamped, Base):
     workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id"), index=True)
     head_run_hash: Mapped[str] = mapped_column(String(64))
     run_count: Mapped[int] = mapped_column(Integer)
-    anchored_at: Mapped[_dt.datetime] = mapped_column(DateTime(timezone=True))
+    anchored_at: Mapped[_dt.datetime] = mapped_column(UTCDateTime())

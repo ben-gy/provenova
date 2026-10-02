@@ -4,7 +4,8 @@ Creates (idempotently) the research bot account/org/workspace and mints a
 ``growth``-scoped ``ql_live_*`` API key for the scheduled routine. The full
 key is printed ONCE — store it as the routine's secret immediately.
 
-Run against a database via QL_DATABASE_URL (e.g. a `fly proxy` tunnel to prod):
+Run against a database via QL_DATABASE_URL (for production, run it inside the
+container: deploy/HOSTING-cloudflare.md, "Running scripts against production"):
     QL_DATABASE_URL=postgresql+psycopg://... python scripts/bootstrap_growth.py
 
 Re-running mints an ADDITIONAL key (rotate by revoking the old one in the DB:

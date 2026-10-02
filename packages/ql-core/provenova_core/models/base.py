@@ -16,6 +16,7 @@ from typing import Any
 
 from sqlalchemy import JSON, DateTime, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
+from sqlalchemy.types import TypeDecorator
 from ulid import ULID
 
 
@@ -25,6 +26,32 @@ def new_ulid() -> str:
 
 def utcnow() -> _dt.datetime:
     return _dt.datetime.now(_dt.timezone.utc)
+
+
+class UTCDateTime(TypeDecorator):
+    """``DateTime(timezone=True)`` that round-trips as aware UTC on every backend.
+
+    PostgreSQL returns aware datetimes, but SQLite has no timezone storage and
+    hands back naive values — so ``isoformat()`` in exported provenance docs and
+    API payloads would lose its ``+00:00`` after a Postgres -> SQLite move. Values
+    are normalised to UTC on write and re-tagged as UTC on read; the DDL is
+    unchanged (same underlying column type).
+    """
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is not None and value.tzinfo is not None:
+            value = value.astimezone(_dt.timezone.utc)
+            if dialect.name == "sqlite":
+                value = value.replace(tzinfo=None)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None and value.tzinfo is None:
+            value = value.replace(tzinfo=_dt.timezone.utc)
+        return value
 
 
 class Base(DeclarativeBase):
@@ -53,7 +80,7 @@ class Timestamped:
     """Mixin: a UTC ``created_at`` stamped on insert."""
 
     created_at: Mapped[_dt.datetime] = mapped_column(
-        DateTime(timezone=True), default=utcnow, nullable=False
+        UTCDateTime(), default=utcnow, nullable=False
     )
 
 

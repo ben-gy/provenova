@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base, Timestamped, ULIDPk
+from .base import Base, Timestamped, ULIDPk, UTCDateTime
 
 
 class ComplianceFramework(ULIDPk, Timestamped, Base):
@@ -55,7 +55,7 @@ class WorkspaceFramework(ULIDPk, Timestamped, Base):
     workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id"), index=True)
     framework_id: Mapped[str] = mapped_column(ForeignKey("compliance_frameworks.id"), index=True)
     status: Mapped[str] = mapped_column(String(20), default="unknown")  # pass|gap|unknown
-    last_evaluated_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    last_evaluated_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
     status_detail: Mapped[dict | None] = mapped_column(default=None)
 
 
@@ -88,8 +88,8 @@ class Attestation(ULIDPk, Timestamped, Base):
     statement: Mapped[dict] = mapped_column()
     signature: Mapped[str] = mapped_column(String(255))
     kid: Mapped[str] = mapped_column(String(80))
-    point_in_time: Mapped[_dt.datetime] = mapped_column(DateTime(timezone=True))
-    expires_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    point_in_time: Mapped[_dt.datetime] = mapped_column(UTCDateTime())
+    expires_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
     revoked: Mapped[bool] = mapped_column(Boolean, default=False)
     attestation_sha256: Mapped[str | None] = mapped_column(String(64))
 

@@ -1,6 +1,6 @@
 .venv/
 .git/
-__pycache__/
+**/__pycache__/
 *.pyc
 *.egg-info/
 *.db
@@ -11,5 +11,8 @@ data/
 deploy/.env
 .pytest_cache/
 .claude/
-node_modules/
+**/node_modules/
+**/.wrangler/
+cloudflare/
+tests/
 *.log

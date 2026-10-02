@@ -15,7 +15,6 @@ import datetime as _dt
 
 from sqlalchemy import (
     Boolean,
-    DateTime,
     Float,
     ForeignKey,
     Integer,
@@ -24,7 +23,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base, Timestamped, ULIDPk
+from .base import Base, Timestamped, ULIDPk, UTCDateTime
 
 # Run lifecycle
 STATUS_PENDING = "pending"
@@ -65,7 +64,7 @@ class CalibrationSnapshot(ULIDPk, Timestamped, Base):
 
     backend_id: Mapped[str] = mapped_column(ForeignKey("backends.id"), index=True)
     content_sha256: Mapped[str] = mapped_column(String(64), index=True)
-    captured_at: Mapped[_dt.datetime] = mapped_column(DateTime(timezone=True), index=True)
+    captured_at: Mapped[_dt.datetime] = mapped_column(UTCDateTime(), index=True)
     payload: Mapped[dict] = mapped_column()
     source: Mapped[str] = mapped_column(String(20), default="simulated")
 
@@ -133,8 +132,8 @@ class Run(ULIDPk, Timestamped, Base):
 
     project: Mapped[str | None] = mapped_column(String(120), index=True)
     gaps: Mapped[list | None] = mapped_column(default=None)
-    started_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
-    finished_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    started_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
+    finished_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
 
     results: Mapped[list["Result"]] = relationship(
         back_populates="run", order_by="Result.result_index"

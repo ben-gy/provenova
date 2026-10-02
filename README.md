@@ -33,10 +33,12 @@ server/                FastAPI app: ingestion + read API, server-rendered web UI
                        Ed25519 attestations, accounts/entitlements/RBAC, admin.
 frameworks/            Compliance frameworks as data (FAIR, IEEE P7131, metrology, ...).
 fixtures/              Representative vendor calibration payloads (IBM/IonQ/Braket).
-deploy/                docker-compose (postgres + api + worker + Caddy) for self-host.
+deploy/                docker-compose (postgres + api + worker + Caddy) for self-host;
+                       deploy/cloudflare/ is the hosted provenova.net container.
+cloudflare/            The Worker + wrangler config that serve provenova.net (Cloudflare).
 examples/  scripts/    Runnable demos + the end-to-end seed.
 tests/                 pytest suites (attestation, crawler + corpus dedup, datasets, DOI
-                       minting, rule engine, growth, plan tiering, full end-to-end server flow).
+                       minting, rule engine, growth, entitlements, DB migration, full end-to-end server flow).
 ```
 
 ## Licensing
@@ -65,11 +67,10 @@ BUSL→Apache conversion and commercial licensing legally possible.
 
 1. **Vendor-neutral system of record** — one versioned, immutable, hash-chained record
    binding every run to the calibration state that produced it (`ql-core`).
-2. **Open-core + freemium** — the client, connectors, provenance schema and reproduce
-   engine are Apache-2.0; the hosted record is freemium (Free: 250 private records, fleet
-   comparison, unlimited public Result Cards & badges, a read-only FAIR checklist);
-   attestation issuance, continuous monitoring, deeper analytics and governance
-   (Trust Center, SSO, data residency, SLA) are paid.
+2. **Open-core, free hosted record** — the client, connectors, provenance schema and
+   reproduce engine are Apache-2.0, and the hosted record at provenova.net is free for now:
+   every feature (private records, fleet comparison, compliance frameworks, signed
+   attestations, the Trust Center) with no caps beyond a fair-use limit on permanent DOIs.
 3. **Trust artifacts as a growth engine** — public, citable Result Cards and embeddable
    shields.io-style badges (Recorded → Reproduced → Benchmarked → Compliant → Audit-ready).
 4. **"Vanta for quantum" compliance** — pick a standard; evidence is auto-collected from
@@ -121,6 +122,9 @@ cd deploy && docker compose up -d      # postgres + api + worker + Caddy
 
 Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment.
 
+provenova.net itself runs on Cloudflare (a Worker in front of a Container, with SQLite
+replicated to R2 by Litestream) — see [deploy/HOSTING-cloudflare.md](deploy/HOSTING-cloudflare.md).
+
 ## Design guarantees
 
 - **Immutable, hash-chained ledger.** `run_hash` is a portable Merkle content identity
@@ -141,7 +145,7 @@ Set `QL_DATABASE_URL` to a SQLite URL for a tiny single-node deployment.
 ```bash
 pip install pytest
 python -m pytest        # attestation, crawler + corpus dedup, datasets, DOI/PID minting,
-                        # rule engine, growth, plan tiering, sanitization, SEO pages,
+                        # rule engine, growth, entitlements, DB migration, sanitization, SEO pages,
                         # and the full end-to-end server flow
 ```
 

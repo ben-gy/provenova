@@ -17,14 +17,12 @@ routine can't publish anything dishonest or over-cap regardless of how it behave
 3. A **growth API key** — a `ql_live_…` string with the `growth` scope. Get one of two ways:
    - **Reuse the existing key.** On the *old* machine it's in the `Authorization: Bearer
      ql_live_…` line of `~/.claude/scheduled-tasks/provenova-research-cards/SKILL.md`. Copy it.
-   - **Mint a fresh one** (needs `fly` access to the prod DB). In two terminals:
+   - **Mint a fresh one** (needs Cloudflare access to the production container). With
+     container SSH enabled (see `deploy/HOSTING-cloudflare.md`, "Running scripts against
+     production"), from `cloudflare/`:
      ```bash
-     # terminal 1 — open a tunnel to the prod Postgres
-     fly proxy 15432:5432 -a quantumledger-db
-     # terminal 2 — bootstrap the bot + print a new key
-     cd <this-repo>
-     QL_DATABASE_URL='postgresql+psycopg://quantumledger_bengy:<pw>@localhost:15432/quantumledger_bengy?sslmode=disable' \
-       .venv/bin/python scripts/bootstrap_growth.py
+     npx wrangler containers instances provenova-provenovacontainer   # find the instance id
+     npx wrangler containers ssh <instance> -- python /app/scripts/bootstrap_growth.py
      ```
      It prints a new `ql_live_…` key (shown once). Old keys keep working; revoke any you
      don't want by setting `revoked = true` on that `growth-routine` API key.

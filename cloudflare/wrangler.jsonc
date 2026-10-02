@@ -1,0 +1,52 @@
+// Provenova on Cloudflare: Worker + one Container (FastAPI + Litestream -> R2).
+// Deployed by .github/workflows/deploy.yml on push to main (Docker builds the
+// image there). One-time setup and the Fly cutover: deploy/HOSTING-cloudflare.md.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "provenova",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // Served on workers.dev until the cutover adds the custom domains below
+  // (they can only be attached once Fly's DNS records for them are removed).
+  "workers_dev": true,
+  // "routes": [
+  //   { "pattern": "provenova.net", "custom_domain": true },
+  //   { "pattern": "www.provenova.net", "custom_domain": true }
+  //   // Legacy host (the app 301s it to provenova.net). Only if the ben.gy
+  //   // zone is in this same account, or the deploy fails:
+  //   // , { "pattern": "quantumledger.ben.gy", "custom_domain": true }
+  // ],
+
+  "containers": [
+    {
+      "class_name": "ProvenovaContainer",
+      "image": "../deploy/cloudflare/Dockerfile",
+      "image_build_context": "..",
+      // 1/2 vCPU, 4 GiB: Qiskit transpiles on ingest/reproduce.
+      "instance_type": "standard-1",
+      // SQLite + Litestream allow exactly one writer. Never raise this.
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "PROVENOVA", "class_name": "ProvenovaContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ProvenovaContainer"] }],
+
+  // Non-secret config. Secrets (QL_SECRET_KEY, QL_ATTESTATION_KEY_B64,
+  // LITESTREAM_ACCESS_KEY_ID, LITESTREAM_SECRET_ACCESS_KEY and the optional
+  // integration keys) are set with `wrangler secret put` — never here.
+  "vars": {
+    "QL_DEPLOYMENT": "hosted",
+    "QL_BASE_URL": "https://provenova.net",
+    "QL_PUBLIC_CARDS": "true",
+    "QL_ADMIN_EMAIL": "hi@ben.gy",
+    "CLOUDFLARE_ACCOUNT_ID": "5d3081ae87925c78c9c29e02c83a2735",
+    "LITESTREAM_BUCKET": "provenova-db",
+    // Bump the suffix to start a fresh replica (e.g. to redo the data import).
+    "LITESTREAM_PATH": "litestream/provenova-v1"
+  }
+}

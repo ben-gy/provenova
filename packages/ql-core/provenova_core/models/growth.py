@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import Base, Timestamped, ULIDPk
+from .base import Base, Timestamped, ULIDPk, UTCDateTime
 
 # Fixed relation vocabulary for paper attributions. The server renders the
 # honesty banner from this — the bot can never alter the framing.
@@ -41,7 +41,7 @@ class Report(ULIDPk, Timestamped, Base):
     body_html: Mapped[str | None] = mapped_column(Text, default=None)
     meta_description: Mapped[str] = mapped_column(String(200))
     published: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
-    published_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    published_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
     extra: Mapped[dict | None] = mapped_column(default=None)  # forward-compat
 
 

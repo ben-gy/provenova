@@ -1,0 +1,19 @@
+{
+  "name": "provenova-cloudflare",
+  "private": true,
+  "description": "Cloudflare Worker that fronts the Provenova container.",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "0.3.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261001.1",
+    "typescript": "5.9.3",
+    "wrangler": "4.145.0"
+  }
+}

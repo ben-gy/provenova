@@ -5,7 +5,8 @@ touches just ``corpus_snapshots`` — safe to run against production without
 disturbing the live ledger, result cards or attestations. ``corpus_snapshots``
 is not an immutable table, so a plain DELETE needs no trigger surgery.
 
-Run against a DB via QL_DATABASE_URL (e.g. a `fly proxy` tunnel to prod):
+Run against a database via QL_DATABASE_URL (for production, run it inside the
+container: deploy/HOSTING-cloudflare.md, "Running scripts against production"):
     QL_DATABASE_URL=postgresql+psycopg://... python scripts/refresh_corpus.py
 """
 

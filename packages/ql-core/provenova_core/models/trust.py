@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import datetime as _dt
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import Base, Timestamped, ULIDPk
+from .base import Base, Timestamped, ULIDPk, UTCDateTime
 
 VIS_PRIVATE = "private"
 VIS_ORG = "org"
@@ -39,7 +39,7 @@ class ResultCard(ULIDPk, Timestamped, Base):
     doi: Mapped[str | None] = mapped_column(String(120))
     pid: Mapped[str | None] = mapped_column(String(120))
     license: Mapped[str | None] = mapped_column(String(80), default="CC-BY-4.0")
-    published_at: Mapped[_dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    published_at: Mapped[_dt.datetime | None] = mapped_column(UTCDateTime())
 
     badges: Mapped[list["Badge"]] = relationship(back_populates="card")
 
