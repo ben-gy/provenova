@@ -5,6 +5,8 @@
 # entrypoint.sh). Built by `wrangler deploy` from cloudflare/wrangler.jsonc with
 # the repo root as build context. Cloudflare Containers run linux/amd64.
 FROM --platform=linux/amd64 python:3.12-slim
+LABEL org.opencontainers.image.source="https://github.com/ben-gy/provenova" \
+      org.opencontainers.image.title="provenova"
 
 ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 WORKDIR /app
