@@ -10,7 +10,7 @@
 } %}
 
 <div class="mb-6">
-  <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium">Trust Center</span>
+  <span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 text-xs font-medium">Trust Center</span>
   <h1 class="mt-3 text-2xl font-bold text-slate-900">{{ org.name }}</h1>
   <p class="text-sm text-slate-500 mono">{{ org.slug }}</p>
   <p class="mt-3 max-w-2xl text-sm text-slate-600">
@@ -35,7 +35,7 @@
         <td class="px-4 py-2 text-slate-800">{{ f.name }}</td>
         <td class="px-4 py-2">
           {% set sc = status_colors.get(f.status, 'bg-slate-100 text-slate-600 border-slate-200') %}
-          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium {{ sc }}">{{ f.status }}</span>
+          <span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium {{ sc }}">{{ f.status }}</span>
         </td>
       </tr>
       {% else %}

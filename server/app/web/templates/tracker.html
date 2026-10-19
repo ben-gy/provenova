@@ -18,6 +18,7 @@
 </script>
 <style>
   .chart { height: 380px; }
+  .chart-short { height: 280px; }
   @media (max-width: 640px) { .chart { height: 460px; } }
 </style>
 {% endblock %}
@@ -31,7 +32,19 @@
   'Resource estimate': 'bg-violet-50 text-violet-700 border-violet-200',
   'Programme announcement': 'bg-slate-100 text-slate-700 border-slate-200'
 } -%}
-<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium {{ styles.get(label, styles['Programme announcement']) }}">{{ label }}</span>
+<span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium {{ styles.get(label, styles['Programme announcement']) }}">{{ label }}</span>
+{%- endmacro %}
+
+{# A chart in a bordered panel with its source note as the panel's footer.
+   Plotly sizes to the inner div, so the padding never pushes the plot outside the border. #}
+{% macro chart_card(id, label, size="chart") %}
+<figure class="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+  <div class="px-2 pt-2"><div id="{{ id }}" class="{{ size }}"></div></div>
+  <figcaption class="flex flex-col gap-2 border-t border-slate-100 bg-slate-50/60 px-4 py-3 text-xs leading-relaxed text-slate-500 sm:flex-row sm:items-start sm:gap-3">
+    {{ evidence(label) }}
+    <div class="min-w-0 flex-1">{{ caller() }}</div>
+  </figcaption>
+</figure>
 {%- endmacro %}
 
 {% macro source_link(url, label="Source") %}
@@ -87,9 +100,10 @@
     result so far. Lower is better. Below the dashed line (roughly 1 failure in 100), error
     correction can start to win: extra qubits fix more errors than they add.
   </p>
-  <div id="chart-gate" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
-  <p class="mt-2 text-xs text-slate-500">{{ evidence('Published experiments') }} Best two-qubit (entangling) error per experiment.
-    Click a dot to open the paper. Lab records on two qubits are not the same as a whole machine running well; see the cloud fleet below.</p>
+  {% call chart_card('chart-gate', 'Published experiments') %}
+    Best two-qubit (entangling) error per experiment. Click a dot to open the paper. Lab records on two
+    qubits are not the same as a whole machine running well; see the cloud fleet below.
+  {% endcall %}
 </section>
 {% endif %}
 
@@ -103,9 +117,10 @@
     measures how many errors a code can catch: distance 7 can correct any 3. Bigger is better, but only
     once the hardware is below the threshold. Stars mark experiments reported as below threshold.
   </p>
-  <div id="chart-qec" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
-  <p class="mt-2 text-xs text-slate-500">{{ evidence('Published experiments') }} Largest code distance in each published error-correction experiment.
-    Repetition codes only guard against one kind of error, so their large distances are easier to reach than surface or colour codes.</p>
+  {% call chart_card('chart-qec', 'Published experiments') %}
+    Largest code distance in each published error-correction experiment. Repetition codes only guard
+    against one kind of error, so their large distances are easier to reach than surface or colour codes.
+  {% endcall %}
 </section>
 {% endif %}
 
@@ -118,8 +133,9 @@
     qubits can do less than a hundred good ones. Read this chart together with the error charts.
     The biggest neutral-atom figures are atoms trapped in one array, not all yet usable in a single computation.
   </p>
-  <div id="chart-qubits" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
-  <p class="mt-2 text-xs text-slate-500">{{ evidence('Published experiments') }} Qubits controlled in one device, per published experiment (log scale).</p>
+  {% call chart_card('chart-qubits', 'Published experiments') %}
+    Qubits controlled in one device, per published experiment (log scale). Click a dot to open the paper.
+  {% endcall %}
 </section>
 {% endif %}
 
@@ -134,9 +150,11 @@
     {{ m.fleet.n_devices }} devices, {{ (m.fleet.first or '')[:4] }}–{{ (m.fleet.last or '')[:4] }}.
     Each dot is one device on one day; the line is the typical (median) device each year.
   </p>
-  <div id="chart-ibm" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
-  <p class="mt-2 text-xs text-slate-500">{{ evidence('Device calibration') }} Median two-qubit gate error across each chip, from IBM calibration files published in Qiskit (Apache-2.0).
-    Click a dot to open that device's page. We'll add other vendors as soon as their calibration data is openly licensed.</p>
+  {% call chart_card('chart-ibm', 'Device calibration') %}
+    Median two-qubit gate error across each chip, from IBM calibration files published in Qiskit
+    (Apache-2.0). Click a dot to open that device's page. We'll add other vendors as soon as their
+    calibration data is openly licensed.
+  {% endcall %}
 </section>
 {% endif %}
 
@@ -151,50 +169,53 @@
     assume machines far larger and cleaner than any that exist: every qubit failing at most
     {{ one_in(gap.estimates[-1].assumed_gate_error) }} operations. Compare that with the cloud fleet above.
   </p>
-  <div id="chart-gap" class="mt-4 rounded-xl border border-slate-200 bg-white p-2" style="height:300px"></div>
-  <ul class="mt-3 space-y-1 text-xs text-slate-500">
-    {% for e in gap.estimates %}
-    <li>{{ evidence('Resource estimate') }} {{ e.year }}: {{ e.bound }} {{ "{:,}".format(e.physical_qubits) }} qubits, {{ e.runtime }} —
-      <a href="{{ e.url }}" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">{{ e.authors }}, “{{ e.title }}”</a></li>
-    {% endfor %}
-  </ul>
+  {% call chart_card('chart-gap', 'Resource estimate', 'chart-short') %}
+    <div class="grid gap-3 sm:grid-cols-2">
+      {% for e in gap.estimates | reverse %}
+      <div>
+        <div class="font-semibold text-slate-700">{{ e.year }} estimate: {{ e.bound }} {{ "{:,}".format(e.physical_qubits) }} qubits, {{ e.runtime }}</div>
+        <a href="{{ e.url }}" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">{{ e.authors }}, “{{ e.title }}” →</a>
+      </div>
+      {% endfor %}
+    </div>
+  {% endcall %}
 </section>
 {% endif %}
 
 <!-- 6. Independent testing -->
 <section class="mt-14 grid gap-4 lg:grid-cols-3" id="independent">
   {% if ctx.darpa_qbi %}{% set q = ctx.darpa_qbi %}
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
-    <div class="flex items-center justify-between gap-2"><h3 class="font-semibold text-slate-900">Who is being tested by government?</h3>{{ evidence('Programme announcement') }}</div>
+  <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold text-slate-900">Who is being tested by government?</h3>
     <p class="mt-2 text-sm leading-relaxed text-slate-600">
       DARPA's Quantum Benchmarking Initiative aims to {{ q.goal }}. In {{ month_year(q.as_of) }} it moved
       <b class="font-semibold text-slate-800">{{ q.stage_c | join(', ') }}</b> to Stage C, hands-on
       testing of their hardware, joining {{ q.earlier_final_phase | join(' and ') }}, which reached the
       equivalent stage earlier. {{ q.stage_b.count }} companies had entered Stage B in {{ month_year(q.stage_b.date) }}.
     </p>
-    <div class="mt-3 flex flex-wrap gap-x-3 text-sm">{% for s in q.sources %}{{ source_link(s.url, s.label) }}{% endfor %}</div>
+    <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 pt-3 text-sm">{% for s in q.sources %}{{ source_link(s.url, s.label) }}{% endfor %}{{ evidence('Programme announcement') }}</div>
   </div>
   {% endif %}
   {% if ctx.advantage_tracker %}{% set a = ctx.advantage_tracker %}
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
+  <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
     <h3 class="font-semibold text-slate-900">Has quantum beaten classical computers yet?</h3>
     <p class="mt-2 text-sm leading-relaxed text-slate-600">
       Claims of "quantum advantage" are often answered within months by a cleverer classical method.
       The community-run Quantum Advantage Tracker, started by {{ a.by }}, logs each claim and whether a
       classical method has since matched it. It's the right place to check a headline.
     </p>
-    <div class="mt-3 text-sm">{{ source_link(a.url, "Open the Quantum Advantage Tracker") }}</div>
+    <div class="mt-auto pt-3 text-sm">{{ source_link(a.url, "Open the Quantum Advantage Tracker") }}</div>
   </div>
   {% endif %}
   {% if ctx.metriq %}
-  <div class="rounded-xl border border-slate-200 bg-white p-5">
-    <div class="flex items-center justify-between gap-2"><h3 class="font-semibold text-slate-900">How do today's cloud machines compare?</h3>{{ evidence('Independent benchmark') }}</div>
+  <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold text-slate-900">How do today's cloud machines compare?</h3>
     <p class="mt-2 text-sm leading-relaxed text-slate-600">
       Vendors measure their machines in their own ways. Metriq, run by the {{ ctx.metriq.by }}, runs the
       same open benchmarks across vendors. Provenova keeps every dated Metriq result alongside each
       device's calibration history, so you can see how a machine changes over time.
     </p>
-    <div class="mt-3 flex flex-wrap gap-x-3 text-sm">{{ source_link('/leaderboard', 'Compare devices') }}{{ source_link(ctx.metriq.url, 'metriq.info') }}</div>
+    <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 pt-3 text-sm">{{ source_link('/leaderboard', 'Compare devices') }}{{ source_link(ctx.metriq.url, 'metriq.info') }}{{ evidence('Independent benchmark') }}</div>
   </div>
   {% endif %}
 </section>

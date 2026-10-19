@@ -25,7 +25,7 @@
 {% from "_brand.html" import mark %}
 <article class="max-w-3xl mx-auto">
   <div class="flex items-center gap-2 text-xs text-slate-500">
-    <span class="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 font-medium">Result card</span>
+    <span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 font-medium">Result card</span>
     {% if card.published_at %}<span>Published {{ card.published_at.strftime('%Y-%m-%d') }}</span>{% endif %}
   </div>
   <h1 class="mt-3 text-3xl font-bold text-slate-900">{{ card.title }}</h1>

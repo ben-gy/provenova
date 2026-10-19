@@ -40,7 +40,7 @@
   <h1 class="text-3xl font-bold text-slate-900">{{ pname }} <span class="mono">{{ d.backend_id }}</span></h1>
   {% set srcs = (d.metric_sources.values() | unique | sort | list) if d.metric_sources else [d.source] %}
   {% for src in srcs %}{{ source_badge(src, d.license_ref if src == d.source else '') }}{% endfor %}
-  {% if stale %}<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-500">last capture {{ (d.captured_at or '')[:10] }}</span>{% endif %}
+  {% if stale %}<span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-500">last capture {{ (d.captured_at or '')[:10] }}</span>{% endif %}
 </div>
 <!-- Plain-language summary -->
 <div class="mt-4 max-w-3xl space-y-2 text-base leading-relaxed text-slate-700">

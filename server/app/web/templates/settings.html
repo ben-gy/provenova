@@ -67,9 +67,9 @@
     <div class="flex items-center justify-between">
       <h2 class="text-lg font-semibold text-slate-900">Two-factor authentication (TOTP)</h2>
       {% if mfa_on %}
-      <span class="inline-flex items-center rounded-full bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-xs font-medium">Enabled</span>
+      <span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-xs font-medium">Enabled</span>
       {% else %}
-      <span class="inline-flex items-center rounded-full bg-slate-100 text-slate-500 px-2.5 py-0.5 text-xs font-medium">Disabled</span>
+      <span class="inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-slate-100 text-slate-500 px-2.5 py-0.5 text-xs font-medium">Disabled</span>
       {% endif %}
     </div>
     {% if mfa_on %}
