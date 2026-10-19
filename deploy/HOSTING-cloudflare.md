@@ -12,8 +12,8 @@ browser / SDK ──► Worker "provenova" ──► Container (one instance)
 - **Worker** (`cloudflare/src/index.ts`): forwards every request to a single named
   container, passes the real client IP, and caches public badges and `/static` at the edge
   so README badge traffic doesn't wake the container.
-- **Container**: the unchanged FastAPI app (`standard-1`: 1/2 vCPU, 4 GiB). It sleeps after
-  20 idle minutes. A cold start takes roughly 10–30 s: it restores the database, imports Qiskit,
+- **Container**: the unchanged FastAPI app (`basic`: 1/4 vCPU, 1 GiB). It sleeps after
+  5 idle minutes. A cold start takes roughly 10–30 s: it restores the database, imports Qiskit,
   then boots.
 - **Database**: SQLite at `/data/provenova.db`. The container disk is ephemeral, so
   [Litestream](https://litestream.io) ships every write to R2 within about 1 s and restores on

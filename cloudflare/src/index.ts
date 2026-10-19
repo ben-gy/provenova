@@ -58,8 +58,8 @@ function containerEnv(): Record<string, string> {
 
 export class ProvenovaContainer extends Container<Env> {
   override defaultPort = APP_PORT;
-  // Stay warm for a while after the last request; Litestream syncs on SIGTERM.
-  override sleepAfter = "20m";
+  // Sleep soon after the last request (billing stops); Litestream syncs on SIGTERM.
+  override sleepAfter = "5m";
   // Outbound access for Zenodo/DataCite, IndexNow, GitHub (Metriq) and SMTP.
   override enableInternet = true;
   override envVars = containerEnv();

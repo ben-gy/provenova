@@ -22,8 +22,8 @@
       "class_name": "ProvenovaContainer",
       "image": "../deploy/cloudflare/Dockerfile",
       "image_build_context": "..",
-      // 1/2 vCPU, 4 GiB: Qiskit transpiles on ingest/reproduce.
-      "instance_type": "standard-1",
+      // 1/4 vCPU, 1 GiB, 4 GB disk: peak use is ~300 MiB and the image ~1.5 GB.
+      "instance_type": "basic",
       // SQLite + Litestream allow exactly one writer. Never raise this.
       "max_instances": 1
     }
