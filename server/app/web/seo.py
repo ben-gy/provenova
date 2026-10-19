@@ -94,8 +94,13 @@ def _build_sitemap(db: Session) -> str:
                 f"{base}/hardware/{d['provider'].lower()}/{d['backend_id'].lower()}",
                 (d["captured_at"] or "")[:10] or None,
             ))
+        from .hardware import _is_stale
+
         for pair in comparable_pairs(db):
             a, b = pair["a"], pair["b"]
+            # A compare page with stale data renders noindex, so don't list it.
+            if _is_stale(a["captured_at"]) or _is_stale(b["captured_at"]):
+                continue
             urls.append((
                 f"{base}/hardware/{a['provider'].lower()}/{a['backend_id'].lower()}"
                 f"/vs/{b['provider'].lower()}/{b['backend_id'].lower()}",
