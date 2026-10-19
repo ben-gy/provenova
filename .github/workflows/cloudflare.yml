@@ -4,7 +4,7 @@ name: cloudflare
 #
 #   test   — the pytest suite.
 #   image  — builds the production container image and proves the SQLite ->
-#            Litestream -> object-storage round trip (MinIO standing in for R2):
+#            Litestream -> object-storage round trip (s3mock standing in for R2):
 #            write, stop the container, start a fresh one, read it back.
 #   deploy — main only, after both pass: `wrangler deploy` (builds + pushes the
 #            image to Cloudflare's registry and rolls the container).
@@ -57,14 +57,14 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
       - name: Build image
         run: docker build -f deploy/cloudflare/Dockerfile -t provenova:ci .
-      - name: Start MinIO (R2 stand-in)
+      - name: Start S3 mock (R2 stand-in)
         run: |
-          docker run -d --name minio --network host \
-            -e MINIO_ROOT_USER=ci-access -e MINIO_ROOT_PASSWORD=ci-secret-key \
-            minio/minio:RELEASE.2025-10-15T17-29-55Z server /data
-          for i in $(seq 30); do curl -fs http://127.0.0.1:9000/minio/health/ready && break; sleep 1; done
-          docker run --rm --network host --entrypoint sh minio/mc:RELEASE.2025-08-13T08-35-41Z -c \
-            "mc alias set ci http://127.0.0.1:9000 ci-access ci-secret-key && mc mb ci/provenova-db"
+          # MinIO no longer publishes images; s3mock creates the bucket itself
+          # and ignores credentials.
+          docker run -d --name s3 --network host \
+            -e COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS=provenova-db \
+            adobe/s3mock@sha256:ab01a6946750f451ca215a47e91030695b260e4003b8a5a6201d25029b8fca92
+          for i in $(seq 60); do curl -fs http://127.0.0.1:9090/ >/dev/null && break; sleep 1; done
       - name: Persistence round trip
         run: |
           set -eu
@@ -73,7 +73,7 @@ jobs:
               -e QL_SECRET_KEY="$(openssl rand -hex 32)" -e QL_BASE_URL=http://127.0.0.1:8000 \
               -e CLOUDFLARE_ACCOUNT_ID=ci -e LITESTREAM_BUCKET=provenova-db -e LITESTREAM_PATH=ci \
               -e LITESTREAM_ACCESS_KEY_ID=ci-access -e LITESTREAM_SECRET_ACCESS_KEY=ci-secret-key \
-              -e LITESTREAM_ENDPOINT=http://127.0.0.1:9000 -e LITESTREAM_REGION=us-east-1 \
+              -e LITESTREAM_ENDPOINT=http://127.0.0.1:9090 -e LITESTREAM_REGION=us-east-1 \
               provenova:ci
             for i in $(seq 90); do
               curl -fs http://127.0.0.1:8000/api/v1/health >/dev/null && return 0
@@ -89,11 +89,11 @@ jobs:
           echo
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/pricing)" = 301
           sleep 3                      # > Litestream sync-interval
-          docker stop -t 30 app        # SIGTERM -> final sync to MinIO
+          docker stop -t 30 app        # SIGTERM -> final sync to the S3 mock
           docker logs app 2>&1 | tail -20
           docker rm app
 
-          start                        # fresh disk: must restore from MinIO
+          start                        # fresh disk: must restore from the S3 mock
           docker logs app 2>&1 | grep -i restor || true
           curl -fsS -X POST -H 'Content-Type: application/json' -d "$creds" \
             http://127.0.0.1:8000/api/v1/auth/login

@@ -22,7 +22,7 @@ browser / SDK ──► Worker "provenova" ──► Container (one instance)
   **Exactly one writer:** `max_instances` must stay `1`.
 - **Deploys**: `.github/workflows/cloudflare.yml` runs on every push to `main`:
   1. pytest;
-  2. an image build plus a persistence round trip against MinIO;
+  2. an image build plus a persistence round trip against an S3 mock;
   3. `wrangler deploy`.
 
 Pull requests run steps 1 and 2.

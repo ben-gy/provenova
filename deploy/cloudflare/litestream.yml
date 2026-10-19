@@ -8,7 +8,7 @@ dbs:
       bucket: ${LITESTREAM_BUCKET}
       path: ${LITESTREAM_PATH}
       # R2 by default (entrypoint.sh derives it from CLOUDFLARE_ACCOUNT_ID);
-      # CI points these at MinIO.
+      # CI points these at an S3 mock.
       endpoint: ${LITESTREAM_ENDPOINT}
       region: ${LITESTREAM_REGION}
       force-path-style: true
