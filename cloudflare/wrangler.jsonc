@@ -14,9 +14,7 @@
   "workers_dev": true,
   // "routes": [
   //   { "pattern": "provenova.net", "custom_domain": true },
-  //   { "pattern": "www.provenova.net", "custom_domain": true },
-  //   // Legacy host; the app 301s it to provenova.net.
-  //   { "pattern": "quantumledger.ben.gy", "custom_domain": true }
+  //   { "pattern": "www.provenova.net", "custom_domain": true }
   // ],
 
   "containers": [

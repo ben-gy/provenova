@@ -239,8 +239,7 @@ cmd_cutover() {
   cat <<'EOF'
 
 In the Cloudflare dashboard, open the provenova.net zone -> DNS and DELETE the
-records that point at Fly (the A/AAAA or CNAME for provenova.net and www, and
-quantumledger.ben.gy in the ben.gy zone if you want the legacy redirect kept).
+records that point at Fly (the A/AAAA or CNAME for provenova.net and www).
 Wrangler cannot attach the domains while those records exist.
 EOF
   confirm "Records deleted?" || die "aborted"
