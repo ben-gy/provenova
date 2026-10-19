@@ -102,7 +102,7 @@
     This unlocks the <b>Benchmarked</b> rung of the badge ladder.
   </p>
   {% else %}
-  <p class="mt-2 max-w-2xl text-sm text-slate-600">Score this result against the noiseless ideal and the public fleet to earn the <b>Benchmarked</b> badge — included free.</p>
+  <p class="mt-2 max-w-2xl text-sm text-slate-600">Score this result against the noiseless ideal and the public fleet to earn the <b>Benchmarked</b> badge.</p>
   <form method="post" action="/app/records/{{ run.id }}/benchmark" class="mt-3">
     <button type="submit" class="inline-flex h-10 items-center rounded-md bg-indigo-600 px-4 text-sm font-medium text-white hover:bg-indigo-700">Benchmark vs fleet</button>
   </form>
@@ -207,7 +207,7 @@
     </form>
     {% endif %}
   </div>
-  {% if not card.doi and settings.zenodo_token %}<p class="mt-2 text-xs text-slate-400">Free — archives the provenance record on Zenodo and mints a permanent DOI. The card is already citable via its PID.</p>{% endif %}
+  {% if not card.doi and settings.zenodo_token %}<p class="mt-2 text-xs text-slate-400">Archives the provenance record on Zenodo and mints a permanent DOI. The card is already citable via its PID.</p>{% endif %}
   {% else %}
   <p class="mt-2 text-sm text-slate-600">Publish a public, citable <a href="/docs/result-cards-and-badges" class="text-indigo-600 hover:underline">result card</a> with provenance and embeddable badges.</p>
   <form method="post" action="/app/records/{{ run.id }}/publish" class="mt-3">

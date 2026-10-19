@@ -5,6 +5,11 @@ Real, openly-licensed data behind Provenova's public pages (`/tracker`, `/hardwa
 directory on every startup (`server/app/services/corpus_sync.py`), so publishing a data
 change is: run the build script, review the diff, commit, deploy.
 
+Between deploys, scheduled collectors (`server/app/services/collectors.py`, run daily by the
+Cloudflare Worker cron) add new Metriq runs, new IBM calibration files and new versions of
+the experiments dataset straight to the database. This directory is the reviewed snapshot;
+re-run the scripts below now and then to bring it level with what the collectors found.
+
 | Directory | Source | Licence | Built by |
 |---|---|---|---|
 | `ibm/` | IBM Quantum calibration history from Qiskit's fake backends (git history, 2019 →) | Apache-2.0 | `scripts/build_ibm_history.py` |

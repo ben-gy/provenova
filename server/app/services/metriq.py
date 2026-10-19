@@ -28,7 +28,7 @@ import httpx
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
-from .corpus_sync import insert_snapshot, series_rows  # noqa: F401  (insert_snapshot re-exported)
+from .corpus_sync import add_rows, insert_snapshot, series_rows  # noqa: F401  (insert_snapshot re-exported)
 
 RAW_BASE = "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main"
 TREE_API = "https://api.github.com/repos/unitaryfoundation/metriq-data/git/trees/main?recursive=1"
@@ -166,14 +166,11 @@ def build_series(paths: list[str], fetch_json: Callable[[str], object],
     return out, complete
 
 
-def insert_series(session: Session, series: dict) -> tuple[int, int]:
-    inserted = deduped = 0
-    for row in series_rows(series):
-        if insert_snapshot(session, **row):
-            inserted += 1
-        else:
-            deduped += 1
-    return inserted, deduped
+def insert_series(session: Session, series: dict, origin: str = "collector:metriq") -> tuple[int, int]:
+    """Add one device's series; same-day collector rows it supersedes are replaced."""
+    rows = series_rows(series, origin)
+    inserted = add_rows(session, rows, replace_same_day=True)
+    return inserted, len(rows) - inserted
 
 
 def insert_corpus_record(session: Session, rec: dict) -> bool:

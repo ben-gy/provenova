@@ -51,10 +51,18 @@ every snapshot.
 
 ## How data reaches the site
 
-On startup the server reconciles the corpus with `datasets/` (`app.services.corpus_sync`): new snapshots
-are inserted, and rows from a bundled source that no longer appear in the bundle (a corrected date, a
-renamed device) are removed. So publishing a data change is just: run the build script, review the diff,
-commit, deploy. Rows from any other source are left alone.
+Two paths, both automatic:
+
+- **Daily collectors.** Once a day the platform checks its upstreams and stores anything new, with
+  no redeploy: every new Metriq run (daily), new IBM calibration files in Qiskit (weekly, downloading
+  only files that changed) and new versions of the experiments dataset (weekly, published only if
+  the licence is still MIT and the columns still match). Each collector's last run is recorded and
+  shown on `/tracker` as "sources checked".
+- **The committed bundle.** On startup the server reconciles the corpus with `datasets/`
+  (`app.services.corpus_sync`): missing snapshots are inserted, and bundle rows that no longer
+  appear in the bundle (a corrected date, a renamed device) are removed. Rows the collectors added
+  are never removed, and both paths compute the same content hash, so they never duplicate.
+  Refreshing the committed copy is: run the build script, review the diff, commit, deploy.
 
 Device pages merge snapshots: each metric shows its **latest measurement and that measurement's date**,
 since a benchmark run measures one thing at a time.

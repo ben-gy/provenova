@@ -9,6 +9,9 @@
  *   README badge traffic doesn't keep waking the container.
  * - The real client IP is forwarded as X-Forwarded-For for the app's rate
  *   limiter (uvicorn runs with --proxy-headers).
+ * - A daily cron (wrangler.jsonc "triggers") wakes the container to run the
+ *   data collectors (POST /internal/collect, authorised by QL_COLLECT_TOKEN),
+ *   so new benchmark and calibration data lands without a redeploy.
  */
 import { Container, getContainer } from "@cloudflare/containers";
 import { env as workerEnv } from "cloudflare:workers";
@@ -42,6 +45,7 @@ const PASSTHROUGH = [
   "QL_SMTP_PASSWORD",
   "QL_INDEXNOW_KEY",
   "QL_GITHUB_TOKEN",
+  "QL_COLLECT_TOKEN",
   "LITESTREAM_ACCESS_KEY_ID",
   "LITESTREAM_SECRET_ACCESS_KEY",
 ] as const;
@@ -118,7 +122,28 @@ async function toContainer(request: Request, env: Env): Promise<Response> {
   return getContainer(env.PROVENOVA, "primary").fetch(request);
 }
 
+// Runs the due data collectors inside the container. Collectors decide for
+// themselves what is due (Metriq daily, IBM and the experiments dataset weekly).
+async function runCollectors(env: Env): Promise<void> {
+  if (!env.QL_COLLECT_TOKEN) {
+    console.error("collect: QL_COLLECT_TOKEN is not set; skipping");
+    return;
+  }
+  const request = new Request(`${env.QL_BASE_URL}/internal/collect`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.QL_COLLECT_TOKEN}` },
+  });
+  const response = await toContainer(request, env);
+  const body = await response.text();
+  if (response.ok) console.log("collect ok", body);
+  else console.error("collect failed", response.status, body.slice(0, 2000));
+}
+
 export default {
+  async scheduled(_controller, env, ctx): Promise<void> {
+    ctx.waitUntil(runCollectors(env));
+  },
+
   async fetch(request, env, ctx): Promise<Response> {
     const url = new URL(request.url);
 

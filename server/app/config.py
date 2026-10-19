@@ -74,6 +74,9 @@ class Settings(BaseSettings):
     # datasets/ directory (see app.services.corpus_sync). "" -> <repo>/datasets.
     datasets_dir: str = ""
     corpus_autosync: bool = True
+    # Bearer token for POST /internal/collect (the daily data collectors). Unset
+    # disables the endpoint. On Cloudflare the Worker cron sends it.
+    collect_token: str = ""
 
     @property
     def is_sqlite(self) -> bool:

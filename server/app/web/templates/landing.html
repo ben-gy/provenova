@@ -75,7 +75,7 @@
     The tracker can only be as good as the evidence behind it. Provenova's open-source SDK binds every
     run to the exact calibration and hardware state that produced it, so a result is
     <b class="font-semibold text-slate-800">reproducible, comparable, citable and auditable</b> across
-    IBM, IonQ, Braket, Azure and simulators. Free, and it works offline.
+    IBM, IonQ, Braket, Azure and simulators. There are no paid plans, and it works offline.
   </p>
   <div class="mt-5 flex flex-wrap items-center gap-3">
     <a href="/docs/getting-started" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Read the quickstart</a>
@@ -91,7 +91,7 @@
     {% set steps = [
       ('1', 'Capture', 'Wrap your job with @ql.capture. The circuit, backend, calibration and result are recorded locally — offline, no account.'),
       ('2', 'Reproduce', 'Re-run against a drifted device state and score how much changed, with a Hellinger fidelity and a plain-language verdict.'),
-      ('3', 'Publish', 'Turn any run into a public, citable Result Card with a permanent persistent identifier — plus an optional, free DOI via Zenodo — provenance hash and embeddable badges.'),
+      ('3', 'Publish', 'Turn any run into a public, citable Result Card with a permanent persistent identifier — plus an optional DOI via Zenodo — provenance hash and embeddable badges.'),
       ('4', 'Attest', 'Map runs to standards like FAIR or IEEE P7131 and issue signed, publicly-verifiable attestations.')
     ] %}
     {% for n, title, body in steps %}
@@ -111,7 +111,7 @@
     {% set pillars = [
       ('document-check', 'Immutable provenance', 'A Merkle run-hash binds circuit, backend, calibration and result into a tamper-evident, hash-chained ledger.', '/docs/core-concepts'),
       ('arrow-path', 'Reproduce & drift', 'Deterministic drift profiles + Hellinger / TVD scoring show exactly why a result changed.', '/docs/reproduce-and-drift'),
-      ('document-text', 'Citable result cards', 'Public cards with a free persistent identifier — plus an optional, free DOI via Zenodo — citations (BibTeX/RIS) and shields.io-style badges.', '/docs/result-cards-and-badges'),
+      ('document-text', 'Citable result cards', 'Public cards with a persistent identifier — plus an optional DOI via Zenodo — citations (BibTeX/RIS) and shields.io-style badges.', '/docs/result-cards-and-badges'),
       ('shield-check', 'Compliance & attestations', 'Evidence auto-collected from your runs; issue Ed25519-signed, revocable attestations.', '/docs/compliance'),
       ('chart-bar', 'Cross-vendor corpus', 'A dated, public calibration and benchmark history behind the tracker and leaderboard.', '/tracker'),
       ('cpu-chip', 'Vendor-neutral SDK', 'One @ql.capture decorator; pluggable connectors for IBM, IonQ, Braket, Azure & simulators.', '/docs/capturing-runs')
@@ -132,8 +132,8 @@
   <h2 class="text-2xl font-bold tracking-tight text-slate-900">Built for how you work</h2>
   <div class="mt-6 grid gap-4 lg:grid-cols-3">
     {% set personas = [
-      ('Researchers', 'Make results reproducible and citable. Publish a Result Card with a citable identifier and prove it hasn\'t changed.', 'Start free', '/register'),
-      ('Labs & teams', 'Compliance frameworks, signed attestations and a public Trust Center to share your posture — all included, free.', 'Start free', '/register'),
+      ('Researchers', 'Make results reproducible and citable. Publish a Result Card with a citable identifier and prove it hasn\'t changed.', 'Create an account', '/register'),
+      ('Labs & teams', 'Compliance frameworks, signed attestations and a public Trust Center to share your posture, all included.', 'Create an account', '/register'),
       ('Self-hosters', 'Run the whole server on your own infrastructure, production included, under its source-available license.', 'Self-hosting guide', '/docs/deployment')
     ] %}
     {% for who, body, cta, href in personas %}
@@ -177,9 +177,9 @@ def run():
 <!-- Final CTA -->
 <section class="mt-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-8 text-center sm:p-12">
   <h2 class="text-2xl font-bold tracking-tight text-white sm:text-3xl">Make your next quantum result reproducible.</h2>
-  <p class="mx-auto mt-2 max-w-xl text-indigo-100">Start free — no account needed to try it locally.</p>
+  <p class="mx-auto mt-2 max-w-xl text-indigo-100">No account needed to try it locally.</p>
   <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-    <a href="/register" class="rounded-md bg-white px-5 py-2.5 font-semibold text-indigo-700 hover:bg-indigo-50">Get started free</a>
+    <a href="/register" class="rounded-md bg-white px-5 py-2.5 font-semibold text-indigo-700 hover:bg-indigo-50">Create an account</a>
     <a href="/docs/getting-started" class="px-3 py-2.5 font-medium text-indigo-100 hover:text-white">Quickstart →</a>
   </div>
 </section>

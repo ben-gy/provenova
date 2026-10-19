@@ -67,8 +67,8 @@ BUSL→Apache conversion and commercial licensing legally possible.
 
 1. **Vendor-neutral system of record** — one versioned, immutable, hash-chained record
    binding every run to the calibration state that produced it (`ql-core`).
-2. **Open-core, free hosted record** — the client, connectors, provenance schema and
-   reproduce engine are Apache-2.0, and the hosted record at provenova.net is free for now:
+2. **Open-core hosted record, no paid plans** — the client, connectors, provenance schema and
+   reproduce engine are Apache-2.0, and the hosted record at provenova.net has no paid plans:
    every feature (private records, fleet comparison, compliance frameworks, signed
    attestations, the Trust Center) with no caps beyond a fair-use limit on permanent DOIs.
 3. **Trust artifacts as a growth engine** — public, citable Result Cards and embeddable

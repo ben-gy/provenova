@@ -13,6 +13,7 @@ interface Env {
   QL_ATTESTATION_KEY_B64: string;
   LITESTREAM_ACCESS_KEY_ID: string;
   LITESTREAM_SECRET_ACCESS_KEY: string;
+  QL_COLLECT_TOKEN?: string;
 }
 
 declare namespace Cloudflare {

@@ -177,7 +177,7 @@ def app_start_key(request: Request, db: Session = Depends(get_db),
     return RedirectResponse("/app/start", status_code=303)
 
 
-# Provenova is free for now: the old pricing and plan pages permanently redirect
+# Provenova has no paid plans: the old pricing and plan pages permanently redirect
 # so indexed and bookmarked links keep resolving.
 @router.get("/pricing", include_in_schema=False)
 def pricing():

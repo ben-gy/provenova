@@ -109,8 +109,8 @@
   <div class="mt-6 rounded-lg border border-slate-200 bg-white p-4">
     <div class="text-sm font-semibold text-slate-900">Cite this</div>
     {% if _doi_flash == 'minted' %}<div class="mt-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800">DOI minted and the provenance record archived on Zenodo.</div>
-    {% elif _doi_flash == 'quota_exceeded' %}<div class="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">This workspace has reached its fair-use limit for DOIs this month (DOIs are permanent, so they're rate-limited). The card keeps its free PID; try again next month or <a href="mailto:hi@ben.gy?subject=Provenova%20DOI%20limit" class="underline">contact us</a>.</div>
-    {% elif _doi_flash == 'mint_failed' %}<div class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">DOI minting failed — please try again. The card keeps its free PID.</div>
+    {% elif _doi_flash == 'quota_exceeded' %}<div class="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">This workspace has reached its fair-use limit for DOIs this month (DOIs are permanent, so they're rate-limited). The card keeps its PID; try again next month or <a href="mailto:hi@ben.gy?subject=Provenova%20DOI%20limit" class="underline">contact us</a>.</div>
+    {% elif _doi_flash == 'mint_failed' %}<div class="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">DOI minting failed — please try again. The card keeps its PID.</div>
     {% elif _doi_flash == 'unconfigured' %}<div class="mt-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">DOI minting isn't configured on this server.</div>{% endif %}
     {% if card.doi %}
     <div class="mt-1 text-sm text-slate-600">{{ term("DOI") }}: <a href="https://doi.org/{{ card.doi }}" rel="noopener" class="mono text-indigo-700 hover:underline">{{ card.doi }}</a></div>
@@ -127,7 +127,7 @@
       <form method="post" action="/app/records/{{ card.run_id }}/mint-doi">
         <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">Mint a DOI (Zenodo)</button>
       </form>
-      <p class="mt-1.5 text-xs text-slate-400">The free PID above already makes this card citable. Minting a DOI also archives the provenance record on Zenodo — it's permanent.</p>
+      <p class="mt-1.5 text-xs text-slate-400">The PID above already makes this card citable. Minting a DOI also archives the provenance record on Zenodo — it's permanent.</p>
     </div>
     {% endif %}
   </div>

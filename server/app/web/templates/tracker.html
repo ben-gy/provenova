@@ -57,7 +57,7 @@
 
 <!-- Intro -->
 <section class="max-w-3xl">
-  <div class="text-xs font-semibold uppercase tracking-wide text-indigo-600">Quantum progress tracker · updated {{ m.as_of }}</div>
+  <div class="text-xs font-semibold uppercase tracking-wide text-indigo-600">Quantum progress tracker · {% if m.last_checked %}sources checked {{ m.last_checked[:10] }}{% else %}updated {{ m.as_of }}{% endif %}</div>
   <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Is quantum computing actually getting better?</h1>
   <p class="mt-3 text-lg leading-relaxed text-slate-600">
     Yes, quickly in some ways and slowly in others. This page answers the question with public data only:
@@ -248,6 +248,7 @@
       snapshot keeps its real date. Every snapshot links to the exact source file and its hash. <a href="/docs/corpus-and-leaderboard" class="text-indigo-600 hover:underline">How the corpus works</a>.</li>
     <li><b class="font-semibold text-slate-800">Independent benchmarks:</b> every dated <a href="https://metriq.info" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">Metriq</a> run (CC-BY-4.0), one snapshot per device per day.</li>
     <li><b class="font-semibold text-slate-800">Context:</b> resource estimates and programme decisions are hand-curated with links, as of {{ ctx.as_of }}.</li>
+    <li><b class="font-semibold text-slate-800">Kept up to date automatically:</b> new Metriq runs are collected daily, and new IBM calibration files and dataset versions weekly{% if m.last_checked %} (last checked {{ m.last_checked[:10] }}){% endif %}. New data appears without anyone editing this page.</li>
   </ul>
   <p class="mt-4 text-sm text-slate-500">
     The data is committed to the <a href="https://github.com/ben-gy/provenova/tree/main/datasets" class="text-indigo-600 hover:underline">open repository</a>,

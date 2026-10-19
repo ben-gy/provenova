@@ -33,9 +33,13 @@
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ProvenovaContainer"] }],
 
+  // Daily data collection (see runCollectors in src/index.ts): 03:17 UTC.
+  "triggers": { "crons": ["17 3 * * *"] },
+
   // Non-secret config. Secrets (QL_SECRET_KEY, QL_ATTESTATION_KEY_B64,
   // LITESTREAM_ACCESS_KEY_ID, LITESTREAM_SECRET_ACCESS_KEY and the optional
-  // integration keys) are set with `wrangler secret put` — never here.
+  // integration keys, and QL_COLLECT_TOKEN for the daily collectors) are set
+  // with `wrangler secret put` — never here.
   "vars": {
     "QL_DEPLOYMENT": "hosted",
     "QL_BASE_URL": "https://provenova.net",

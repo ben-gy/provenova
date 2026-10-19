@@ -93,6 +93,7 @@ def create_app() -> FastAPI:
                                         status_code=403)
         return await call_next(request)
 
+    from .api import internal
     from .api.v1 import auth_admin, compliance, growth, ingest, public, runs
     from .web import hardware as web_hardware
     from .web import reports as web_reports
@@ -106,6 +107,7 @@ def create_app() -> FastAPI:
     app.include_router(compliance.router)
     app.include_router(auth_admin.router)
     app.include_router(growth.router)
+    app.include_router(internal.router)
     app.include_router(web_tracker.router)
     app.include_router(web_hardware.router)
     app.include_router(web_reports.router)

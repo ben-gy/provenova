@@ -33,7 +33,7 @@ from .compliance import (
     EvidenceItem,
     WorkspaceFramework,
 )
-from .corpus import CorpusSnapshot
+from .corpus import CollectorState, CorpusSnapshot, PublicDataset
 from .growth import (
     ATTRIBUTION_RELATIONS,
     REL_INSPIRED_BY,
@@ -146,7 +146,9 @@ __all__ = [
     "ComplianceAlert",
     "AuditLog",
     # corpus
+    "CollectorState",
     "CorpusSnapshot",
+    "PublicDataset",
     # growth
     "Report",
     "CardAttribution",

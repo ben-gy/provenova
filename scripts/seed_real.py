@@ -105,7 +105,7 @@ _CONTENT_TABLES = [
     "evidence_items", "attestations", "compliance_alerts", "workspace_frameworks",
     "badges", "benchmark_entries", "benchmarks", "result_cards", "reproduction_events",
     "results", "runs", "compilations", "calibration_snapshots", "circuits", "backends",
-    "corpus_snapshots", "checkpoint_anchors", "audit_logs",
+    "corpus_snapshots", "collector_state", "public_datasets", "checkpoint_anchors", "audit_logs",
 ]
 
 

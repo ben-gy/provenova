@@ -37,6 +37,7 @@ Non-secret settings live in `cloudflare/wrangler.jsonc` under `vars`. Secrets ar
 | `QL_SECRET_KEY` | Signs sessions and JWTs. Copied from Fly so existing sessions and links survive. |
 | `QL_ATTESTATION_KEY_B64` | Ed25519 attestation key. **Never rotate**: every issued attestation verifies against it. |
 | `LITESTREAM_ACCESS_KEY_ID`, `LITESTREAM_SECRET_ACCESS_KEY` | R2 S3 credentials, Object Read & Write on `provenova-db` only. |
+| `QL_COLLECT_TOKEN` | Authorises the daily data collectors (`POST /internal/collect`). A random value; also in the keychain as `provenova-collect-token`. Unset disables collection. |
 | Optional | `QL_ZENODO_TOKEN`, `QL_INDEXNOW_KEY`, `QL_GITHUB_TOKEN`, `QL_SMTP_*`, `QL_DATACITE_*` |
 
 GitHub repository secrets for the deploy job:
@@ -110,5 +111,13 @@ Any writes made on Cloudflare in the meantime stay only in R2.
   3. Run `npx wrangler containers ssh <instance> -- python /app/scripts/<script>.py`.
 
   The scripts use the container's `QL_DATABASE_URL`, and Litestream replicates their writes.
+- **Daily data collection:** a Worker cron (`"triggers"` in `wrangler.jsonc`, 03:17 UTC) wakes
+  the container and calls `POST /internal/collect` with `QL_COLLECT_TOKEN`. The collectors in
+  `server/app/services/collectors.py` decide what is due (Metriq daily; IBM calibration and the
+  experiments dataset weekly), store new data in the database and record each run in
+  `collector_state`, which `/tracker` shows as "sources checked". Nothing is redeployed. To run
+  them now: `QL_COLLECT_TOKEN=$(security find-generic-password -s provenova-collect-token -w)
+  python scripts/trigger_collect.py --force all`. Failures show in the Worker's logs
+  (observability) and in `collector_state.last_detail`; a failed collector retries the next day.
 - **Background worker:** the crawler/monitor loop (`server/app/worker.py`) wasn't deployed on
   Fly either. Its crawl data is static fixtures.

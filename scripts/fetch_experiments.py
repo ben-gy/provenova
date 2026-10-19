@@ -9,7 +9,9 @@ error-correction experiments).
 
 This copies the CSVs verbatim at a pinned commit, plus the licence and a
 SOURCE.json recording the commit, so the tracker always cites an exact version.
-Re-run to pick up new rows; corrections belong upstream (open a PR there).
+Between deploys the weekly ``experiments`` collector picks up newer upstream
+versions on its own (``app.services.collectors``); re-run this to bring the
+committed copy up to date. Corrections belong upstream (open a PR there).
 
 Usage:
     python scripts/fetch_experiments.py            # GITHUB_TOKEN raises the API rate limit
@@ -20,14 +22,17 @@ from __future__ import annotations
 import datetime as _dt
 import json
 import os
+import sys
 import urllib.request
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "server"))
+
+from app.services.tracker import EXPERIMENTS_FILES as FILES  # noqa: E402
+from app.services.tracker import EXPERIMENTS_REPO as UPSTREAM  # noqa: E402
+
 OUT = REPO / "datasets" / "experiments"
-UPSTREAM = "francois-marie/awesome-quantum-computing-experiments"
-FILES = ["entangled_state_error_exp.csv", "qubit_count.csv", "physical_qubits.csv",
-         "qec_exp.csv", "research_groups.csv"]
 
 
 def _get(url: str) -> bytes:

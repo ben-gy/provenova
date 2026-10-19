@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import csv
 import datetime as _dt
+import io
 import json
 import re
 import statistics
@@ -27,7 +28,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from provenova_core.models import CorpusSnapshot
+from provenova_core.models import CollectorState, CorpusSnapshot, PublicDataset
 
 # Display name, chart colour — one palette for every chart on the page.
 PLATFORMS = {
@@ -87,9 +88,22 @@ def _num(s: str) -> float | None:
 
 # --- published experiments -------------------------------------------------
 
-def _rows(path: Path) -> list[dict]:
-    with open(path, newline="", encoding="utf-8") as fh:
-        return [{k.strip(): (v or "").strip() for k, v in r.items() if k} for r in csv.DictReader(fh)]
+# Awesome Quantum Computing Experiments (MIT): vendored under datasets/experiments
+# by scripts/fetch_experiments.py; newer upstream versions arrive between deploys
+# through the "experiments" collector (stored as a PublicDataset).
+EXPERIMENTS_REPO = "francois-marie/awesome-quantum-computing-experiments"
+EXPERIMENTS_FILES = ["entangled_state_error_exp.csv", "qubit_count.csv", "physical_qubits.csv",
+                     "qec_exp.csv", "research_groups.csv"]
+EXPERIMENTS_COLUMNS = {
+    "entangled_state_error_exp.csv": {"Entangled State Error", "Year", "Platform", "Link"},
+    "qubit_count.csv": {"Number of qubits", "Year", "Platform", "Link"},
+    "qec_exp.csv": {"Code Parameters", "Year", "Platform", "Link"},
+}
+
+
+def _rows(text: str) -> list[dict]:
+    return [{k.strip(): (v or "").strip() for k, v in r.items() if k}
+            for r in csv.DictReader(io.StringIO(text))]
 
 
 def _point(r: dict, value: float) -> dict:
@@ -111,17 +125,14 @@ def _frontier(points: list[dict], lower_is_better: bool) -> dict[str, list[dict]
 _DISTANCE = re.compile(r"\[\[?\s*\d+\s*,\s*\d+\s*,\s*(\d+)\s*\]\]?")
 
 
-@lru_cache(maxsize=4)
-def _experiments(directory: str, _stamp: float) -> dict:
-    d = Path(directory)
-    source = json.loads((d / "SOURCE.json").read_text())
-
-    gate = [_point(r, v) for r in _rows(d / "entangled_state_error_exp.csv")
+def parse_experiments(files: dict[str, str], source: dict) -> dict:
+    """Chart points from the dataset's CSV texts (keyed by file name)."""
+    gate = [_point(r, v) for r in _rows(files["entangled_state_error_exp.csv"])
             if (v := _num(r.get("Entangled State Error"))) and r.get("Year", "").isdigit()]
-    qubits = [_point(r, v) for r in _rows(d / "qubit_count.csv")
+    qubits = [_point(r, v) for r in _rows(files["qubit_count.csv"])
               if (v := _num(r.get("Number of qubits"))) and r.get("Year", "").isdigit()]
     qec = []
-    for r in _rows(d / "qec_exp.csv"):
+    for r in _rows(files["qec_exp.csv"]):
         dists = [int(x) for x in _DISTANCE.findall(r.get("Code Parameters", ""))]
         if not dists or not r.get("Year", "").isdigit():
             continue
@@ -135,12 +146,45 @@ def _experiments(directory: str, _stamp: float) -> dict:
     return {"source": source, "gate_error": gate, "qubit_count": qubits, "qec": qec}
 
 
-def experiments(datasets: Path) -> dict | None:
+@lru_cache(maxsize=4)
+def _bundled_experiments(directory: str, _stamp: float) -> dict:
+    d = Path(directory)
+    files = {name: (d / name).read_text(encoding="utf-8") for name in EXPERIMENTS_COLUMNS}
+    return parse_experiments(files, json.loads((d / "SOURCE.json").read_text()))
+
+
+# Parsed collected versions, by PublicDataset id (ULIDs are unique, so this is
+# safe across databases); the table only grows when upstream publishes.
+_collected: dict[str, dict] = {}
+
+
+def _aware(dt: _dt.datetime) -> _dt.datetime:
+    return dt if dt.tzinfo else dt.replace(tzinfo=_dt.timezone.utc)
+
+
+def experiments(datasets: Path, db: Session | None = None) -> dict | None:
+    """The newest version available: a collected one if it postdates the bundle."""
     d = Path(datasets) / "experiments"
-    if not (d / "SOURCE.json").exists():
-        return None
-    stamp = max(f.stat().st_mtime for f in d.iterdir())
-    return _experiments(str(d), stamp)
+    bundled = None
+    if (d / "SOURCE.json").exists():
+        stamp = max(f.stat().st_mtime for f in d.iterdir())
+        bundled = _bundled_experiments(str(d), stamp)
+    if db is None:
+        return bundled
+    latest = db.execute(
+        select(PublicDataset.id, PublicDataset.version_date)
+        .where(PublicDataset.name == "experiments")
+        .order_by(PublicDataset.version_date.desc()).limit(1)).first()
+    if latest is None or latest.version_date is None:
+        return bundled
+    bundled_date = (bundled or {}).get("source", {}).get("commit_date")
+    if bundled_date and _aware(latest.version_date) <= _aware(
+            _dt.datetime.fromisoformat(bundled_date.replace("Z", "+00:00"))):
+        return bundled
+    if latest.id not in _collected:
+        ds = db.get(PublicDataset, latest.id)
+        _collected[latest.id] = parse_experiments(ds.files, ds.meta)
+    return _collected[latest.id]
 
 
 def context(datasets: Path) -> dict:
@@ -195,7 +239,7 @@ def _fmt_factor(x: float) -> str:
 
 
 def build(db: Session, datasets: Path) -> dict:
-    exp = experiments(datasets)
+    exp = experiments(datasets, db)
     ctx = context(datasets)
     fleet = ibm_fleet(db)
     headlines = []
@@ -278,8 +322,16 @@ def build(db: Session, datasets: Path) -> dict:
         charts["gap"] = {"estimates": rsa, "largest_cloud": biggest_cloud,
                          "largest_array": max(exp["qubit_count"], key=lambda p: p["value"]) if exp else None}
 
+    # The scheduled collectors' last runs, so readers can see the data is live.
+    pipeline = [{"name": c.name, "last_status": c.last_status,
+                 "last_ok_at": c.last_ok_at.isoformat() if c.last_ok_at else None}
+                for c in db.scalars(select(CollectorState).order_by(CollectorState.name))]
+    checks = [c["last_ok_at"] for c in pipeline if c["last_ok_at"]]
+
     return {
         "as_of": _dt.date.today().isoformat(),
+        "pipeline": pipeline,
+        "last_checked": max(checks) if checks else None,
         "headlines": headlines,
         "charts": charts,
         "platforms": PLATFORMS,

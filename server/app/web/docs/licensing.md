@@ -65,7 +65,7 @@ self-host the entire signing machinery, but an attestation signed by your own ke
 to a journal reviewer or a procurement office — just as a company can't self-issue its SOC 2. What the
 hosted service adds is the part that can't be forked: attestations that verify against
 provenova.net, a public [Trust Center](/docs/compliance), and the public corpus behind the
-[leaderboard](/hardware) — all free for now. Keeping the code open costs us nothing we were
+[leaderboard](/hardware), with no paid plans. Keeping the code open costs us nothing we were
 selling — and it means you can audit the ledger you're trusting, which for a provenance product
 is rather the point.
 

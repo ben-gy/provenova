@@ -12,7 +12,7 @@ From a run at `/app/records/<run_id>`, use **Publish** to create a Result Card. 
 - the run's **provenance** (backend, calibration, `run_hash`),
 - the **result distribution**,
 - **visibility** — `private` or `public`,
-- a free **persistent identifier (PID)**, an optional real **DOI** minted on demand via Zenodo, and a license.
+- a **persistent identifier (PID)**, an optional real **DOI** minted on demand via Zenodo, and a license.
 
 Cards can be unpublished (retracted) later.
 
@@ -27,8 +27,8 @@ The card page and API offer ready-made citations:
 - `GET /cards/<slug>/embed.html` — the self-contained, iframe-embeddable Result Card widget itself (served
   with `frame-ancestors *`), also discoverable via oEmbed at `GET /api/v1/oembed`.
 
-A card's free **PID** already satisfies the FAIR persistent-identifier control (FAIR-F1); an optional
-**DOI** — minted for free on demand via Zenodo, which also archives the provenance record — strengthens
+A card's **PID** already satisfies the FAIR persistent-identifier control (FAIR-F1); an optional
+**DOI** — minted on demand via Zenodo, which also archives the provenance record — strengthens
 it with an external, globally-resolvable identifier. See [Compliance](/docs/compliance).
 
 ## Badges
@@ -49,7 +49,7 @@ Badges reflect a result's maturity as a ladder — each rung is a stronger claim
 4. **Compliant** — it satisfies an enabled compliance framework.
 5. **Audit-ready** — backed by a signed attestation.
 
-Every rung is reachable on any account, free. Rungs 1–3 come from your own runs — capture,
+Every rung is reachable on any account. Rungs 1–3 come from your own runs — capture,
 reproduce, then hit **Benchmark vs fleet** on the record page to record a benchmark entry and light
 the **Benchmarked** badge. Rung 4 needs an enabled [compliance framework](/docs/compliance) and
 rung 5 needs a signed attestation.
