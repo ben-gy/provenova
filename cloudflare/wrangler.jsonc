@@ -12,10 +12,10 @@
   // Served on workers.dev until the cutover adds the custom domains below
   // (they can only be attached once Fly's DNS records for them are removed).
   "workers_dev": true,
-  // "routes": [
-  //   { "pattern": "provenova.net", "custom_domain": true },
-  //   { "pattern": "www.provenova.net", "custom_domain": true }
-  // ],
+  "routes": [
+    { "pattern": "provenova.net", "custom_domain": true },
+    { "pattern": "www.provenova.net", "custom_domain": true }
+  ],
 
   "containers": [
     {
