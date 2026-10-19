@@ -1,0 +1,26 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_peekskill",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2024-02-28T14:02:02+00:00",
+   "derived_metrics": {
+    "n_qubits": 27,
+    "median_2q_error": 0.00971998,
+    "best_2q_fidelity": 0.996348,
+    "median_t1_us": 301.15,
+    "median_t2_us": 295.9,
+    "median_readout_error": 0.0089,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/32b0dbc364af3b468be50e18797acf9352f2ff94/qiskit_ibm_runtime/fake_provider/backends/peekskill/props_peekskill.json",
+   "raw_sha256": "05c1850b79e831e8b08f94f57633a35f50f16f42853145c82eac839f268d58df",
+   "commit_date": "2024-03-04T20:44:38Z"
+  }
+ ]
+}

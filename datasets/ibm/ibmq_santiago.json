@@ -1,0 +1,71 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_santiago",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-09-15T07:08:00+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00768954,
+    "best_2q_fidelity": 0.99357,
+    "median_t1_us": 104.75,
+    "median_t2_us": 97.803,
+    "median_readout_error": 0.0107,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/2892d55d7237adbb7fc6fc34444fb9c5631579ec/qiskit/test/mock/backends/santiago/props_santiago.json",
+   "raw_sha256": "63d846aa7df85f33b589273c9b3ad79a2698d854cb936959367d275dccaed285",
+   "commit_date": "2020-09-16T00:32:46Z"
+  },
+  {
+   "captured_at": "2020-11-25T07:04:24+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0146703,
+    "best_2q_fidelity": 0.993551,
+    "median_t1_us": 114.17,
+    "median_t2_us": 93.235,
+    "median_readout_error": 0.0143,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/santiago/props_santiago.json",
+   "raw_sha256": "6a85812fd17c0497d3032e24a7e4e87fa926539eea7b64a62397c5870698ed8a",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-14T14:10:13+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.010012,
+    "best_2q_fidelity": 0.992361,
+    "median_t1_us": 91.485,
+    "median_t2_us": 94.452,
+    "median_readout_error": 0.0173,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/santiago/props_santiago.json",
+   "raw_sha256": "155c538c88163373c41b6cd94d69ee9b80fb4bd72cdf5db3dfe900844d3a11b9",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-03-15T19:21:56+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00601011,
+    "best_2q_fidelity": 0.9948,
+    "median_t1_us": 128.02,
+    "median_t2_us": 99.271,
+    "median_readout_error": 0.0144,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/santiago/props_santiago.json",
+   "raw_sha256": "eb56ca062ca62448c4da4b85e2f6f2fc905ef09a9813f9e1e3c6029b767216eb",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

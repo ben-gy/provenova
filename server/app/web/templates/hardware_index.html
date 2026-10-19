@@ -1,32 +1,45 @@
 {% extends "base.html" %}
 {% from "_helpers.html" import page_intro, source_badge, term %}
 {% block title %}Quantum Hardware Directory — Provenova{% endblock %}
-{% block meta_description %}Directory of {{ n_devices }} quantum devices across {{ by_vendor | length }} vendors — calibration snapshots, benchmarks, trends and provenance for IBM, IonQ, Quantinuum, IQM, Rigetti and Origin hardware.{% endblock %}
+{% block meta_description %}Directory of {{ n_devices }} quantum devices across {{ by_vendor | length }} makers — dated calibration history, independent benchmarks and labelled vendor claims for IBM, IonQ, Quantinuum, IQM, Rigetti and Origin hardware.{% endblock %}
+
+{% macro device_card(d) %}
+<a href="/hardware/{{ d.provider | lower }}/{{ d.backend_id | lower }}"
+   class="block rounded-xl border border-slate-200 bg-white p-4 hover:border-indigo-300 hover:shadow-sm">
+  <div class="flex items-center justify-between gap-2">
+    <div class="mono font-semibold text-slate-900">{{ d.backend_id }}</div>
+    {{ source_badge(d.source, d.license_ref) }}
+  </div>
+  <dl class="mt-3 space-y-1 text-xs text-slate-600">
+    {% for m in d.metrics[:3] %}
+    <div class="flex justify-between gap-2"><dt>{{ m.label }}</dt><dd class="mono font-medium text-slate-800" title="{{ m.reading or '' }}">{{ m.value }}</dd></div>
+    {% endfor %}
+  </dl>
+  <div class="mt-3 text-[11px] text-slate-400">Latest record {{ (d.captured_at or '')[:10] or '—' }}{% if d.n_snapshots > 1 %} · {{ d.n_snapshots }} snapshots{% endif %}</div>
+</a>
+{% endmacro %}
 
 {% block content %}
-{% set hw_desc %}Every quantum device tracked in the {{ term("public corpus") }} — real calibration snapshots and openly-licensed benchmarks, each labelled by source &amp; licence. Click a device for its full history, trends and citations.{% endset %}
+{% set hw_desc %}Every quantum device in the {{ term("public corpus") }}: dated calibration history, independent benchmarks and clearly-labelled vendor claims. Open a device for a plain-English summary, its history and how it compares. {% endset %}
 {{ page_intro("Quantum Hardware", hw_desc, "/docs/corpus-and-leaderboard", "How the corpus works") }}
+<p class="-mt-3 mb-2 text-sm"><a href="/tracker" class="font-medium text-indigo-600 hover:underline">See how the whole field is progressing →</a></p>
 
-{% for vendor, devices in by_vendor.items() %}
-<h2 class="mt-8 text-lg font-semibold capitalize text-slate-900">{{ vendor }}</h2>
+{% for vendor, groups in by_vendor.items() %}
+<h2 class="mt-8 text-lg font-semibold text-slate-900">{{ vendor }}</h2>
+{% if groups.current %}
 <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-  {% for d in devices %}
-  <a href="/hardware/{{ d.provider | lower }}/{{ d.backend_id | lower }}"
-     class="block rounded-xl border border-slate-200 bg-white p-4 hover:border-indigo-300 hover:shadow-sm">
-    <div class="flex items-center justify-between gap-2">
-      <div class="mono font-semibold text-slate-900">{{ d.backend_id }}</div>
-      {{ source_badge(d.source, d.license_ref) }}
-    </div>
-    <dl class="mt-3 space-y-1 text-xs text-slate-600">
-      {% for m in d.metrics[:3] %}
-      <div class="flex justify-between"><dt>{{ m.label }}</dt><dd class="mono font-medium text-slate-800">{{ m.value }}</dd></div>
-      {% endfor %}
-    </dl>
-    <div class="mt-3 text-[11px] text-slate-400">Captured {{ (d.captured_at or '')[:10] or '—' }}</div>
-  </a>
-  {% endfor %}
+  {% for d in groups.current %}{{ device_card(d) }}{% endfor %}
 </div>
+{% endif %}
+{% if groups.historical %}
+<details class="mt-3 rounded-xl border border-slate-200 bg-white" {% if not groups.current %}open{% endif %}>
+  <summary class="cursor-pointer px-4 py-3 text-sm font-medium text-slate-700">{{ groups.historical | length }} older device{{ 's' if groups.historical | length != 1 }} (no record in the last two years)</summary>
+  <div class="grid gap-3 border-t border-slate-100 p-3 sm:grid-cols-2 lg:grid-cols-3">
+    {% for d in groups.historical %}{{ device_card(d) }}{% endfor %}
+  </div>
+</details>
+{% endif %}
 {% endfor %}
 
-<p class="mt-8 text-xs text-slate-400">Sources: IBM raw calibration (Apache-2.0, Qiskit fake_provider), Metriq community benchmarks (CC-BY-4.0), and clearly-labelled vendor-reported specifications. See the <a href="/leaderboard" class="text-indigo-600 hover:underline">live leaderboard</a> for rankings.</p>
+<p class="mt-8 text-xs text-slate-400">Sources: IBM calibration history (Apache-2.0, from Qiskit's fake backends), Metriq community benchmarks (CC-BY-4.0), and clearly-labelled vendor-reported specifications. See the <a href="/leaderboard" class="text-indigo-600 hover:underline">leaderboard</a> for rankings.</p>
 {% endblock %}

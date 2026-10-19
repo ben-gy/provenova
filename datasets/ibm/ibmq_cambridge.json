@@ -1,0 +1,71 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_cambridge",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-04-04T17:46:45+00:00",
+   "derived_metrics": {
+    "n_qubits": 28,
+    "median_2q_error": 0.0258291,
+    "best_2q_fidelity": 0.990504,
+    "median_t1_us": 83.169,
+    "median_t2_us": 36.733,
+    "median_readout_error": 0.046,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/8332562191baf1a18ebe7bcb5ff9ea7e4ddb7ba8/qiskit/test/mock/backends/cambridge/props_cambridge.json",
+   "raw_sha256": "8df80b8c59e7ab123b7522b220f0bec551cf3b4af2bc9fa3136871300ead87c7",
+   "commit_date": "2020-04-17T19:08:09Z"
+  },
+  {
+   "captured_at": "2020-04-27T11:40:47+00:00",
+   "derived_metrics": {
+    "n_qubits": 28,
+    "median_2q_error": 0.0296912,
+    "best_2q_fidelity": 0.989761,
+    "median_t1_us": 80.934,
+    "median_t2_us": 40.967,
+    "median_readout_error": 0.043,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/cambridge/props_cambridge.json",
+   "raw_sha256": "38965ba325d6badb9685f4aac348517e3fcaf61cb9e82351289b8b64b8858c85",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-11T08:23:26+00:00",
+   "derived_metrics": {
+    "n_qubits": 28,
+    "median_2q_error": 0.0343095,
+    "best_2q_fidelity": 0.987387,
+    "median_t1_us": 84.676,
+    "median_t2_us": 52.019,
+    "median_readout_error": 0.0635,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/cambridge/props_cambridge.json",
+   "raw_sha256": "39de5d0ff143bc9fd1539f9d2b7726caf048590ac37a2c62b31e506adfa3d9be",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T17:01:14+00:00",
+   "derived_metrics": {
+    "n_qubits": 28,
+    "median_2q_error": 0.0280394,
+    "best_2q_fidelity": 0.986066,
+    "median_t1_us": 80.861,
+    "median_t2_us": 51.766,
+    "median_readout_error": 0.065,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/cambridge/props_cambridge.json",
+   "raw_sha256": "87db4b8733c0c22ce5ace4418ed9ecb1d13c7323fba86ef9d793dedf1d702eef",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

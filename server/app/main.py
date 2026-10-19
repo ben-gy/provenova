@@ -98,6 +98,7 @@ def create_app() -> FastAPI:
     from .web import reports as web_reports
     from .web import routes as web_routes
     from .web import seo as web_seo
+    from .web import tracker as web_tracker
 
     app.include_router(public.router)
     app.include_router(ingest.router)
@@ -105,6 +106,7 @@ def create_app() -> FastAPI:
     app.include_router(compliance.router)
     app.include_router(auth_admin.router)
     app.include_router(growth.router)
+    app.include_router(web_tracker.router)
     app.include_router(web_hardware.router)
     app.include_router(web_reports.router)
     app.include_router(web_seo.router)
@@ -149,6 +151,11 @@ def create_app() -> FastAPI:
         s = SessionLocal()
         try:
             bootstrap(s)
+            if settings.corpus_autosync:
+                from .db import datasets_dir
+                from .services.corpus_sync import sync_on_startup
+
+                sync_on_startup(s, datasets_dir())
         finally:
             s.close()
 

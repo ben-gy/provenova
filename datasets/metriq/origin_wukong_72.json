@@ -1,48 +1,166 @@
 {
-  "schema": "qlprov/corpus-record/1.0",
-  "provider": "origin",
-  "backend_id": "wukong_72",
-  "captured_at": "2026-02-24T13:18:23.222708+00:00",
-  "source": "metriq",
-  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
-  "redistributable_raw": true,
-  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
-  "derived_metrics": {
-    "qaoa_ratio": -0.03495635,
-    "qft_accuracy": 0.005,
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "origin",
+ "backend_id": "wukong_72",
+ "source": "metriq",
+ "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+ "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+ "redistributable_raw": true,
+ "note": "Metriq metriq-gym community benchmark runs (CC-BY-4.0); one snapshot per day a benchmark ran, holding only that day's measurements.",
+ "snapshots": [
+  {
+   "captured_at": "2025-12-11T14:36:51+00:00",
+   "derived_metrics": {
+    "qft_accuracy": 0.124,
     "n_qubits": 72,
     "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.12400000000000001,
+     "timestamp": "2025-12-11T14:36:51+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "max_circuits": 3,
+      "max_qubits": 6,
+      "method": 1,
+      "min_qubits": 2,
+      "shots": 1000,
+      "skip_qubits": 1,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.4/origin/wukong_72/2025-12-11_14-36-51_quantum_fourier_transform_d32054dd.json"
+    }
+   ]
   },
-  "snapshot_json": {
-    "schema": "qlprov/corpus-record/1.0",
-    "backend": {
-      "vendor": "origin",
-      "name": "wukong_72",
-      "n_qubits": 72
+  {
+   "captured_at": "2026-01-06T15:58:25+00:00",
+   "derived_metrics": {
+    "qft_accuracy": 0.005,
+    "n_qubits": 72,
+    "qaoa_ratio": 0.17308318,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.17308317825282424,
+     "timestamp": "2026-01-06T15:58:25+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 10,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 5
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/origin/wukong_72/2026-01-06_15-58-25_linear_ramp_qaoa_450f6cb1.json"
     },
-    "captured_at": "2026-02-24T13:18:23.222708+00:00",
-    "source": "metriq",
-    "provenance": {
-      "source": "metriq",
-      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-      "repo": "unitaryfoundation/metriq-data"
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.005,
+     "timestamp": "2026-01-06T15:37:51+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "max_circuits": 3,
+      "max_qubits": 12,
+      "method": 1,
+      "min_qubits": 4,
+      "shots": 1000,
+      "skip_qubits": 4,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/origin/wukong_72/2026-01-06_15-37-51_quantum_fourier_transform_2bd3028c.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2026-02-24T13:23:52+00:00",
+   "derived_metrics": {
+    "qaoa_ratio": 0.0,
+    "n_qubits": 72,
+    "qft_accuracy": 0.00033333,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.0,
+     "timestamp": "2026-02-24T13:18:23+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 20,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 10
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/origin/wukong_72/2026-02-24_13-18-23_linear_ramp_qaoa_fa544c4d.json"
     },
-    "metric_provenance": [
-      {
-        "metric": "qaoa_ratio",
-        "benchmark": "Linear Ramp QAOA",
-        "value": -0.0349563502846115,
-        "timestamp": "2026-02-24T13:18:23.222708",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/origin/wukong_72/2026-02-24_13-18-23_linear_ramp_qaoa_fa544c4d.json"
-      },
-      {
-        "metric": "qft_accuracy",
-        "benchmark": "Quantum Fourier Transform",
-        "value": 0.005,
-        "timestamp": "2026-01-06T15:37:51.976973",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/origin/wukong_72/2026-01-06_15-37-51_quantum_fourier_transform_2bd3028c.json"
-      }
-    ]
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.0003333333333333333,
+     "timestamp": "2026-02-24T13:23:52+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "max_circuits": 3,
+      "max_qubits": 12,
+      "method": 1,
+      "min_qubits": 4,
+      "shots": 1000,
+      "skip_qubits": 4,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/origin/wukong_72/2026-02-24_13-23-52_quantum_fourier_transform_9e67a199.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2026-03-02T10:12:45+00:00",
+   "derived_metrics": {
+    "qft_accuracy": 0.0034,
+    "n_qubits": 72,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.0034000000000000002,
+     "timestamp": "2026-03-02T10:12:45+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "max_circuits": 3,
+      "max_qubits": 20,
+      "method": 1,
+      "min_qubits": 4,
+      "shots": 1000,
+      "skip_qubits": 4,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/origin/wukong_72/2026-03-02_10-12-45_quantum_fourier_transform_d8a4795b.json"
+    }
+   ]
   }
+ ]
 }

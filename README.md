@@ -102,7 +102,7 @@ PYTHONPATH=server python scripts/seed_demo.py          # seed a walkable demo
 PYTHONPATH=server uvicorn app.main:app --port 8000     # web app + API at :8000
 ```
 
-Then browse: `/` (dashboard), `/leaderboard` (State of Quantum Hardware),
+Then browse: `/` (dashboard), `/tracker` (quantum progress tracker), `/leaderboard`,
 `/cards/<slug>` (public Result Card + badges), `/app/compliance`, `/trust/provenova`.
 
 Push local runs to the hosted store:

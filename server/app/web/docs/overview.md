@@ -26,8 +26,8 @@ Provenova is one product with six connected areas. Each has its own guide:
    → [Result cards & badges](/docs/result-cards-and-badges)
 5. **Compliance** — pick a standard (FAIR, IEEE P7131, …); evidence is auto-collected from the runs already
    in the record; issue signed, revocable attestations. → [Compliance & attestations](/docs/compliance)
-6. **Public corpus** — a cross-vendor, longitudinal corpus of calibration data powering the leaderboard.
-   → [Corpus & leaderboard](/docs/corpus-and-leaderboard)
+6. **Public corpus & tracker** — a cross-vendor, dated record of calibration and benchmark data, plus
+   plain-English long-run trends at `/tracker`. → [Tracker, corpus & leaderboard](/docs/corpus-and-leaderboard)
 
 ## How the pieces fit together
 
@@ -41,7 +41,7 @@ local ledger (SQLite, offline)  ──ql push──►  hosted Provenova
    ▼                                              ├─ Reproduce engine
  drift report                                     ├─ Result Cards + badges
  (Hellinger fidelity + diff)                      ├─ Compliance + attestations
-                                                  └─ Public corpus + leaderboard
+                                                  └─ Public corpus + tracker
 ```
 
 You can use Provenova entirely offline (capture, list, reproduce), or push your runs to a hosted or

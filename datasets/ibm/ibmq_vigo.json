@@ -1,0 +1,131 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_vigo",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2019-10-16T06:22:30+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00837431,
+    "best_2q_fidelity": 0.993058,
+    "median_t1_us": 98.605,
+    "median_t2_us": 71.332,
+    "median_readout_error": 0.019,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/4fdf24d90e8fb3b95d8b24c7aa485dc888f368e6/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "d7b442230e205a16330730d9e8273ee09f32846b315f44b383357b0e7055ce24",
+   "commit_date": "2019-11-12T17:04:17Z"
+  },
+  {
+   "captured_at": "2020-04-28T06:20:46+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00878562,
+    "best_2q_fidelity": 0.993236,
+    "median_t1_us": 98.716,
+    "median_t2_us": 73.958,
+    "median_readout_error": 0.011,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "661784d99240244d698aecb8c181bb9a0e9f0577730b357fc240d9eac470ea75",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-11T07:42:35+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00964539,
+    "best_2q_fidelity": 0.991747,
+    "median_t1_us": 79.723,
+    "median_t2_us": 84.621,
+    "median_readout_error": 0.016,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "d69cecd8e338518b99d8c7db45874bfdb1b41e8adf4a3287c27b393d80f6e6ed",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T06:54:34+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00824463,
+    "best_2q_fidelity": 0.9932,
+    "median_t1_us": 107.28,
+    "median_t2_us": 58.011,
+    "median_readout_error": 0.015,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "87bb7a8608e38c363b5d944a4555d4b288224b442abfedde4607cba0d2b1fe17",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T06:26:39+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00992756,
+    "best_2q_fidelity": 0.992328,
+    "median_t1_us": 110.7,
+    "median_t2_us": 62.322,
+    "median_readout_error": 0.013,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/0f7673eb1d6b7d242ae3665e67a1d3eab76efba1/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "8b78205aa91fc66277cbe50fc6b7e41e804e2fb4b8b4b5be44aaa96d86b3a3d8",
+   "commit_date": "2020-08-10T15:18:20Z"
+  },
+  {
+   "captured_at": "2020-11-25T07:36:36+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00752186,
+    "best_2q_fidelity": 0.993232,
+    "median_t1_us": 101.68,
+    "median_t2_us": 81.962,
+    "median_readout_error": 0.0203,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "0965900d516108e638ec3a71eebcb35dd89360c015925c2c2a8112d9e1470857",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-13T08:03:48+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00769213,
+    "best_2q_fidelity": 0.99346,
+    "median_t1_us": 116.91,
+    "median_t2_us": 50.549,
+    "median_readout_error": 0.0192,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/vigo/props_vigo.json",
+   "raw_sha256": "62dbceb5d4abd8a8d99197eb4a4cb8efbca2bfa397fa4a7daf59d8fb7f22147e",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-01-20T08:30:10+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00821363,
+    "best_2q_fidelity": 0.99341,
+    "median_t1_us": 111.69,
+    "median_t2_us": 68.981,
+    "median_readout_error": 0.0225,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/vigo/props_vigo.json",
+   "raw_sha256": "b276a65066485007302f6e06555942eba9bfe82bab9cda37e92748abc3bc609c",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

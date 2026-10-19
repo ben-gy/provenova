@@ -1,0 +1,26 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_algiers",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2024-02-28T13:32:31+00:00",
+   "derived_metrics": {
+    "n_qubits": 27,
+    "median_2q_error": 0.00780566,
+    "best_2q_fidelity": 0.995479,
+    "median_t1_us": 135.24,
+    "median_t2_us": 86.74,
+    "median_readout_error": 0.0109,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/32b0dbc364af3b468be50e18797acf9352f2ff94/qiskit_ibm_runtime/fake_provider/backends/algiers/props_algiers.json",
+   "raw_sha256": "187fa186510bb8eeca48c41ed415b091511bb4743ec4e0500b82cb8c00e1c57e",
+   "commit_date": "2024-03-04T20:44:38Z"
+  }
+ ]
+}

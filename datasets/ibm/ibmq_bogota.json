@@ -1,0 +1,86 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_bogota",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-07-16T05:15:13+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0102988,
+    "best_2q_fidelity": 0.993157,
+    "median_t1_us": 123.73,
+    "median_t2_us": 180.06,
+    "median_readout_error": 0.0325,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/bogota/props_bogota.json",
+   "raw_sha256": "1d7959aaf353d1b104eb4ea00c8068665ad6a21b8778f1dca4604c8b7962f763",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T04:52:01+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0119805,
+    "best_2q_fidelity": 0.991793,
+    "median_t1_us": 126.05,
+    "median_t2_us": 168.17,
+    "median_readout_error": 0.0215,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/0f7673eb1d6b7d242ae3665e67a1d3eab76efba1/qiskit/test/mock/backends/bogota/props_bogota.json",
+   "raw_sha256": "ae9d7851fbae87d8d9aaca9ae7322044d163eb8a4928f8d04dbd2e847a72dc1c",
+   "commit_date": "2020-08-10T15:18:20Z"
+  },
+  {
+   "captured_at": "2020-11-25T06:37:16+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00926375,
+    "best_2q_fidelity": 0.991798,
+    "median_t1_us": 122.54,
+    "median_t2_us": 131.99,
+    "median_readout_error": 0.0522,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/bogota/props_bogota.json",
+   "raw_sha256": "9b7e59dba61753353c14b742b42009231acef9696106280ecaf3efeb2bdf0b5e",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-14T14:20:18+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00827078,
+    "best_2q_fidelity": 0.99322,
+    "median_t1_us": 112.0,
+    "median_t2_us": 135.85,
+    "median_readout_error": 0.0299,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/bogota/props_bogota.json",
+   "raw_sha256": "ace2554dbb34fe3eaeb1f520ba06705ae1123d024a9496c97a573d5affd7bd16",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-03-15T18:59:18+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0148102,
+    "best_2q_fidelity": 0.991396,
+    "median_t1_us": 111.09,
+    "median_t2_us": 108.53,
+    "median_readout_error": 0.0339,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/bogota/props_bogota.json",
+   "raw_sha256": "dce442d71ad9671df6665b5fadfa7a0af534b620d63d4eb03c4e96dcef7faa3d",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

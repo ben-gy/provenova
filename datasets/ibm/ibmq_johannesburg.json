@@ -1,0 +1,86 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_johannesburg",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2019-10-08T16:18:03+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.012045,
+    "best_2q_fidelity": 0.992567,
+    "median_t1_us": 71.478,
+    "median_t2_us": 76.331,
+    "median_readout_error": 0.0315,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/4fdf24d90e8fb3b95d8b24c7aa485dc888f368e6/qiskit/test/mock/backends/johannesburg/props_johannesburg.json",
+   "raw_sha256": "b7b34e9bb7038a3ac7a016aa638254bf7e56a1236b7002065808288d2961e39f",
+   "commit_date": "2019-11-12T17:04:17Z"
+  },
+  {
+   "captured_at": "2020-04-28T18:46:07+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0132247,
+    "best_2q_fidelity": 0.991067,
+    "median_t1_us": 67.97,
+    "median_t2_us": 72.882,
+    "median_readout_error": 0.0295,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/johannesburg/props_johannesburg.json",
+   "raw_sha256": "af5a52876ca9766d1302af711aafb64ebc12adf05d8c12b0fc7c28daad4b4b75",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-11T12:58:54+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0129043,
+    "best_2q_fidelity": 0.993744,
+    "median_t1_us": 73.36,
+    "median_t2_us": 79.37,
+    "median_readout_error": 0.0285,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/johannesburg/props_johannesburg.json",
+   "raw_sha256": "b0f92938ce50d8704c4b2fc06d22af7840aeba06280ebfecb13ca0fed4053659",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-15T15:48:19+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0121038,
+    "best_2q_fidelity": 0.992609,
+    "median_t1_us": 69.206,
+    "median_t2_us": 78.988,
+    "median_readout_error": 0.0265,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/johannesburg/props_johannesburg.json",
+   "raw_sha256": "0ec7742cb1626c42ae3f113d9369174206792adb67307a5f71876a68d72dceda",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-09T18:09:32+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0264269,
+    "best_2q_fidelity": 0.986546,
+    "median_t1_us": 54.9,
+    "median_t2_us": 14.365,
+    "median_readout_error": 0.0816,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/johannesburg/props_johannesburg.json",
+   "raw_sha256": "e918440ce21d58aab9ac24a59fb31f61e83958363cdfe2f8bdc7636556e82ed3",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

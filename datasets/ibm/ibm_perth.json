@@ -1,0 +1,41 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_perth",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2022-07-13T20:00:27+00:00",
+   "derived_metrics": {
+    "n_qubits": 7,
+    "median_2q_error": 0.00873721,
+    "best_2q_fidelity": 0.99297,
+    "median_t1_us": 166.27,
+    "median_t2_us": 129.55,
+    "median_readout_error": 0.0174,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/perth/props_perth.json",
+   "raw_sha256": "e443f7602026697f1ba22079c6d067cadb57164fe143339782f2a8d3b9751405",
+   "commit_date": "2023-12-01T16:14:10Z"
+  },
+  {
+   "captured_at": "2024-05-27T18:17:50+00:00",
+   "derived_metrics": {
+    "n_qubits": 7,
+    "median_2q_error": 0.00826074,
+    "best_2q_fidelity": 0.995183,
+    "median_t1_us": 123.02,
+    "median_t2_us": 95.067,
+    "median_readout_error": 0.029,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/7b9ecb722f55ecb3aea01d83e6d406a161efc770/qiskit_ibm_runtime/fake_provider/backends/perth/props_perth.json",
+   "raw_sha256": "b4a382621fc454dd57ee17e2e0c9336fbd757777c752775fb4db90d43fcf89c8",
+   "commit_date": "2024-05-30T18:37:35Z"
+  }
+ ]
+}

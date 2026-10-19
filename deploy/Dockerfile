@@ -12,6 +12,7 @@ COPY packages/ql-sdk /app/packages/ql-sdk
 COPY packages/ql-crawler /app/packages/ql-crawler
 COPY server /app/server
 COPY frameworks /app/frameworks
+COPY datasets /app/datasets
 COPY fixtures /app/fixtures
 COPY deploy/requirements.lock /app/deploy/requirements.lock
 

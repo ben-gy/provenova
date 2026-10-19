@@ -1,0 +1,48 @@
+{
+  "schema": "provenova/tracker-context/1.0",
+  "note": "Hand-curated context for /tracker. Every entry cites its source; update as_of when edited.",
+  "as_of": "2026-10-20",
+  "rsa_2048_estimates": [
+    {
+      "year": 2019,
+      "physical_qubits": 20000000,
+      "bound": "about",
+      "runtime": "about 8 hours",
+      "assumed_gate_error": 0.001,
+      "title": "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits",
+      "authors": "Craig Gidney and Martin Ekerå",
+      "url": "https://arxiv.org/abs/1905.09749"
+    },
+    {
+      "year": 2025,
+      "physical_qubits": 1000000,
+      "bound": "fewer than",
+      "runtime": "under a week",
+      "assumed_gate_error": 0.001,
+      "title": "How to factor 2048 bit RSA integers with less than a million noisy qubits",
+      "authors": "Craig Gidney",
+      "url": "https://arxiv.org/abs/2505.15917"
+    }
+  ],
+  "darpa_qbi": {
+    "as_of": "2026-10-07",
+    "goal": "test whether any approach can reach utility-scale quantum computing by 2033",
+    "stage_b": {"date": "2025-11-06", "count": 11},
+    "stage_c": ["Atom Computing", "Diraq", "IBM", "IonQ"],
+    "earlier_final_phase": ["Microsoft", "PsiQuantum"],
+    "sources": [
+      {"label": "DARPA Quantum Benchmarking Initiative", "url": "https://www.darpa.mil/qbi"},
+      {"label": "HPCwire, 7 Oct 2026", "url": "https://www.hpcwire.com/2026/10/07/atom-computing-diraq-ibm-and-ionq-advance-to-darpa-qbi-stage-c/"}
+    ]
+  },
+  "advantage_tracker": {
+    "url": "https://quantum-advantage-tracker.github.io/",
+    "launched": "2025-11",
+    "by": "IBM, the Flatiron Institute, Algorithmiq and BlueQubit, with outside contributors",
+    "about_url": "https://www.ibm.com/quantum/blog/quantum-advantage-tracker"
+  },
+  "metriq": {
+    "url": "https://metriq.info",
+    "by": "Unitary Foundation"
+  }
+}

@@ -219,7 +219,7 @@
 <script>
   (function () {
     var layout = { margin: {t: 10, r: 10, b: 40, l: 40}, showlegend: false,
-      xaxis: {automargin: true}, yaxis: {automargin: true}, font: {family: 'ui-sans-serif, system-ui'} };
+      xaxis: {automargin: true, type: 'category', title: 'measured bitstring'}, yaxis: {automargin: true, title: 'probability'}, font: {family: 'ui-sans-serif, system-ui'} };
     {% if run.results and run.results[0].distribution %}
     var dist = {{ run.results[0].distribution | tojson }};
     var keys = Object.keys(dist);
@@ -237,7 +237,7 @@
       { type: 'bar', name: 'original', x: allKeys, y: allKeys.map(function (k) { return orig[k] || 0; }), marker: {color: '#94a3b8'} },
       { type: 'bar', name: 'reproduced', x: allKeys, y: allKeys.map(function (k) { return repro[k] || 0; }), marker: {color: '#4f46e5'} }
     ], { barmode: 'group', margin: {t: 10, r: 10, b: 40, l: 40}, legend: {orientation: 'h'},
-        xaxis: {automargin: true}, yaxis: {automargin: true}, font: {family: 'ui-sans-serif, system-ui'} },
+        xaxis: {automargin: true, type: 'category', title: 'measured bitstring'}, yaxis: {automargin: true, title: 'probability'}, font: {family: 'ui-sans-serif, system-ui'} },
       {displayModeBar: false, responsive: true});
     {% endif %}
   })();

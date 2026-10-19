@@ -59,13 +59,30 @@ def _fmt(v):
     return v
 
 
-def _display_metrics(dm: dict) -> list[dict]:
-    """Registry-labelled metrics present on a snapshot, in registry order."""
+def _display_metrics(dm: dict, d: dict | None = None, devices: list[dict] | None = None) -> list[dict]:
+    """Registry-labelled metrics present on a device, in registry order.
+
+    With the device (``d``) and the fleet (``devices``), each metric also gets
+    its plain-English meaning and reading, its own date and source, and how it
+    compares with every other device that has the same measurement.
+    """
+    from ..services import explain
+
     out = []
     for m in _metric_registry():
         v = (dm or {}).get(m["key"])
-        if v is not None:
-            out.append({**m, "value": _fmt(v)})
+        if v is None:
+            continue
+        item = {**m, "value": _fmt(v), "plain": explain.METRIC_INFO.get(m["key"], {}).get("plain"),
+                "reading": explain.reading(m["key"], v)}
+        if d is not None:
+            item["date"] = (d.get("metric_dates") or {}).get(m["key"])
+            item["source"] = (d.get("metric_sources") or {}).get(m["key"]) or d.get("source")
+        if devices is not None and d is not None:
+            peers = [o["derived_metrics"].get(m["key"]) for o in devices
+                     if (o["provider"], o["backend_id"]) != (d["provider"], d["backend_id"])]
+            item["percentile"] = explain.percentile(m["key"], v, peers)
+        out.append(item)
     return out
 
 
@@ -104,10 +121,15 @@ def _meta_description(d: dict) -> str:
 def hardware_index(request: Request, db: Session = Depends(get_db),
                    p: Principal | None = Depends(current_principal)):
     devices = _devices(db)
-    by_vendor: dict[str, list[dict]] = {}
-    for d in devices:
-        by_vendor.setdefault(provider_display(d["provider"]), []).append(
-            {**d, "metrics": _display_metrics(d["derived_metrics"])})
+    # Per maker: devices with a record in the last two years first (newest
+    # first), then the historical ones, which the page folds away.
+    cutoff = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=730)).date().isoformat()
+    by_vendor: dict[str, dict[str, list[dict]]] = {}
+    for d in sorted(devices, key=lambda d: d["captured_at"] or "", reverse=True):
+        group = by_vendor.setdefault(provider_display(d["provider"]), {"current": [], "historical": []})
+        bucket = "current" if (d["captured_at"] or "")[:10] >= cutoff else "historical"
+        group[bucket].append({**d, "metrics": _display_metrics(d["derived_metrics"])})
+    by_vendor = dict(sorted(by_vendor.items(), key=lambda kv: (-len(kv[1]["current"]), kv[0])))
     return render(request, "hardware_index.html", p, by_vendor=by_vendor,
                   n_devices=len(devices), canonical_path="/hardware")
 
@@ -123,19 +145,35 @@ def hardware_device(provider: str, backend_id: str, request: Request,
     devices = _devices(db)
     d = _find_device(devices, provider, backend_id)
     if d is None:
+        # Metriq devices used to be filed under their cloud host (aws, braket);
+        # send those old URLs to the maker's page.
+        from ..services.metriq import device_identity
+
+        maker, bid = device_identity(provider, backend_id)
+        if (maker, bid) != (provider, backend_id) and _find_device(devices, maker, bid):
+            return RedirectResponse(f"/hardware/{maker.lower()}/{bid.lower()}", status_code=301)
         raise HTTPException(404, "unknown device")
 
     from provenova_crawler.corpus import comparable_pairs, device_timeseries
 
+    from ..services import explain
+
     series = device_timeseries(db, d["provider"], d["backend_id"])
-    # Trend lines: registry metrics with >=2 datapoints across the series.
+    # Trend lines: registry metrics measured on at least two different days.
     trends = []
     for m in _metric_registry():
-        pts = [(s["captured_at"], (s["derived_metrics"] or {}).get(m["key"]))
-               for s in series if (s["derived_metrics"] or {}).get(m["key"]) is not None]
+        pts = {}
+        for snap in series:
+            v = (snap["derived_metrics"] or {}).get(m["key"])
+            if v is not None and snap["captured_at"]:
+                pts[snap["captured_at"][:10]] = v
         if len(pts) >= 2:
             trends.append({"key": m["key"], "label": m["label"],
-                           "x": [t for t, _ in pts], "y": [v for _, v in pts]})
+                           "kind": explain.METRIC_INFO.get(m["key"], {}).get("kind"),
+                           "x": list(pts), "y": list(pts.values())})
+    metrics = _display_metrics(d["derived_metrics"], d, devices)
+    summary = explain.device_summary(
+        d, {m["key"]: m["percentile"] for m in metrics if m.get("percentile")})
 
     # Comparison partners for this device (cross-vendor first, cap 8).
     partners = []
@@ -160,7 +198,7 @@ def hardware_device(provider: str, backend_id: str, request: Request,
         f"}}"
     )
     return render(request, "hardware_device.html", p, d=d, pname=provider_display(d["provider"]),
-                  metrics=_display_metrics(d["derived_metrics"]),
+                  metrics=metrics, summary=summary,
                   trends=trends, n_snapshots=len(series), partners=partners,
                   meta_description=desc, bibtex=bibtex,
                   stale=_is_stale(d["captured_at"]),

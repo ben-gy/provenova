@@ -1,48 +1,91 @@
 {
-  "schema": "qlprov/corpus-record/1.0",
-  "provider": "ibm",
-  "backend_id": "ibm_kingston",
-  "captured_at": "2026-02-17T11:59:05.067456+00:00",
-  "source": "metriq",
-  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
-  "redistributable_raw": true,
-  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
-  "derived_metrics": {
-    "clops": 362371.50261221,
-    "qaoa_ratio": 0.64122763,
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_kingston",
+ "source": "metriq",
+ "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+ "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+ "redistributable_raw": true,
+ "note": "Metriq metriq-gym community benchmark runs (CC-BY-4.0); one snapshot per day a benchmark ran, holding only that day's measurements.",
+ "snapshots": [
+  {
+   "captured_at": "2026-02-09T14:30:20+00:00",
+   "derived_metrics": {
+    "qft_accuracy": 0.0,
     "n_qubits": 156,
     "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.0,
+     "timestamp": "2026-02-09T14:30:20+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "error_mitigation": [],
+      "max_circuits": 3,
+      "max_qubits": 20,
+      "method": 1,
+      "min_qubits": 20,
+      "shots": 1000,
+      "skip_qubits": 1,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-09_14-30-20_quantum_fourier_transform_e77ede3f.json"
+    }
+   ]
   },
-  "snapshot_json": {
-    "schema": "qlprov/corpus-record/1.0",
-    "backend": {
-      "vendor": "ibm",
-      "name": "ibm_kingston",
-      "n_qubits": 156
+  {
+   "captured_at": "2026-02-17T11:59:05+00:00",
+   "derived_metrics": {
+    "qaoa_ratio": 0.64122763,
+    "n_qubits": 156,
+    "clops": 362371.50261221,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "clops",
+     "benchmark": "CLOPS",
+     "value": 362371.50261220935,
+     "timestamp": "2026-02-17T11:59:05+00:00",
+     "params": {
+      "benchmark_name": "CLOPS",
+      "mode": "twirled",
+      "num_circuits": 1000,
+      "num_layers": 100,
+      "num_qubits": 100,
+      "seed": 12345,
+      "shots": 100,
+      "two_qubit_gate": "cz",
+      "use_session": true
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-17_11-59-05_clops_2a37912f.json"
     },
-    "captured_at": "2026-02-17T11:59:05.067456+00:00",
-    "source": "metriq",
-    "provenance": {
-      "source": "metriq",
-      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-      "repo": "unitaryfoundation/metriq-data"
-    },
-    "metric_provenance": [
-      {
-        "metric": "clops",
-        "benchmark": "CLOPS",
-        "value": 362371.50261220935,
-        "timestamp": "2026-02-17T11:59:05.067456",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-17_11-59-05_clops_2a37912f.json"
-      },
-      {
-        "metric": "qaoa_ratio",
-        "benchmark": "Linear Ramp QAOA",
-        "value": 0.6412276278320385,
-        "timestamp": "2026-02-17T11:53:57.115441",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-17_11-53-57_linear_ramp_qaoa_a9889f96.json"
-      }
-    ]
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.6412276278320385,
+     "timestamp": "2026-02-17T11:53:57+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 100,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 10
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_kingston/2026-02-17_11-53-57_linear_ramp_qaoa_a9889f96.json"
+    }
+   ]
   }
+ ]
 }

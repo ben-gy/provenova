@@ -1,0 +1,116 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_athens",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-04-27T08:12:05+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00816475,
+    "best_2q_fidelity": 0.993441,
+    "median_t1_us": 75.522,
+    "median_t2_us": 91.949,
+    "median_readout_error": 0.0116667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/8c574a28e696d8c84afed7817dcf2dceb9031fc3/qiskit/test/mock/backends/athens/props_athens.json",
+   "raw_sha256": "94a6adf0a9e54e280a8deccaa4841cb98f65098e7e0ad7b0b9e5bf0c92e6aedb",
+   "commit_date": "2020-04-29T00:47:23Z"
+  },
+  {
+   "captured_at": "2020-06-10T11:01:24+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00781024,
+    "best_2q_fidelity": 0.993225,
+    "median_t1_us": 60.787,
+    "median_t2_us": 92.294,
+    "median_readout_error": 0.0183333,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/athens/props_athens.json",
+   "raw_sha256": "7490aeeaf336206a154203c94bd7ed1f61255d8d1e93f95badc5a7a5e9052614",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T20:47:30+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00859651,
+    "best_2q_fidelity": 0.991847,
+    "median_t1_us": 85.054,
+    "median_t2_us": 103.59,
+    "median_readout_error": 0.0216667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/athens/props_athens.json",
+   "raw_sha256": "1ade7d90d73cb6fce76995dfcccaa9b773a0ca51cfdadaf85071df2644c9a19f",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T05:36:22+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00751542,
+    "best_2q_fidelity": 0.992875,
+    "median_t1_us": 80.5,
+    "median_t2_us": 115.32,
+    "median_readout_error": 0.0183,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/0f7673eb1d6b7d242ae3665e67a1d3eab76efba1/qiskit/test/mock/backends/athens/props_athens.json",
+   "raw_sha256": "ae40cbd3d84d632da0ea7617ba6cfc1260492ca5dc704963e9b73179671eaad0",
+   "commit_date": "2020-08-10T15:18:20Z"
+  },
+  {
+   "captured_at": "2020-11-25T05:55:21+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00747598,
+    "best_2q_fidelity": 0.993726,
+    "median_t1_us": 86.378,
+    "median_t2_us": 98.707,
+    "median_readout_error": 0.0183,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/athens/props_athens.json",
+   "raw_sha256": "fb6cd4ee98c25bcbdb4ab450c09c473dd09c9fd04820e49e392aec1c66f4e716",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-14T14:20:12+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0103591,
+    "best_2q_fidelity": 0.990787,
+    "median_t1_us": 55.773,
+    "median_t2_us": 81.734,
+    "median_readout_error": 0.0168,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/athens/props_athens.json",
+   "raw_sha256": "ae68d8a9cde488e3f9ae88082b1c41e954b1983512c28581abd36ca0db1104ad",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-03-15T18:10:39+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0145972,
+    "best_2q_fidelity": 0.992041,
+    "median_t1_us": 63.488,
+    "median_t2_us": 112.23,
+    "median_readout_error": 0.0153,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/athens/props_athens.json",
+   "raw_sha256": "979c9d4406cc23fbebc03c9edb0dc6b2997bccaf8a923ecd21eeddcff05612c7",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

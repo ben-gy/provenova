@@ -12,3 +12,4 @@ os.environ.setdefault("QL_ATTESTATION_KEY_PATH", str(_TMP / "attestation.key"))
 os.environ.setdefault("QL_SECRET_KEY", "test-secret")
 os.environ.setdefault("QL_BASE_URL", "http://testserver")
 os.environ.setdefault("QL_RATELIMIT_ENABLED", "false")  # the suite hammers from one IP
+os.environ.setdefault("QL_CORPUS_AUTOSYNC", "false")  # tests seed their own corpus rows

@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from provenova_core.models import AuditLog, Report
+from provenova_core.models import AuditLog
 
 from ...config import get_settings
 
@@ -177,37 +177,13 @@ def research_cards(body: ResearchCardsIn, db: Session = Depends(get_db),
             "created": sum(1 for r in results if r["status"] == "created")}
 
 
-# --- reports -------------------------------------------------------------------
-
-class ReportIn(BaseModel):
-    slug: str = Field(pattern=r"^[a-z0-9-]{8,80}$")
-    title: str = Field(min_length=10, max_length=200)
-    body_md: str = Field(min_length=500, max_length=40_000)
-    meta_description: str = Field(min_length=30, max_length=200)
-    kind: str = Field(default="weekly_fleet", max_length=30)
-
+# --- reports (retired) ------------------------------------------------------------
 
 @router.post("/reports")
-def publish_report(body: ReportIn, db: Session = Depends(get_db),
-                   p: Principal = Depends(require_scope("growth"))):
-    settings = get_settings()
-    if db.scalar(select(Report).where(Report.slug == body.slug)) is not None:
-        raise HTTPException(409, detail={"error": "slug_exists", "slug": body.slug})
-    if growth_svc.reports_this_week(db) >= settings.growth_max_reports_per_week:
-        raise HTTPException(429, detail={
-            "error": "report_cap_reached",
-            "weekly_cap": settings.growth_max_reports_per_week})
-    bot_acc, _, _ = growth_svc.ensure_research_bot(db)
-    r = growth_svc.publish_report(
-        db, bot_account_id=bot_acc.id, slug=body.slug, title=body.title,
-        body_md=body.body_md, meta_description=body.meta_description, kind=body.kind)
-    db.commit()
-    url = f"{settings.base_url}/reports/{r.slug}"
-    pinged = indexnow.ping([url])
-    audit(db, workspace_id=None, account_id=p.account_id, action="growth.indexnow.ping",
-          detail={"urls": [url], "ok": pinged})
-    db.commit()
-    return {"slug": r.slug, "url": url, "published_at": r.published_at.isoformat()}
+def publish_report(p: Principal = Depends(require_scope("growth"))):
+    """The weekly report was retired in favour of /tracker (Oct 2026)."""
+    raise HTTPException(410, detail={"error": "reports_retired",
+                                     "detail": "Weekly reports were replaced by /tracker."})
 
 
 # --- status --------------------------------------------------------------------

@@ -1,0 +1,41 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_manila",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2021-07-26T15:50:46+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0100875,
+    "best_2q_fidelity": 0.992531,
+    "median_t1_us": 109.19,
+    "median_t2_us": 37.23,
+    "median_readout_error": 0.0236,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/manila/props_manila.json",
+   "raw_sha256": "61c48c311ee335de25797dd3652db2efc537bc3a91fb9f3029eaec39bd3ae495",
+   "commit_date": "2023-12-01T16:14:10Z"
+  },
+  {
+   "captured_at": "2024-05-27T18:27:23+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0100909,
+    "best_2q_fidelity": 0.994304,
+    "median_t1_us": 144.67,
+    "median_t2_us": 54.361,
+    "median_readout_error": 0.0219,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/7b9ecb722f55ecb3aea01d83e6d406a161efc770/qiskit_ibm_runtime/fake_provider/backends/manila/props_manila.json",
+   "raw_sha256": "5c1e0fe721a8e2fc00584007740db1b3d14cdf0c03cd033369187d4d4e2b1c24",
+   "commit_date": "2024-05-30T18:37:35Z"
+  }
+ ]
+}

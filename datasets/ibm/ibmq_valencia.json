@@ -1,0 +1,131 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_valencia",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-04-10T08:17:29+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0120078,
+    "best_2q_fidelity": 0.992313,
+    "median_t1_us": 81.964,
+    "median_t2_us": 75.761,
+    "median_readout_error": 0.02375,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/8332562191baf1a18ebe7bcb5ff9ea7e4ddb7ba8/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "7a9f534fc10e9341aa26d0f500d0665c9185b2f90562b2ea2988b6d85a62c5ed",
+   "commit_date": "2020-04-17T19:08:09Z"
+  },
+  {
+   "captured_at": "2020-04-29T09:01:41+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00898503,
+    "best_2q_fidelity": 0.991885,
+    "median_t1_us": 116.03,
+    "median_t2_us": 68.673,
+    "median_readout_error": 0.0225,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "1b72da78eb52a0ae316d9ff46415a572bf76ccd26bc1cf15a753744ec396167e",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-11T09:15:02+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0123061,
+    "best_2q_fidelity": 0.989685,
+    "median_t1_us": 100.77,
+    "median_t2_us": 49.061,
+    "median_readout_error": 0.025,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "ab639b9fc66977781d12a5ef723c4d4d9268eb26e766f55d9d761f8b98886e29",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T08:57:00+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0101047,
+    "best_2q_fidelity": 0.99293,
+    "median_t1_us": 118.76,
+    "median_t2_us": 55.609,
+    "median_readout_error": 0.03625,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "726c35a133f3efd99fc741ed92b43aa75f69d641d23d23964dc4434e9747fa9b",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T11:42:28+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0117936,
+    "best_2q_fidelity": 0.992631,
+    "median_t1_us": 123.36,
+    "median_t2_us": 60.108,
+    "median_readout_error": 0.03375,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/0f7673eb1d6b7d242ae3665e67a1d3eab76efba1/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "ce2bcb83daf2a96296a010c3b7a3143db952274be8b4c70eeb0e274bc63c5351",
+   "commit_date": "2020-08-10T15:18:20Z"
+  },
+  {
+   "captured_at": "2020-11-25T09:21:40+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0134656,
+    "best_2q_fidelity": 0.991606,
+    "median_t1_us": 94.131,
+    "median_t2_us": 52.972,
+    "median_readout_error": 0.0405,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "9fb62f35fbb713ddd4179a1b5626fd7527a007a8c94ae29b77d00c0e3e32680b",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-13T09:55:02+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0117427,
+    "best_2q_fidelity": 0.991504,
+    "median_t1_us": 109.14,
+    "median_t2_us": 54.299,
+    "median_readout_error": 0.0336,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/valencia/props_valencia.json",
+   "raw_sha256": "0f81d56dc7ea2728b65e063cd1747a3f9dbea0452930543fa398b9756c9d9f01",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-01-20T09:21:06+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0104883,
+    "best_2q_fidelity": 0.992675,
+    "median_t1_us": 101.76,
+    "median_t2_us": 49.158,
+    "median_readout_error": 0.0348,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/valencia/props_valencia.json",
+   "raw_sha256": "f9f329eab777e027e63b9736121576f6e964d7564ea117c27e8fb8a95a90259a",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

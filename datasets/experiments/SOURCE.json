@@ -1,0 +1,17 @@
+{
+  "name": "Awesome Quantum Computing Experiments",
+  "author": "Fran\u00e7ois-Marie Le R\u00e9gent",
+  "repository": "https://github.com/francois-marie/awesome-quantum-computing-experiments",
+  "commit": "f97919e54678ece3f6f8cf56beaedb12775a31fd",
+  "commit_date": "2026-09-08T15:26:07Z",
+  "license": "MIT",
+  "paper": "https://arxiv.org/abs/2507.03678",
+  "fetched": "2026-10-20",
+  "files": [
+    "entangled_state_error_exp.csv",
+    "qubit_count.csv",
+    "physical_qubits.csv",
+    "qec_exp.csv",
+    "research_groups.csv"
+  ]
+}

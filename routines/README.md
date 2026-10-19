@@ -1,7 +1,8 @@
 # Provenova growth routines
 
 The autonomous content pipeline that scans new quantum-computing research and publishes
-faithful, attributed reproduction cards + a weekly report to [provenova.net](https://provenova.net).
+faithful, attributed reproduction cards to [provenova.net](https://provenova.net). The weekly
+report was retired in October 2026 in favour of [/tracker](https://provenova.net/tracker).
 
 > **Setting this up on a new computer?** See **[HANDOFF.md](HANDOFF.md)** — a self-contained
 > guide with the ready-to-paste routine prompts for the Claude-subscription path.
@@ -19,7 +20,7 @@ in CI.
 pip install -r scripts/requirements-agent.txt
 export PROVENOVA_GROWTH_KEY=ql_live_…      # the growth-scoped API key
 export ANTHROPIC_API_KEY=sk-ant-…          # billed to your Anthropic account
-python scripts/growth_agent.py research-cards   # or: weekly-report, status
+python scripts/growth_agent.py research-cards   # or: status
 ```
 
 **Honesty by construction:** paper metadata (arXiv id, DOI, authors, URL) is fetched
@@ -35,8 +36,8 @@ Env vars: `PROVENOVA_BASE_URL` (default `https://provenova.net`),
 
 ### Scheduling via GitHub Actions (free, hands-off)
 
-`.github/workflows/growth.yml` runs it on a cron: **research-cards Mon/Wed/Fri 21:00 UTC**,
-**weekly-report Sun 22:00 UTC**, plus a manual "Run workflow" button. Set two repo secrets
+`.github/workflows/growth.yml` can run it on a cron (**research-cards Mon/Wed/Fri 21:00 UTC**,
+commented out by default) plus a manual "Run workflow" button. Set two repo secrets
 (Settings → Secrets and variables → Actions):
 
 - `PROVENOVA_GROWTH_KEY` — the `ql_live_…` key with the `growth` scope
@@ -48,7 +49,7 @@ Any other cron works too (crontab, systemd timer, a cheap VM) — it's just two 
 
 ## 2. Local Claude Code scheduled tasks
 
-`growth-research-cards.md` and `growth-weekly-report.md` are the prompt files for the
+`growth-research-cards.md` is the prompt file for the
 Claude Code desktop app's scheduled tasks (Scheduled sidebar). These run **while the app is
 open** (or on next launch) and hold the growth key in the local task file. Prefer option 1
 for reliable, machine-independent scheduling.

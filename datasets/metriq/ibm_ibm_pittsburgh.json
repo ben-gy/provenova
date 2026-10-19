@@ -1,56 +1,136 @@
 {
-  "schema": "qlprov/corpus-record/1.0",
-  "provider": "ibm",
-  "backend_id": "ibm_pittsburgh",
-  "captured_at": "2026-02-19T10:49:11.515257+00:00",
-  "source": "metriq",
-  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
-  "redistributable_raw": true,
-  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
-  "derived_metrics": {
-    "clops": 358612.99109987,
-    "eplg": 0.0027295,
-    "qaoa_ratio": 0.56950165,
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_pittsburgh",
+ "source": "metriq",
+ "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+ "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+ "redistributable_raw": true,
+ "note": "Metriq metriq-gym community benchmark runs (CC-BY-4.0); one snapshot per day a benchmark ran, holding only that day's measurements.",
+ "snapshots": [
+  {
+   "captured_at": "2026-02-09T14:32:04+00:00",
+   "derived_metrics": {
+    "qft_accuracy": 0.0,
     "n_qubits": 156,
     "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.0,
+     "timestamp": "2026-02-09T14:32:04+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "error_mitigation": [],
+      "max_circuits": 3,
+      "max_qubits": 20,
+      "method": 1,
+      "min_qubits": 20,
+      "shots": 1000,
+      "skip_qubits": 1,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-09_14-32-04_quantum_fourier_transform_6030e375.json"
+    }
+   ]
   },
-  "snapshot_json": {
-    "schema": "qlprov/corpus-record/1.0",
-    "backend": {
-      "vendor": "ibm",
-      "name": "ibm_pittsburgh",
-      "n_qubits": 156
+  {
+   "captured_at": "2026-02-17T11:58:37+00:00",
+   "derived_metrics": {
+    "qaoa_ratio": 0.56950165,
+    "n_qubits": 156,
+    "clops": 358612.99109987,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "clops",
+     "benchmark": "CLOPS",
+     "value": 358612.99109987105,
+     "timestamp": "2026-02-17T11:58:37+00:00",
+     "params": {
+      "benchmark_name": "CLOPS",
+      "mode": "twirled",
+      "num_circuits": 1000,
+      "num_layers": 100,
+      "num_qubits": 100,
+      "seed": 12345,
+      "shots": 100,
+      "two_qubit_gate": "cz",
+      "use_session": true
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-17_11-58-37_clops_ef80920b.json"
     },
-    "captured_at": "2026-02-19T10:49:11.515257+00:00",
-    "source": "metriq",
-    "provenance": {
-      "source": "metriq",
-      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-      "repo": "unitaryfoundation/metriq-data"
-    },
-    "metric_provenance": [
-      {
-        "metric": "clops",
-        "benchmark": "CLOPS",
-        "value": 358612.99109987105,
-        "timestamp": "2026-02-17T11:58:37.854389",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-17_11-58-37_clops_ef80920b.json"
-      },
-      {
-        "metric": "eplg",
-        "benchmark": "EPLG",
-        "value": 0.0027294956480133914,
-        "timestamp": "2026-02-19T10:49:11.515257",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-19_10-49-11_eplg_e5ee1886.json"
-      },
-      {
-        "metric": "qaoa_ratio",
-        "benchmark": "Linear Ramp QAOA",
-        "value": 0.5695016455174476,
-        "timestamp": "2026-02-17T11:50:02.008863",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-17_11-50-02_linear_ramp_qaoa_99724204.json"
-      }
-    ]
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.5695016455174476,
+     "timestamp": "2026-02-17T11:50:02+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 100,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 10
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-17_11-50-02_linear_ramp_qaoa_99724204.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2026-02-19T10:49:11+00:00",
+   "derived_metrics": {
+    "eplg": 0.0027295,
+    "n_qubits": 156,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "eplg",
+     "benchmark": "EPLG",
+     "value": 0.0027294956480133914,
+     "timestamp": "2026-02-19T10:49:11+00:00",
+     "params": {
+      "benchmark_name": "EPLG",
+      "decompose_clifford_ops": false,
+      "lengths": [
+       2,
+       4,
+       8,
+       16,
+       30,
+       50,
+       70,
+       100,
+       150,
+       200,
+       300,
+       500
+      ],
+      "num_qubits_in_chain": 100,
+      "num_samples": 10,
+      "one_qubit_basis_gates": [
+       "rz",
+       "rx",
+       "x"
+      ],
+      "seed": 12345,
+      "shots": 1000,
+      "two_qubit_gate": "cz"
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/ibm/ibm_pittsburgh/2026-02-19_10-49-11_eplg_e5ee1886.json"
+    }
+   ]
   }
+ ]
 }

@@ -192,7 +192,7 @@
     Plotly.newPlot('card-dist', [{
       type: 'bar', x: keys, y: keys.map(function (k) { return dist[k]; }), marker: {color: '#4f46e5'}
     }], { margin: {t: 10, r: 10, b: 40, l: 40}, showlegend: false,
-        xaxis: {automargin: true}, yaxis: {automargin: true}, font: {family: 'ui-sans-serif, system-ui'} },
+        xaxis: {automargin: true, type: 'category', title: 'measured bitstring'}, yaxis: {automargin: true, title: 'probability'}, font: {family: 'ui-sans-serif, system-ui'} },
       {displayModeBar: false, responsive: true});
     {% endif %}
   })();

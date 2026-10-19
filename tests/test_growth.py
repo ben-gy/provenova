@@ -292,21 +292,16 @@ def test_corpus_refresh_incomplete_does_not_throttle(client, growth_key, monkeyp
 
 # --- reports -----------------------------------------------------------------------
 
-def test_report_publish_and_409(client, growth_key):
-    body = {"slug": "state-of-quantum-2026-w26",
-            "title": "State of Quantum Hardware — Week 26, 2026",
-            "body_md": ("# This week's fleet\n\n" + "Real corpus facts here. " * 30),
-            "meta_description": "Weekly state of the quantum fleet, week 26 of 2026."}
+def test_reports_retired(client, growth_key):
+    """The weekly report was replaced by /tracker: publishing is gone, old URLs redirect."""
+    body = {"slug": "state-of-quantum-2026-w26", "title": "State of Quantum Hardware — Week 26",
+            "body_md": "x" * 600, "meta_description": "Weekly state of the quantum fleet."}
     r = client.post("/api/v1/growth/reports", headers=_auth(growth_key), json=body)
-    assert r.status_code == 200, r.text
-    url = r.json()["url"]
-    assert url.endswith("/reports/state-of-quantum-2026-w26")
-    # page renders
-    page = client.get("/reports/state-of-quantum-2026-w26")
-    assert page.status_code == 200
-    # duplicate slug -> 409 (idempotent weekly publish)
-    r2 = client.post("/api/v1/growth/reports", headers=_auth(growth_key), json=body)
-    assert r2.status_code == 409
+    assert r.status_code == 410
+    assert r.json()["detail"]["error"] == "reports_retired"
+    for path in ("/reports", "/reports/state-of-quantum-2026-w26"):
+        page = client.get(path, follow_redirects=False)
+        assert page.status_code == 301 and page.headers["location"] == "/tracker"
 
 
 # --- fake full routine run (end-to-end) ----------------------------------------------
@@ -321,4 +316,4 @@ def test_fake_routine_run_end_to_end(client, growth_key):
     assert s1["research_cards"]["total"] >= 2
     slugs = [r["slug"] for r in s1["research_cards"]["recent"]]
     assert all(slugs), "recent entries carry card slugs"
-    assert s1["reports"]["latest_slug"] is not None
+    assert "reports" not in s1

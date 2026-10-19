@@ -31,7 +31,6 @@ from provenova_core.models import (
     CorpusSnapshot,
     Org,
     OrgMembership,
-    Report,
     ResultCard,
     Workspace,
     WorkspaceMember,
@@ -51,7 +50,6 @@ from provenova_core.simulate.safety import (  # shared allowlist + caps (single 
 from ..config import get_settings
 from . import cards as cards_svc
 from .accounts import audit, grant_plan
-from .sanitize import render_untrusted_markdown
 
 BOT_EMAIL = "research-bot@quantumledger.local"
 BOT_ORG_SLUG = "ql-research"
@@ -129,13 +127,6 @@ def cards_today(session: Session) -> int:
     ) or 0
 
 
-def reports_this_week(session: Session) -> int:
-    week_ago = _dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=7)
-    return session.scalar(
-        select(func.count(Report.id)).where(Report.created_at >= week_ago)
-    ) or 0
-
-
 # --- research cards ----------------------------------------------------------
 
 def find_existing(session: Session, *, arxiv_id: str | None, doi: str | None,
@@ -192,22 +183,6 @@ def create_research_card(session: Session, *, bot: tuple[Account, Org, Workspace
             "card_url": f"{get_settings().base_url}/cards/{card.slug}"}
 
 
-# --- reports -------------------------------------------------------------------
-
-def publish_report(session: Session, *, bot_account_id: str, slug: str, title: str,
-                   body_md: str, meta_description: str,
-                   kind: str = "weekly_fleet") -> Report:
-    r = Report(slug=slug, title=title, kind=kind, body_md=body_md,
-               body_html=render_untrusted_markdown(body_md),
-               meta_description=meta_description, published=True,
-               published_at=_dt.datetime.now(_dt.timezone.utc))
-    session.add(r)
-    audit(session, workspace_id=None, account_id=bot_account_id,
-          action="growth.report.publish", resource_type="report", resource_id=slug)
-    session.flush()
-    return r
-
-
 # --- status --------------------------------------------------------------------
 
 def growth_status(session: Session) -> dict:
@@ -224,8 +199,6 @@ def growth_status(session: Session) -> dict:
     slugs = {a.card_id: a for a in recent}
     cards = {c.id: c for c in session.scalars(
         select(ResultCard).where(ResultCard.id.in_(list(slugs)))).all()} if slugs else {}
-    latest_report = session.scalar(
-        select(Report).where(Report.published.is_(True)).order_by(Report.published_at.desc()))
     return {
         "corpus": {"snapshots": snapshots, "by_provider": by_provider},
         "research_cards": {
@@ -238,13 +211,6 @@ def growth_status(session: Session) -> dict:
                         "created_at": a.created_at.isoformat() if a.created_at else None}
                        for a in recent],
             "known_arxiv_ids": known_ids,
-        },
-        "reports": {
-            "latest_slug": latest_report.slug if latest_report else None,
-            "latest_published_at": (latest_report.published_at.isoformat()
-                                    if latest_report and latest_report.published_at else None),
-            "this_week": reports_this_week(session),
-            "weekly_cap": settings.growth_max_reports_per_week,
         },
         "server_time": _dt.datetime.now(_dt.timezone.utc).isoformat(),
     }

@@ -1,15 +1,19 @@
-"""Server-side Metriq corpus refresh (in-memory port of scripts/fetch_metriq.py).
+"""Metriq benchmark history: shared builder + the server-side refresh.
 
-Fetches the latest openly-licensed (CC-BY-4.0) metriq-gym benchmark records
-from the ``unitaryfoundation/metriq-data`` GitHub repo and ADDITIVELY upserts
-them into ``corpus_snapshots`` — content-hash dedup means unchanged devices
-are no-ops, so the endpoint is safely re-runnable. Nothing touches the
-filesystem (Fly disks are ephemeral).
+Metriq (Unitary Foundation) publishes every ``metriq-gym`` benchmark run as a
+timestamped JSON file in ``unitaryfoundation/metriq-data`` under CC-BY-4.0.
+``build_series`` turns those files into one ``qlprov/corpus-series/1.0``
+document per device, with one snapshot per day that a benchmark was run and
+only the metrics measured that day — so device histories are real
+measurements, never carried-forward values.
 
-``insert_snapshot`` is the single corpus upsert path, shared with
-``scripts/seed_real.py``. The record→snapshot conversion and the content-hash
-formula are IDENTICAL to the seed path, so server refreshes dedupe against
-rows seeded from ``datasets/metriq/*.json``.
+The same builder backs ``scripts/fetch_metriq.py`` (which writes
+``datasets/metriq/``) and ``refresh_metriq_corpus`` (the Growth API refresh),
+so both produce identical content hashes and dedupe against each other.
+
+Device identity is normalised to the machine's maker: Braket-hosted devices
+(``arn_aws_braket_..._device_qpu_rigetti_cepheus-1-108q``) and their short
+aliases map to ``rigetti/cepheus-1-108q``, and so on.
 """
 
 from __future__ import annotations
@@ -18,15 +22,13 @@ import datetime as _dt
 import re
 import sys
 import time
+from typing import Callable
 
 import httpx
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from provenova_core import hashing
-from provenova_core.models import CorpusSnapshot
-
 from ..config import get_settings
+from .corpus_sync import insert_snapshot, series_rows  # noqa: F401  (insert_snapshot re-exported)
 
 RAW_BASE = "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main"
 TREE_API = "https://api.github.com/repos/unitaryfoundation/metriq-data/git/trees/main?recursive=1"
@@ -34,47 +36,9 @@ LICENSE_URL = "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENS
 LICENSE_REF = "CC-BY-4.0 · metriq.info"
 
 _HASH = re.compile(r"[0-9a-f]{6,}$")
+_BRAKET_ARN = re.compile(r"^arn_aws_braket_[a-z0-9-]+_device_qpu_([a-z]+)_(.+)$")
+_MAKERS = ("iqm", "ionq", "rigetti")
 
-
-# --- shared corpus upsert (also imported by scripts/seed_real.py) -----------
-
-def insert_snapshot(session: Session, *, provider, backend_id, captured_at, content_hash,
-                    snapshot_json, derived_metrics, license_ref, redistributable_raw,
-                    raw_ref=None) -> bool:
-    """Insert one corpus snapshot unless (provider, backend, hash) exists."""
-    exists = session.scalar(select(CorpusSnapshot).where(
-        CorpusSnapshot.provider == provider, CorpusSnapshot.backend_id == backend_id,
-        CorpusSnapshot.content_hash == content_hash))
-    if exists:
-        return False
-    session.add(CorpusSnapshot(
-        provider=provider, backend_id=backend_id, captured_at=captured_at,
-        content_hash=content_hash, snapshot_json=snapshot_json,
-        derived_metrics=derived_metrics, license_ref=license_ref,
-        redistributable_raw=redistributable_raw, raw_ref=raw_ref))
-    return True
-
-
-def insert_corpus_record(session: Session, rec: dict) -> bool:
-    """Upsert a ``qlprov/corpus-record/1.0`` dict (same formula as seed_real)."""
-    provider, bid = rec["provider"], rec["backend_id"]
-    source = rec.get("source", "metriq")
-    dm = dict(rec.get("derived_metrics") or {})
-    dm.setdefault("source", source)
-    snapshot_json = rec.get("snapshot_json") or {}
-    content_hash = hashing.calibration_hash(
-        {"provider": provider, "backend_id": bid, "captured_at": rec["captured_at"],
-         "source": source, "metrics": dm})
-    return insert_snapshot(
-        session, provider=provider, backend_id=bid,
-        captured_at=_dt.datetime.fromisoformat(rec["captured_at"]),
-        content_hash=content_hash, snapshot_json=snapshot_json, derived_metrics=dm,
-        license_ref=rec["license_ref"],
-        redistributable_raw=bool(rec.get("redistributable_raw", False)),
-        raw_ref=rec.get("raw_ref"))
-
-
-# --- metriq-data fetch (identical extraction to scripts/fetch_metriq.py) ----
 
 def _first(results, *keys):
     for k in keys:
@@ -87,6 +51,7 @@ def _first(results, *keys):
     return None
 
 
+# benchmark name in the filename -> (metric key, extractor)
 BENCHMARKS = {
     "eplg": ("eplg", lambda r: _first(r, "eplg_10")),
     "clops": ("clops", lambda r: _first(r, "clops_score", "steady_state_clops")),
@@ -96,7 +61,8 @@ BENCHMARKS = {
 }
 
 
-def _parse_path(path: str):
+def parse_path(path: str):
+    """``metriq-gym/<ver>/<provider_dir>/<device>/<date>_<time>_<bench>_<hash>.json``."""
     parts = path.split("/")
     if len(parts) < 5 or parts[0] != "metriq-gym" or not path.endswith(".json"):
         return None
@@ -110,86 +76,118 @@ def _parse_path(path: str):
     return provider_dir, device, "_".join(mid), path
 
 
-def _real_vendor(provider_dir: str, device: str) -> tuple[str, str]:
+def device_identity(provider_dir: str, device: str) -> tuple[str, str]:
+    """The machine's maker and a stable backend id for a metriq-data folder."""
     d = device.lower()
-    if "iqm" in d:
-        bid = "iqm_garnet" if "garnet" in d else ("iqm_emerald" if "emerald" in d else device)
-        return "iqm", bid
+    m = _BRAKET_ARN.match(d)
+    if m:
+        d = f"{m.group(1)}_{m.group(2)}"
+    for maker in _MAKERS:
+        if d.startswith(maker + "_"):
+            name = d[len(maker) + 1:]
+            # IQM devices keep their iqm_ prefix (the long-standing public URLs).
+            return maker, (f"iqm_{name}" if maker == "iqm" else name)
     return provider_dir, device
 
 
-def _build_records(client: httpx.Client, latest: dict, deadline: float) -> tuple[list[dict], bool]:
-    """Download benchmark files and merge per-device records; deadline-bounded.
+def _iso(ts: str) -> str:
+    dt = _dt.datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_dt.timezone.utc)
+    return dt.astimezone(_dt.timezone.utc).replace(microsecond=0).isoformat()
 
-    The deadline is only checked at DEVICE boundaries (keys are sorted, so a
-    device's benchmarks are contiguous) — so we never emit a device with a
-    partial metric set that could shadow the complete row on a later refresh.
+
+def build_series(paths: list[str], fetch_json: Callable[[str], object],
+                 deadline: float | None = None) -> tuple[list[dict], bool]:
+    """metriq-data file paths -> per-device ``corpus-series`` documents.
+
+    ``deadline`` (a ``time.monotonic()`` value) is only checked between
+    devices, so a cut-short pass never emits a device with partial history.
     """
-    devices: dict[tuple[str, str], dict] = {}
-    complete = True
-    current_device: tuple[str, str] | None = None
-    for (provider_dir, device, bench), path in sorted(latest.items()):
-        if (provider_dir, device) != current_device:
-            if time.monotonic() > deadline:
+    entries = []
+    for p in paths:
+        parsed = parse_path(p)
+        if parsed and parsed[2] in BENCHMARKS:
+            provider_dir, device, bench, path = parsed
+            entries.append((*device_identity(provider_dir, device), bench, path))
+    entries.sort(key=lambda e: (e[0], e[1], e[3].split("/")[-1]))
+
+    devices: dict[tuple[str, str], dict[str, dict]] = {}
+    complete, current = True, None
+    for maker, bid, bench, path in entries:
+        if (maker, bid) != current:
+            if deadline is not None and time.monotonic() > deadline:
                 complete = False
                 break
-            current_device = (provider_dir, device)
+            current = (maker, bid)
         metric_key, extract = BENCHMARKS[bench]
         try:
-            doc = client.get(f"{RAW_BASE}/{path}").raise_for_status().json()
-        except Exception as e:  # noqa: BLE001 — one bad file must not sink the refresh
-            print(f"metriq refresh: skip {path}: {e}", file=sys.stderr)
+            doc = fetch_json(f"{RAW_BASE}/{path}")
+        except Exception as e:  # noqa: BLE001 — one bad file must not sink the build
+            print(f"metriq: skip {path}: {e}", file=sys.stderr)
             continue
         rec = doc[0] if isinstance(doc, list) else doc
-        value = extract(rec.get("results", {}))
-        if value is None:
+        value = extract(rec.get("results") or {})
+        ts = rec.get("timestamp")
+        if value is None or not ts:
             continue
-        vendor, bid = _real_vendor(provider_dir, device)
-        nq = rec.get("platform", {}).get("device_metadata", {}).get("num_qubits")
-        ts = rec.get("timestamp", "")
-        d = devices.setdefault((vendor, bid), {"metrics": {}, "prov": [], "ts": "", "nq": None})
-        d["metrics"][metric_key] = round(float(value), 8)
-        d["prov"].append({"metric": metric_key, "benchmark": rec.get("job_type", bench),
-                          "value": float(value), "timestamp": ts,
-                          "source_url": f"{RAW_BASE}/{path}"})
-        if ts > d["ts"]:
-            d["ts"] = ts
-        if nq and not d["nq"]:
-            d["nq"] = nq
+        captured = _iso(ts)
+        day = devices.setdefault((maker, bid), {}).setdefault(
+            captured[:10], {"captured_at": captured, "metrics": {}, "prov": {}})
+        if captured >= day["captured_at"] or metric_key not in day["metrics"]:
+            day["metrics"][metric_key] = round(float(value), 8)
+            day["prov"][metric_key] = {"metric": metric_key,
+                                       "benchmark": rec.get("job_type", bench),
+                                       "value": float(value), "timestamp": captured,
+                                       "params": rec.get("params") or {},
+                                       "source_url": f"{RAW_BASE}/{path}"}
+        day["captured_at"] = max(day["captured_at"], captured)
+        nq = ((rec.get("platform") or {}).get("device_metadata") or {}).get("num_qubits")
+        if nq:
+            day["metrics"]["n_qubits"] = nq
 
-    records = []
-    for (vendor, bid), d in sorted(devices.items()):
-        dm = dict(d["metrics"])
-        if d["nq"]:
-            dm["n_qubits"] = d["nq"]
-        dm["source"] = "metriq"
-        captured = d["ts"] or "2026-01-01T00:00:00"
-        if "+" not in captured and "Z" not in captured:
-            captured += "+00:00"
-        records.append({
-            "schema": "qlprov/corpus-record/1.0",
-            "provider": vendor, "backend_id": bid, "captured_at": captured,
-            "source": "metriq", "license_ref": LICENSE_REF, "raw_ref": LICENSE_URL,
+    out = []
+    for (maker, bid), days in sorted(devices.items()):
+        snaps = []
+        for _, day in sorted(days.items()):
+            dm = dict(day["metrics"])
+            dm["source"] = "metriq"
+            snaps.append({"captured_at": day["captured_at"], "derived_metrics": dm,
+                          "metric_provenance": [day["prov"][k] for k in sorted(day["prov"])]})
+        out.append({
+            "schema": "qlprov/corpus-series/1.0",
+            "provider": maker, "backend_id": bid, "source": "metriq",
+            "license_ref": LICENSE_REF, "raw_ref": LICENSE_URL,
             "redistributable_raw": True,
-            "derived_metrics": dm,
-            "snapshot_json": {
-                "schema": "qlprov/corpus-record/1.0",
-                "backend": {"vendor": vendor, "name": bid, "n_qubits": d["nq"]},
-                "captured_at": captured, "source": "metriq",
-                "provenance": {"source": "metriq", "license_ref": LICENSE_REF,
-                               "repo": "unitaryfoundation/metriq-data"},
-                "metric_provenance": d["prov"],
-            },
+            "note": "Metriq metriq-gym community benchmark runs (CC-BY-4.0); one snapshot "
+                    "per day a benchmark ran, holding only that day's measurements.",
+            "snapshots": snaps,
         })
-    return records, complete
+    return out, complete
+
+
+def insert_series(session: Session, series: dict) -> tuple[int, int]:
+    inserted = deduped = 0
+    for row in series_rows(series):
+        if insert_snapshot(session, **row):
+            inserted += 1
+        else:
+            deduped += 1
+    return inserted, deduped
+
+
+def insert_corpus_record(session: Session, rec: dict) -> bool:
+    """Upsert a single ``qlprov/corpus-record/1.0`` dict."""
+    from .corpus_sync import record_rows
+
+    return any([insert_snapshot(session, **row) for row in record_rows(rec)])
 
 
 def refresh_metriq_corpus(session: Session, deadline_s: float = 45.0) -> dict:
-    """Fetch latest metriq records and upsert; bounded by a soft deadline.
+    """Fetch the metriq-data history and upsert; bounded by a soft deadline.
 
     Returns {"complete", "fetched", "inserted", "deduped", "by_provider"}.
-    Safe to call repeatedly: additive + content-hash dedup (re-running after an
-    incomplete pass picks up where dedup left off).
+    Safe to call repeatedly: additive + content-hash dedup.
     """
     deadline = time.monotonic() + deadline_s
     settings = get_settings()
@@ -199,24 +197,18 @@ def refresh_metriq_corpus(session: Session, deadline_s: float = 45.0) -> dict:
 
     with httpx.Client(timeout=20.0, headers=headers) as client:
         tree = client.get(TREE_API).raise_for_status().json()
-        entries = [e for e in (_parse_path(o.get("path", "")) for o in tree.get("tree", []))
-                   if e and e[2] in BENCHMARKS]
-        # newest file per (provider_dir, device, benchmark) — timestamps prefix filenames
-        latest: dict[tuple[str, str, str], str] = {}
-        for provider_dir, device, bench, path in entries:
-            key = (provider_dir, device, bench)
-            if key not in latest or path.split("/")[-1] > latest[key].split("/")[-1]:
-                latest[key] = path
-        records, complete = _build_records(client, latest, deadline)
+        paths = [o.get("path", "") for o in tree.get("tree", [])]
+        series, complete = build_series(
+            paths, lambda url: client.get(url).raise_for_status().json(), deadline=deadline)
 
     inserted = deduped = 0
     by_provider: dict[str, int] = {}
-    for rec in records:
-        if insert_corpus_record(session, rec):
-            inserted += 1
-            by_provider[rec["provider"]] = by_provider.get(rec["provider"], 0) + 1
-        else:
-            deduped += 1
+    for s in series:
+        i, d = insert_series(session, s)
+        inserted += i
+        deduped += d
+        if i:
+            by_provider[s["provider"]] = by_provider.get(s["provider"], 0) + i
     session.commit()
-    return {"complete": complete, "fetched": len(records), "inserted": inserted,
+    return {"complete": complete, "fetched": len(series), "inserted": inserted,
             "deduped": deduped, "by_provider": by_provider}

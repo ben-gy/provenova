@@ -19,7 +19,7 @@
   <meta property="og:url" content="{{ settings.base_url }}{{ canonical_path }}">
   {%- endif %}
   <meta name="twitter:card" content="summary">
-  <link rel="alternate" type="application/atom+xml" title="Provenova reports & result cards" href="/reports/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Provenova result cards" href="/reports/feed.xml">
   <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   {#- Cloudflare Web Analytics: anonymous, cookie-less page-view counts, shared
@@ -38,12 +38,11 @@
 <body class="h-full bg-slate-50 text-slate-800 antialiased">
   {% from "_brand.html" import mark %}
   {% set nav_links = [
-    ('/', 'Home'),
-    ('/app/records', 'Records'),
+    ('/tracker', 'Tracker'),
     ('/hardware', 'Hardware'),
     ('/leaderboard', 'Leaderboard'),
+    ('/app/records', 'Records'),
     ('/app/compliance', 'Compliance'),
-    ('/trust/provenova', 'Trust Center'),
     ('/docs', 'Docs')
   ] %}
   <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
@@ -103,9 +102,10 @@
 
   <footer class="max-w-6xl mx-auto px-4 py-10 text-xs text-slate-400 border-t border-slate-200 mt-8">
     <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-      <span>Provenova — the vendor-neutral system of record for quantum.</span>
+      <span>Provenova — quantum progress, with the receipts.</span>
+      <a href="/tracker" class="hover:text-slate-600">Tracker</a>
       <a href="/hardware" class="hover:text-slate-600">Hardware</a>
-      <a href="/reports" class="hover:text-slate-600">Reports</a>
+      <a href="/trust/provenova" class="hover:text-slate-600">Trust Center</a>
       <a href="/reports/feed.xml" class="hover:text-slate-600">RSS</a>
       <a href="/docs" class="hover:text-slate-600">Docs</a>
       <a href="/docs/licensing" class="hover:text-slate-600">License</a>

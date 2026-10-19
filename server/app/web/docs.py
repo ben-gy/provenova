@@ -35,7 +35,7 @@ DOCS_MANIFEST: list[dict] = [
         {"slug": "reproduce-and-drift", "title": "Reproduce & drift", "source": "file:reproduce-and-drift.md"},
         {"slug": "result-cards-and-badges", "title": "Result cards & badges", "source": "file:result-cards-and-badges.md"},
         {"slug": "compliance", "title": "Compliance & attestations", "source": "file:compliance.md"},
-        {"slug": "corpus-and-leaderboard", "title": "Corpus & leaderboard", "source": "file:corpus-and-leaderboard.md"},
+        {"slug": "corpus-and-leaderboard", "title": "Tracker, corpus & leaderboard", "source": "file:corpus-and-leaderboard.md"},
     ]},
     {"title": "Using the app", "pages": [
         {"slug": "product-tour", "title": "Product tour (every page & button)", "source": "file:product-tour.md"},

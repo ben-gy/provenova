@@ -1,0 +1,144 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "rigetti",
+ "backend_id": "cepheus-1-108q",
+ "source": "metriq",
+ "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+ "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+ "redistributable_raw": true,
+ "note": "Metriq metriq-gym community benchmark runs (CC-BY-4.0); one snapshot per day a benchmark ran, holding only that day's measurements.",
+ "snapshots": [
+  {
+   "captured_at": "2026-07-23T13:12:00+00:00",
+   "derived_metrics": {
+    "qaoa_ratio": 0.0,
+    "n_qubits": 107,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.0,
+     "timestamp": "2026-07-23T13:12:00+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 10,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 10
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.7/braket/arn_aws_braket_us-west-1_device_qpu_rigetti_cepheus-1-108q/2026-07-23_13-12-00_linear_ramp_qaoa_db61cbf0.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2026-07-24T10:41:43+00:00",
+   "derived_metrics": {
+    "qaoa_ratio": 0.0,
+    "n_qubits": 107,
+    "bseq": 5.0,
+    "eplg": 0.00204942,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "bseq",
+     "benchmark": "BSEQ",
+     "value": 5.0,
+     "timestamp": "2026-07-24T10:25:20+00:00",
+     "params": {
+      "benchmark_name": "BSEQ",
+      "shots": 1000
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.7/braket/arn_aws_braket_us-west-1_device_qpu_rigetti_cepheus-1-108q/2026-07-24_10-25-20_bseq_921ec9b8.json"
+    },
+    {
+     "metric": "eplg",
+     "benchmark": "EPLG",
+     "value": 0.0020494243795807776,
+     "timestamp": "2026-07-24T10:41:43+00:00",
+     "params": {
+      "benchmark_name": "EPLG",
+      "constrain_rb_offset_b": false,
+      "decompose_clifford_ops": false,
+      "lengths": [
+       2,
+       4,
+       8,
+       16,
+       50,
+       100
+      ],
+      "num_qubits_in_chain": 80,
+      "num_samples": 5,
+      "one_qubit_basis_gates": [
+       "rz",
+       "rx",
+       "x"
+      ],
+      "seed": 12345,
+      "shots": 500,
+      "two_qubit_gate": "cz"
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.7/braket/arn_aws_braket_us-west-1_device_qpu_rigetti_cepheus-1-108q/2026-07-24_10-41-43_eplg_8007ce82.json"
+    },
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.0,
+     "timestamp": "2026-07-24T10:11:44+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 50,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 10
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.7/braket/arn_aws_braket_us-west-1_device_qpu_rigetti_cepheus-1-108q/2026-07-24_10-11-44_linear_ramp_qaoa_ae9ba470.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2026-08-05T07:07:09+00:00",
+   "derived_metrics": {
+    "qft_accuracy": 0.001,
+    "n_qubits": 107,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.001,
+     "timestamp": "2026-08-05T07:07:09+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "max_circuits": 3,
+      "method": 1,
+      "num_qubits": 8,
+      "shots": 1000,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.7/aws/rigetti_cepheus-1-108q/2026-08-05_07-07-09_quantum_fourier_transform_ddf72dd5.json"
+    }
+   ]
+  }
+ ]
+}

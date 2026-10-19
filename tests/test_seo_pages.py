@@ -1,6 +1,6 @@
-"""SEO surface tests: hardware/compare/report pages, sitemap, robots, feed.
+"""SEO surface tests: tracker, hardware/compare pages, sitemap, robots, feed.
 
-Seeds a handful of corpus snapshots + a published/draft report directly, then
+Seeds a handful of corpus snapshots + a (retired) report directly, then
 asserts rendering, canonical/OG hygiene, thin-page gating and sitemap content.
 """
 
@@ -127,22 +127,34 @@ def test_compare_self_404(client, seeded):
     assert client.get("/hardware/acme/alpha-1/vs/acme/alpha-1").status_code == 404
 
 
-# --- reports -------------------------------------------------------------------
+# --- retired reports + tracker ------------------------------------------------------
 
-def test_reports_index_shows_published_only(client, seeded):
-    r = client.get("/reports")
+def test_retired_report_urls_redirect_to_tracker(client, seeded):
+    for path in ("/reports", "/reports/state-of-quantum-2026-w27", "/reports/draft-report-unpub"):
+        r = client.get(path, follow_redirects=False)
+        assert r.status_code == 301, path
+        assert r.headers["location"] == "/tracker"
+
+
+def test_tracker_page_renders_sourced_headlines(client, seeded):
+    r = client.get("/tracker")
     assert r.status_code == 200
-    assert "state-of-quantum-2026-w27" in r.text
-    assert "draft-report-unpub" not in r.text
-
-
-def test_report_detail_renders_and_draft_404(client, seeded):
-    r = client.get("/reports/state-of-quantum-2026-w27")
-    assert r.status_code == 200
-    assert "<h1" in r.text  # markdown rendered
+    assert r.text.count('rel="canonical"') == 1
+    assert 'http://testserver/tracker' in r.text
+    assert "Is quantum computing actually getting better?" in r.text
+    for label in ("Published experiments", "Resource estimate", "Programme announcement"):
+        assert label in r.text, label
     blobs = re.findall(r'<script type="application/ld\+json">(.*?)</script>', r.text, re.S)
-    assert any(json.loads(b).get("@type") == "Article" for b in blobs)
-    assert client.get("/reports/draft-report-unpub").status_code == 404
+    assert any(json.loads(b).get("@type") == "Dataset" for b in blobs)
+
+
+def test_tracker_json_cites_every_headline(client, seeded):
+    data = client.get("/api/v1/tracker").json()
+    assert data["headlines"], "expected headlines from the bundled datasets"
+    for h in data["headlines"]:
+        assert h["source_url"] and h["evidence"], h
+    assert data["charts"]["gate_error"]["points"]
+    assert data["experiments_source"]["commit"]
 
 
 def test_feed_parses_and_has_absolute_urls(client, seeded):
@@ -151,8 +163,12 @@ def test_feed_parses_and_has_absolute_urls(client, seeded):
     assert r.headers["content-type"].startswith("application/atom+xml")
     root = ET.fromstring(r.text)
     ns = "{http://www.w3.org/2005/Atom}"
-    hrefs = [li.get("href") for e in root.findall(f"{ns}entry") for li in e.findall(f"{ns}link")]
-    assert hrefs and all(h.startswith("http://testserver/") for h in hrefs)
+    # feed-level links (self + /tracker) plus any card entries are all absolute
+    hrefs = [li.get("href") for li in root.findall(f"{ns}link")]
+    hrefs += [li.get("href") for e in root.findall(f"{ns}entry") for li in e.findall(f"{ns}link")]
+    assert "http://testserver/tracker" in hrefs
+    assert all(h.startswith("http://testserver/") for h in hrefs)
+    assert not any("/reports/" in h and not h.endswith("feed.xml") for h in hrefs)
 
 
 # --- sitemap / robots -----------------------------------------------------------
@@ -175,7 +191,8 @@ def test_sitemap_content(client, seeded):
     ns = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
     locs = [u.find(f"{ns}loc").text for u in root.findall(f"{ns}url")]
     assert "http://testserver/hardware/acme/alpha-1" in locs
-    assert "http://testserver/reports/state-of-quantum-2026-w27" in locs
+    assert "http://testserver/tracker" in locs
+    assert not any("/reports/" in l for l in locs)
     assert "http://testserver/hardware/acme/alpha-1/vs/bcorp/beta" in locs
     # no reversed pair, no app pages, no drafts
     assert "http://testserver/hardware/bcorp/beta/vs/acme/alpha-1" not in locs
@@ -184,7 +201,7 @@ def test_sitemap_content(client, seeded):
 
 
 def test_existing_pages_have_single_og_title(client):
-    for path in ("/", "/leaderboard", "/docs"):
+    for path in ("/", "/tracker", "/leaderboard", "/hardware", "/docs"):
         r = client.get(path)
         assert r.status_code == 200, path
         assert r.text.count('property="og:title"') == 1, path

@@ -1,0 +1,26 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_brussels",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2026-04-17T05:27:08+00:00",
+   "derived_metrics": {
+    "n_qubits": 127,
+    "median_2q_error": 0.00861658,
+    "best_2q_fidelity": 0.996912,
+    "median_t1_us": 237.09,
+    "median_t2_us": 136.17,
+    "median_readout_error": 0.0281982,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/874340868b5bf3686a69145a43b16c9aba91c675/qiskit_ibm_runtime/fake_provider/backends/brussels/props_brussels.json",
+   "raw_sha256": "2ffaffaeef258bcf920f86fd80179978313fe37367c137f1ca699389049648ac",
+   "commit_date": "2026-04-17T14:55:45Z"
+  }
+ ]
+}

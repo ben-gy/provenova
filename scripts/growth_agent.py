@@ -3,7 +3,7 @@
 
 Packages the scheduled routine as a portable CLI so it can run anywhere (a laptop,
 a cron box, or GitHub Actions) without Claude Code. It uses the Anthropic SDK for
-the editorial judgement (paper triage, circuit design, report writing) and httpx for
+the editorial judgement (paper triage, circuit design) and httpx for
 everything else, and calls the live Provenova Growth API to publish.
 
 Honesty by construction: paper metadata (arXiv id, DOI, authors, URL) is fetched
@@ -14,12 +14,11 @@ server re-validates and re-enforces all caps regardless of what this script send
 
 Subcommands:
     research-cards   Scan new arXiv/OpenAlex papers, publish faithful reproduction cards.
-    weekly-report    Publish the weekly "State of Quantum Hardware" report.
     status           Print the Growth API status (debugging).
 
 Environment:
     PROVENOVA_GROWTH_KEY   (required)  ql_live_… key with the `growth` scope.
-    ANTHROPIC_API_KEY      (required for research-cards/weekly-report) Anthropic key.
+    ANTHROPIC_API_KEY      (required for research-cards) Anthropic key.
     PROVENOVA_BASE_URL     (default https://provenova.net)
     PROVENOVA_AGENT_MODEL  (default claude-opus-4-8)
     PROVENOVA_MAX_CARDS    (default 2)  soft cap per run (server hard-caps at 3/day).
@@ -215,10 +214,6 @@ class TriageResult(BaseModel):
     decisions: list[CardDecision]
 
 
-class ReportOut(BaseModel):
-    title: str
-    meta_description: str
-    body_md: str
 
 
 def _anthropic():
@@ -379,71 +374,6 @@ def _run_research_cards() -> int:
 
 
 # --------------------------------------------------------------------------- #
-# weekly-report
-# --------------------------------------------------------------------------- #
-
-_REPORT_SYSTEM = """You are the Provenova weekly-report writer. Write the weekly \
-"State of Quantum Hardware" report from the REAL platform data provided. Every number \
-in the report MUST come from the data given to you — no estimates, no outside knowledge, \
-no fabrication. Link the underlying pages (the leaderboard at /leaderboard, device pages \
-at /hardware/<provider>/<backend>, and cards at /cards/<slug>).
-
-Return title, meta_description (30-200 chars, factual), and body_md (800-1500 words). \
-Structure body_md: 'This week's fleet' (corpus size, providers, notable rankings per metric \
-with source/licence caveats — vendor-reported means a manufacturer claim, not an independent \
-measurement); 'New on the platform' (research cards published, linked); and a short 'Method note' \
-(sources: IBM Apache-2.0 calibration, Metriq CC-BY-4.0, vendor-reported specs; all platform runs \
-are deterministic simulator executions). No raw HTML, no images, no superlatives."""
-
-
-def _iso_week_slug() -> str:
-    y, w, _ = _today().isocalendar()
-    return f"state-of-quantum-{y}-w{w:02d}"
-
-
-def _run_weekly_report() -> int:
-    slug = _iso_week_slug()
-    status = growth_get("/api/v1/growth/status")
-    if (status.get("reports") or {}).get("latest_slug") == slug:
-        print(f"{slug} already published; nothing to do")
-        return 0
-
-    metrics = {}
-    for m in ("two_q_fidelity", "eplg", "clops", "qaoa_ratio"):
-        try:
-            metrics[m] = growth_get(f"/api/v1/leaderboard?metric={m}").get("entries", [])
-        except Exception:
-            metrics[m] = []
-    data = {"corpus": status.get("corpus"), "research_cards": status.get("research_cards"),
-            "leaderboards": metrics, "week_slug": slug}
-
-    client = _anthropic()
-    resp = client.messages.parse(
-        model=MODEL,
-        max_tokens=16000,
-        system=_REPORT_SYSTEM,
-        messages=[{"role": "user", "content":
-                   f"Write this week's report ({slug}) from this data. Use only these "
-                   f"numbers.\n\n{_json(data)}"}],
-        output_format=ReportOut,
-    )
-    out = resp.parsed_output
-    if out is None:
-        _die(f"model returned no parseable output (stop_reason={resp.stop_reason})")
-
-    code, body = growth_post("/api/v1/growth/reports", {
-        "slug": slug, "title": out.title,
-        "meta_description": out.meta_description[:200], "body_md": out.body_md})
-    if code == 409:
-        print(f"{slug} already published (409); done")
-        return 0
-    if code != 200:
-        _die(f"reports POST failed: {code} {body}")
-    print(f"published report: {body.get('url')}")
-    return 0
-
-
-# --------------------------------------------------------------------------- #
 # helpers + entrypoint
 # --------------------------------------------------------------------------- #
 
@@ -463,12 +393,10 @@ def _run_status() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Provenova growth agent")
-    ap.add_argument("command", choices=["research-cards", "weekly-report", "status"])
+    ap.add_argument("command", choices=["research-cards", "status"])
     args = ap.parse_args(argv)
     if args.command == "research-cards":
         return _run_research_cards()
-    if args.command == "weekly-report":
-        return _run_weekly_report()
     return _run_status()
 
 

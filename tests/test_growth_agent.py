@@ -42,9 +42,11 @@ def test_abstract_from_inverted():
     assert g._abstract_from_inverted(None) == ""
 
 
-def test_week_slug_shape():
-    import re
-    assert re.fullmatch(r"state-of-quantum-\d{4}-w\d{2}", g._iso_week_slug())
+def test_weekly_report_command_retired():
+    import pytest
+
+    with pytest.raises(SystemExit):
+        g.main(["weekly-report"])
 
 
 class _FakeParse:

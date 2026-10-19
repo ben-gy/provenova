@@ -17,7 +17,7 @@ from fastapi.responses import PlainTextResponse, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from provenova_core.models import Report, ResultCard
+from provenova_core.models import ResultCard
 
 from ..config import get_settings
 from ..db import get_db
@@ -25,7 +25,7 @@ from . import docs as docs_mod
 
 router = APIRouter(tags=["seo"])
 
-_STATIC_PATHS = ["/", "/leaderboard", "/hardware", "/reports", "/docs"]
+_STATIC_PATHS = ["/", "/tracker", "/leaderboard", "/hardware", "/docs"]
 _CACHE_TTL_S = 600
 _cache: dict[str, tuple[float, str]] = {}
 
@@ -103,10 +103,6 @@ def _build_sitemap(db: Session) -> str:
             ))
     except Exception:  # crawler package absent — sitemap still serves the rest
         pass
-
-    # Published reports.
-    for r in db.scalars(select(Report).where(Report.published.is_(True))):
-        urls.append((f"{base}/reports/{r.slug}", _iso_date(r.published_at or r.created_at)))
 
     ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
     ET.register_namespace("", ns)

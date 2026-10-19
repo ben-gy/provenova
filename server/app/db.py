@@ -22,6 +22,12 @@ from .config import get_settings
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FRAMEWORKS_DIR = REPO_ROOT / "frameworks"
+DATASETS_DIR = REPO_ROOT / "datasets"
+
+
+def datasets_dir() -> Path:
+    configured = get_settings().datasets_dir
+    return Path(configured) if configured else DATASETS_DIR
 
 _engine = None
 _SessionLocal = None

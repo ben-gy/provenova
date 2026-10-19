@@ -4,7 +4,8 @@ This sets up the autonomous content pipeline as **Claude Code scheduled tasks** 
 your **Claude subscription** (no separate API billing). Do this once on the new computer.
 
 The pipeline scans new quantum-computing research and publishes faithful, attributed
-reproduction cards + a weekly report to [provenova.net](https://provenova.net). Everything
+reproduction cards to [provenova.net](https://provenova.net). (The weekly report was retired
+in October 2026; /tracker replaced it.) Everything
 is enforced server-side (circuit validation, daily caps, a fixed honesty banner), so the
 routine can't publish anything dishonest or over-cap regardless of how it behaves.
 
@@ -36,15 +37,15 @@ routine can't publish anything dishonest or over-cap regardless of how it behave
 
 Open Claude Code in this repo on the new machine and say:
 
-> "Read `routines/HANDOFF.md` and create the two Provenova scheduled tasks exactly as
+> "Read `routines/HANDOFF.md` and create the Provenova scheduled task exactly as
 > specified (same names, crons, and prompts), substituting my growth key
 > `ql_live_…` wherever the prompt says `{{GROWTH_KEY}}`."
 
-Claude will create both scheduled tasks from the definitions below. Then, in the **Scheduled**
-sidebar, click **Run now** on each once (pre-approves the curl / web-fetch tools so future
+Claude will create the scheduled task from the definition below. Then, in the **Scheduled**
+sidebar, click **Run now** once (pre-approves the curl / web-fetch tools so future
 runs don't pause on a permission prompt).
 
-If you'd rather do it by hand, create two scheduled tasks with these exact settings.
+If you'd rather do it by hand, create the scheduled task with these exact settings.
 
 ---
 
@@ -71,29 +72,6 @@ Procedure:
 
 HARD RULES (non-negotiable): never fabricate numbers, results, quotes, or claims about a paper — commentary may only restate the abstract plus what OUR run shows; SKIP any paper where you cannot identify a faithful small circuit (zero cards is success); max 2 cards per run; always link the arXiv abstract and use "inspired by"/"references" framing only; no raw HTML, images, or marketing superlatives in commentary; if any API call fails twice in a row, STOP and summarize. Never print the API key.
 ```
-
-## Task 2 — `provenova-weekly-report`
-
-- **Schedule (cron, local time):** `0 10 * * 0`  (Sundays ~10am)
-- **Prompt** (replace `{{GROWTH_KEY}}`):
-
-```
-You are the Provenova weekly-report routine. Objective: write and publish the weekly "State of Quantum Hardware" report from REAL Provenova platform data. Every number in the report must come from an API response you fetched during this run — no estimates, no memory.
-
-API base: https://provenova.net
-Auth: send header `Authorization: Bearer {{GROWTH_KEY}}` on /api/v1/growth/* requests (publish-only, revocable key — never print it).
-
-Procedure:
-1. GET /api/v1/growth/status. Compute this week's slug as `state-of-quantum-<ISO-year>-w<ISO-week zero-padded>` (e.g. state-of-quantum-2026-w27). If reports.latest_slug already equals it, STOP — already published this week.
-2. Gather data from public endpoints (no auth needed): GET /api/v1/leaderboard?metric=two_q_fidelity and also for metrics eplg, clops, qaoa_ratio; plus GET /api/v1/growth/status for corpus counts by provider and the week's recent research cards.
-3. Write body_md (800–1500 words) using ONLY the fetched numbers, each linked to its source page (leaderboard, /hardware/<provider>/<backend> device pages, /cards/<slug>). Sections: "This week's fleet" (corpus size, providers, notable rankings per metric with source/licence caveats — vendor-reported = manufacturer claim), "Movements" (only if comparable to a prior report; else describe current standings plainly), "New on the platform" (research cards published this week, each linked with its paper attribution), and a short "Method note" (data sources: IBM Apache-2.0 calibration, Metriq CC-BY-4.0, vendor-reported specs; all platform runs are deterministic simulator executions).
-4. POST /api/v1/growth/reports with {slug, title:"State of Quantum Hardware — Week <n>, <year>", meta_description (30–200 chars, factual), body_md}. A 409 means it's already published this week — that's success, stop.
-5. End with a short summary and the report URL.
-
-HARD RULES: every number must trace to a fetched API response (no fabrication); link the underlying pages; no raw HTML, images, or superlatives; if any API call fails twice in a row, STOP and summarize; never print the API key.
-```
-
----
 
 ## Notes
 

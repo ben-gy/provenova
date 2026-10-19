@@ -1,0 +1,56 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_fez",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2025-01-22T19:41:07+00:00",
+   "derived_metrics": {
+    "n_qubits": 156,
+    "median_2q_error": 0.00329076,
+    "best_2q_fidelity": 0.998231,
+    "median_t1_us": 136.47,
+    "median_t2_us": 93.247,
+    "median_readout_error": 0.0125,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/9091b0e73f8964394a18ee0ec92d83843a9b9587/qiskit_ibm_runtime/fake_provider/backends/fez/props_fez.json",
+   "raw_sha256": "5c0fc114cdf888c81a2d424d67d34a046ae66a4a6033a613885d25d6bd0ded52",
+   "commit_date": "2025-01-23T18:00:31Z"
+  },
+  {
+   "captured_at": "2025-01-23T16:35:51+00:00",
+   "derived_metrics": {
+    "n_qubits": 156,
+    "median_2q_error": 0.00329076,
+    "best_2q_fidelity": 0.998231,
+    "median_t1_us": 125.55,
+    "median_t2_us": 92.675,
+    "median_readout_error": 0.00805,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/0170d9d1e8db232d947546a68c4b75bdb3e8abe9/qiskit_ibm_runtime/fake_provider/backends/fez/props_fez.json",
+   "raw_sha256": "47fc88e5bb8430e316dcd85221b3629f4a0d1ac968ab7715108bf128327db085",
+   "commit_date": "2025-01-24T17:24:42Z"
+  },
+  {
+   "captured_at": "2025-02-26T20:16:25+00:00",
+   "derived_metrics": {
+    "n_qubits": 156,
+    "median_2q_error": 0.00377448,
+    "best_2q_fidelity": 0.998265,
+    "median_t1_us": 144.86,
+    "median_t2_us": 87.951,
+    "median_readout_error": 0.00756836,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/7a99d12423c21a34253342db5a3faf63ab0f8b6e/qiskit_ibm_runtime/fake_provider/backends/fez/props_fez.json",
+   "raw_sha256": "7657d388bba0530c0c3cb7ebbb55d4f66c7cf5d21f81e55b4f97aaaf804b8693",
+   "commit_date": "2025-03-18T16:13:27Z"
+  }
+ ]
+}

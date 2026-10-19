@@ -2,9 +2,9 @@
 
 - Wipes the fake seed content (runs/cards/reproductions/attestations/corpus),
   keeping accounts, workspaces and the compliance frameworks.
-- Loads the public "State of Quantum Hardware" corpus from REAL IBM device
-  calibration snapshots shipped in Qiskit's fake_provider (Apache-2.0), extracted
-  to datasets/ibm/*.json.
+- Loads the public hardware corpus from the committed datasets/ (IBM
+  calibration history from Qiskit's fake backends, Apache-2.0; Metriq
+  benchmarks, CC-BY-4.0; labelled vendor claims).
 - Records REAL, deterministic simulator runs of canonical open-source benchmark
   circuits (Bell, GHZ, QFT, Grover, Deutsch–Jozsa, Bernstein–Vazirani) on the
   ideal Qiskit Aer statevector — honestly labelled as a simulator.
@@ -19,10 +19,6 @@ container: deploy/HOSTING-cloudflare.md, "Running scripts against production"):
 from __future__ import annotations
 
 import datetime as _dt
-import glob
-import json
-import math
-import os
 import sys
 from pathlib import Path
 
@@ -38,12 +34,10 @@ from app.services import cards as cards_svc  # noqa: E402
 from app.services import compliance as comp  # noqa: E402
 from app.services.attestation import create_attestation  # noqa: E402
 
-from provenova_core import hashing  # noqa: E402
 from provenova_core.immutability import drop_immutability, install_immutability  # noqa: E402
 from provenova_core.models import (  # noqa: E402
     ComplianceFramework,
     Control,
-    CorpusSnapshot,
     EvidenceItem,
     Workspace,
 )
@@ -127,96 +121,14 @@ def wipe_content(session, eng):
     session.expire_all()
 
 
-# ---- real corpus (Qiskit fake_provider snapshots, Apache-2.0) ---------------
-
-def _robust_metrics(payload):
-    twoq = [g["error"] for g in payload.get("gates", [])
-            if len(g["qubits"]) == 2 and g.get("error") is not None and g["error"] < 0.5]
-    t1 = sorted(q["T1_us"] for q in payload.get("qubits", []) if q.get("T1_us"))
-    t2 = sorted(q["T2_us"] for q in payload.get("qubits", []) if q.get("T2_us"))
-    twoq_sorted = sorted(twoq)
-    return {
-        "median_2q_error": round(twoq_sorted[len(twoq_sorted) // 2], 6) if twoq_sorted else None,
-        "best_2q_fidelity": round(1 - twoq_sorted[0], 6) if twoq_sorted else None,
-        "median_t1_us": round(t1[len(t1) // 2], 2) if t1 else None,
-        "median_t2_us": round(t2[len(t2) // 2], 2) if t2 else None,
-        "n_qubits": payload["backend"].get("n_qubits"),
-    }
-
-
-# Single shared corpus upsert path (also used by the server-side Metriq refresh).
-from app.services.metriq import insert_snapshot as _insert_snapshot  # noqa: E402
-
-
-def _load_ibm_raw(session):
-    """Real IBM device raw calibration (Qiskit fake_provider snapshots, Apache-2.0)."""
-    n = 0
-    for fn in sorted(glob.glob(str(REPO / "datasets" / "ibm" / "*.json"))):
-        payload = json.load(open(fn))
-        bid = payload["backend"]["name"]
-        dm = _robust_metrics(payload)
-        dm["source"] = "ibm"
-        if _insert_snapshot(
-                session, provider="ibm", backend_id=bid,
-                captured_at=_dt.datetime.fromisoformat(payload["captured_at"]),
-                content_hash=hashing.calibration_hash(payload), snapshot_json=payload,
-                derived_metrics=dm, license_ref="Apache-2.0 · Qiskit fake_provider snapshot",
-                redistributable_raw=True):
-            n += 1
-    return n
-
-
-def _load_records(session, subdir):
-    """Curated cross-vendor corpus-record files (metriq / iqm / vendor_specs).
-
-    Each file carries provider/backend_id/captured_at/source/license_ref plus
-    either an explicit ``derived_metrics`` block (Metriq, vendor-reported specs)
-    or a raw ``calibration`` payload to reduce (Zenodo IQM). Nothing is invented:
-    every value comes from the dataset file, which records its own source URL.
-    """
-    n = 0
-    for fn in sorted(glob.glob(str(REPO / "datasets" / subdir / "*.json"))):
-        rec = json.load(open(fn))
-        provider, bid = rec["provider"], rec["backend_id"]
-        source = rec.get("source", subdir)
-        if rec.get("derived_metrics") is not None:
-            dm = dict(rec["derived_metrics"])
-        elif rec.get("calibration") is not None:
-            dm = _robust_metrics(rec["calibration"])
-        else:
-            dm = {}
-        dm.setdefault("source", source)
-        snapshot_json = rec.get("snapshot_json") or rec.get("calibration") or {
-            "schema": "qlprov/corpus-record/1.0",
-            "backend": {"vendor": provider, "name": bid},
-            "captured_at": rec["captured_at"], "source": source,
-            "provenance": {"source": source, "license_ref": rec.get("license_ref"),
-                           "raw_ref": rec.get("raw_ref"), "note": rec.get("note", "")},
-            "metrics": dm,
-        }
-        content_hash = hashing.calibration_hash(
-            {"provider": provider, "backend_id": bid, "captured_at": rec["captured_at"],
-             "source": source, "metrics": dm})
-        if _insert_snapshot(
-                session, provider=provider, backend_id=bid,
-                captured_at=_dt.datetime.fromisoformat(rec["captured_at"]),
-                content_hash=content_hash, snapshot_json=snapshot_json, derived_metrics=dm,
-                license_ref=rec["license_ref"],
-                redistributable_raw=bool(rec.get("redistributable_raw", False)),
-                raw_ref=rec.get("raw_ref")):
-            n += 1
-    return n
-
+# ---- real corpus (the committed datasets/, see app.services.corpus_sync) ------
 
 def load_corpus(session):
-    counts = {
-        "ibm": _load_ibm_raw(session),
-        "metriq": _load_records(session, "metriq"),
-        "iqm": _load_records(session, "iqm"),
-        "vendor_specs": _load_records(session, "vendor_specs"),
-    }
-    session.commit()
-    return counts
+    """Reconcile corpus_snapshots with datasets/ (IBM history, Metriq, vendor specs)."""
+    from app.db import datasets_dir
+    from app.services.corpus_sync import sync_bundled
+
+    return sync_bundled(session, datasets_dir())
 
 
 # ---- main --------------------------------------------------------------------
@@ -228,10 +140,7 @@ def main():
     print("wiping fabricated content ...")
     wipe_content(s, eng)
 
-    counts = load_corpus(s)
-    print("real corpus snapshots loaded: "
-          + ", ".join(f"{k}={v}" for k, v in counts.items())
-          + f"  (total {sum(counts.values())})")
+    print(f"real corpus synced: {load_corpus(s)}")
 
     ws = default_workspace(s)
     now = _dt.datetime.now(_dt.timezone.utc)

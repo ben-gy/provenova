@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %}Quantum Computing Progress Tracker — Provenova{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Quantum computing progress tracker",
+  "url": {{ (settings.base_url ~ canonical_path) | tojson }},
+  "description": {{ meta_description | tojson }},
+  "isAccessibleForFree": true,
+  "dateModified": {{ m.as_of | tojson }},
+  "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json",
+                    "contentUrl": {{ (settings.base_url ~ "/api/v1/tracker") | tojson }}}]
+}
+</script>
+<style>
+  .chart { height: 380px; }
+  @media (max-width: 640px) { .chart { height: 460px; } }
+</style>
+{% endblock %}
+
+{% macro evidence(label) %}
+{%- set styles = {
+  'Published experiments': 'bg-sky-50 text-sky-700 border-sky-200',
+  'Device calibration': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  'Independent benchmark': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  'Vendor claim': 'bg-amber-50 text-amber-700 border-amber-200',
+  'Resource estimate': 'bg-violet-50 text-violet-700 border-violet-200',
+  'Programme announcement': 'bg-slate-100 text-slate-700 border-slate-200'
+} -%}
+<span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium {{ styles.get(label, styles['Programme announcement']) }}">{{ label }}</span>
+{%- endmacro %}
+
+{% macro source_link(url, label="Source") %}
+{%- if url %}<a href="{{ url }}" class="font-medium text-indigo-600 hover:underline" {% if url.startswith('http') %}rel="noopener" target="_blank"{% endif %}>{{ label }} →</a>{% endif -%}
+{% endmacro %}
+
+{% block content %}
+{% set ctx = m.context %}
+{% set exp = m.experiments_source %}
+
+<!-- Intro -->
+<section class="max-w-3xl">
+  <div class="text-xs font-semibold uppercase tracking-wide text-indigo-600">Quantum progress tracker · updated {{ m.as_of }}</div>
+  <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Is quantum computing actually getting better?</h1>
+  <p class="mt-3 text-lg leading-relaxed text-slate-600">
+    Yes, quickly in some ways and slowly in others. This page answers the question with public data only:
+    published experiments, real calibration records from machines in the cloud, and independent
+    benchmarks. Every number links to where it came from, and every source is labelled by how much
+    weight it can bear.
+  </p>
+  <p class="mt-3 text-sm text-slate-500">
+    <a href="#evidence" class="text-indigo-600 hover:underline">How to read the labels</a> ·
+    <a href="#sources" class="text-indigo-600 hover:underline">Sources &amp; method</a> ·
+    <a href="/api/v1/tracker" class="text-indigo-600 hover:underline">Download the data (JSON)</a>
+  </p>
+</section>
+
+<!-- Headlines -->
+<section class="mt-8 grid gap-4 sm:grid-cols-2">
+  {% for h in m.headlines %}
+  <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-5">
+    <div class="flex items-center justify-between gap-2">
+      <div class="text-sm font-semibold text-slate-700">{{ h.kicker }}</div>
+      {{ evidence(h.evidence) }}
+    </div>
+    <div class="mt-3 flex items-baseline gap-3">
+      <div class="text-4xl font-bold tracking-tight text-slate-900">{{ h.value }}</div>
+    </div>
+    <div class="mt-1 text-sm font-medium text-slate-700">{{ h.label }}</div>
+    <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{{ h.detail }}</p>
+    <div class="mt-3 text-sm">{{ source_link(h.source_url, "See the source" if h.source_url.startswith('http') else "Explore the devices") }}</div>
+  </div>
+  {% endfor %}
+</section>
+
+<!-- 1. Errors -->
+{% if m.charts.gate_error %}
+<section class="mt-14" id="errors">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">How often do quantum operations fail?</h2>
+  <p class="mt-2 max-w-3xl text-slate-600">
+    A quantum computer works by entangling qubits, two at a time, and every one of those operations
+    can go wrong. Each dot is a published record for one kind of hardware; the line follows the best
+    result so far. Lower is better. Below the dashed line (roughly 1 failure in 100), error
+    correction can start to win: extra qubits fix more errors than they add.
+  </p>
+  <div id="chart-gate" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
+  <p class="mt-2 text-xs text-slate-500">{{ evidence('Published experiments') }} Best two-qubit (entangling) error per experiment.
+    Click a dot to open the paper. Lab records on two qubits are not the same as a whole machine running well; see the cloud fleet below.</p>
+</section>
+{% endif %}
+
+<!-- 2. Error correction -->
+{% if m.charts.qec %}
+<section class="mt-14" id="error-correction">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">Is error correction working yet?</h2>
+  <p class="mt-2 max-w-3xl text-slate-600">
+    Useful quantum computers will spread each reliable "logical" qubit across many physical ones,
+    so that errors can be caught and fixed. The <b class="font-semibold text-slate-800">code distance</b>
+    measures how many errors a code can catch: distance 7 can correct any 3. Bigger is better, but only
+    once the hardware is below the threshold. Stars mark experiments reported as below threshold.
+  </p>
+  <div id="chart-qec" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
+  <p class="mt-2 text-xs text-slate-500">{{ evidence('Published experiments') }} Largest code distance in each published error-correction experiment.
+    Repetition codes only guard against one kind of error, so their large distances are easier to reach than surface or colour codes.</p>
+</section>
+{% endif %}
+
+<!-- 3. Size -->
+{% if m.charts.qubit_count %}
+<section class="mt-14" id="size">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">How big are the machines getting?</h2>
+  <p class="mt-2 max-w-3xl text-slate-600">
+    Qubit counts are the number everyone quotes, but on their own they say little: a thousand noisy
+    qubits can do less than a hundred good ones. Read this chart together with the error charts.
+    The biggest neutral-atom figures are atoms trapped in one array, not all yet usable in a single computation.
+  </p>
+  <div id="chart-qubits" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
+  <p class="mt-2 text-xs text-slate-500">{{ evidence('Published experiments') }} Qubits controlled in one device, per published experiment (log scale).</p>
+</section>
+{% endif %}
+
+<!-- 4. IBM fleet -->
+{% if m.charts.ibm_fleet %}
+<section class="mt-14" id="cloud">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">What about machines you can actually use?</h2>
+  <p class="mt-2 max-w-3xl text-slate-600">
+    Lab records are the best a team has ever managed. Cloud machines have to hold up across a whole
+    chip, every day. IBM is the one vendor whose detailed calibration history is openly licensed, so
+    here is every published snapshot of its public fleet: {{ m.fleet.n_snapshots }} snapshots from
+    {{ m.fleet.n_devices }} devices, {{ (m.fleet.first or '')[:4] }}–{{ (m.fleet.last or '')[:4] }}.
+    Each dot is one device on one day; the line is the typical (median) device each year.
+  </p>
+  <div id="chart-ibm" class="chart mt-4 rounded-xl border border-slate-200 bg-white p-2"></div>
+  <p class="mt-2 text-xs text-slate-500">{{ evidence('Device calibration') }} Median two-qubit gate error across each chip, from IBM calibration files published in Qiskit (Apache-2.0).
+    Click a dot to open that device's page. We'll add other vendors as soon as their calibration data is openly licensed.</p>
+</section>
+{% endif %}
+
+<!-- 5. The gap -->
+{% if m.charts.gap %}
+{% set gap = m.charts.gap %}
+<section class="mt-14" id="gap">
+  <h2 class="text-2xl font-bold tracking-tight text-slate-900">How far is it from breaking encryption?</h2>
+  <p class="mt-2 max-w-3xl text-slate-600">
+    Breaking RSA-2048, the encryption behind much of the internet, is the benchmark people worry about.
+    Published estimates of what it takes have fallen sharply as algorithms improved, but they still
+    assume machines far larger and cleaner than any that exist: every qubit failing at most
+    {{ one_in(gap.estimates[-1].assumed_gate_error) }} operations. Compare that with the cloud fleet above.
+  </p>
+  <div id="chart-gap" class="mt-4 rounded-xl border border-slate-200 bg-white p-2" style="height:300px"></div>
+  <ul class="mt-3 space-y-1 text-xs text-slate-500">
+    {% for e in gap.estimates %}
+    <li>{{ evidence('Resource estimate') }} {{ e.year }}: {{ e.bound }} {{ "{:,}".format(e.physical_qubits) }} qubits, {{ e.runtime }} —
+      <a href="{{ e.url }}" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">{{ e.authors }}, “{{ e.title }}”</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<!-- 6. Independent testing -->
+<section class="mt-14 grid gap-4 lg:grid-cols-3" id="independent">
+  {% if ctx.darpa_qbi %}{% set q = ctx.darpa_qbi %}
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="flex items-center justify-between gap-2"><h3 class="font-semibold text-slate-900">Who is being tested by government?</h3>{{ evidence('Programme announcement') }}</div>
+    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+      DARPA's Quantum Benchmarking Initiative aims to {{ q.goal }}. In {{ month_year(q.as_of) }} it moved
+      <b class="font-semibold text-slate-800">{{ q.stage_c | join(', ') }}</b> to Stage C, hands-on
+      testing of their hardware, joining {{ q.earlier_final_phase | join(' and ') }}, which reached the
+      equivalent stage earlier. {{ q.stage_b.count }} companies had entered Stage B in {{ month_year(q.stage_b.date) }}.
+    </p>
+    <div class="mt-3 flex flex-wrap gap-x-3 text-sm">{% for s in q.sources %}{{ source_link(s.url, s.label) }}{% endfor %}</div>
+  </div>
+  {% endif %}
+  {% if ctx.advantage_tracker %}{% set a = ctx.advantage_tracker %}
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold text-slate-900">Has quantum beaten classical computers yet?</h3>
+    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+      Claims of "quantum advantage" are often answered within months by a cleverer classical method.
+      The community-run Quantum Advantage Tracker, started by {{ a.by }}, logs each claim and whether a
+      classical method has since matched it. It's the right place to check a headline.
+    </p>
+    <div class="mt-3 text-sm">{{ source_link(a.url, "Open the Quantum Advantage Tracker") }}</div>
+  </div>
+  {% endif %}
+  {% if ctx.metriq %}
+  <div class="rounded-xl border border-slate-200 bg-white p-5">
+    <div class="flex items-center justify-between gap-2"><h3 class="font-semibold text-slate-900">How do today's cloud machines compare?</h3>{{ evidence('Independent benchmark') }}</div>
+    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+      Vendors measure their machines in their own ways. Metriq, run by the {{ ctx.metriq.by }}, runs the
+      same open benchmarks across vendors. Provenova keeps every dated Metriq result alongside each
+      device's calibration history, so you can see how a machine changes over time.
+    </p>
+    <div class="mt-3 flex flex-wrap gap-x-3 text-sm">{{ source_link('/leaderboard', 'Compare devices') }}{{ source_link(ctx.metriq.url, 'metriq.info') }}</div>
+  </div>
+  {% endif %}
+</section>
+
+<!-- Evidence labels -->
+<section class="mt-14 rounded-2xl border border-slate-200 bg-white p-6" id="evidence">
+  <h2 class="text-xl font-bold tracking-tight text-slate-900">How to read the labels</h2>
+  <p class="mt-1 text-sm text-slate-500">Not all numbers deserve the same trust. Every figure on Provenova carries one of these.</p>
+  <dl class="mt-5 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+    <div><dt>{{ evidence('Published experiments') }}</dt><dd class="mt-1 text-slate-600">A result reported in a paper (peer-reviewed or a preprint), usually a record on a few qubits in a lab.</dd></div>
+    <div><dt>{{ evidence('Device calibration') }}</dt><dd class="mt-1 text-slate-600">The machine's own measurement of every qubit and gate on a given day, published by the vendor.</dd></div>
+    <div><dt>{{ evidence('Independent benchmark') }}</dt><dd class="mt-1 text-slate-600">The same open test run on many vendors' machines by a third party (Metriq).</dd></div>
+    <div><dt>{{ evidence('Vendor claim') }}</dt><dd class="mt-1 text-slate-600">A number from a company's own announcement or spec sheet, not independently checked here.</dd></div>
+    <div><dt>{{ evidence('Resource estimate') }}</dt><dd class="mt-1 text-slate-600">A paper's calculation of what a future task would need. It depends on its stated assumptions.</dd></div>
+    <div><dt>{{ evidence('Programme announcement') }}</dt><dd class="mt-1 text-slate-600">A decision announced by a funder or government programme, reported with its source.</dd></div>
+  </dl>
+</section>
+
+<!-- Sources -->
+<section class="mt-10" id="sources">
+  <h2 class="text-xl font-bold tracking-tight text-slate-900">Sources &amp; method</h2>
+  <ul class="mt-3 space-y-2 text-sm text-slate-600">
+    {% if exp %}
+    <li><b class="font-semibold text-slate-800">Published experiments:</b> <a href="{{ exp.repository }}" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">{{ exp.name }}</a>
+      by {{ exp.author }} ({{ exp.license }} licence; <a href="{{ exp.paper }}" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">paper</a>), version
+      <a href="{{ exp.repository }}/tree/{{ exp.commit }}" rel="noopener" target="_blank" class="mono text-indigo-600 hover:underline">{{ exp.commit[:7] }}</a> of {{ exp.commit_date[:10] }}.
+      Spot a missing or wrong experiment? Corrections go to that project, and flow here.</li>
+    {% endif %}
+    <li><b class="font-semibold text-slate-800">Device calibration:</b> IBM calibration files published in Qiskit's fake backends (Apache-2.0), taken from their git history so each
+      snapshot keeps its real date. Every snapshot links to the exact source file and its hash. <a href="/docs/corpus-and-leaderboard" class="text-indigo-600 hover:underline">How the corpus works</a>.</li>
+    <li><b class="font-semibold text-slate-800">Independent benchmarks:</b> every dated <a href="https://metriq.info" rel="noopener" target="_blank" class="text-indigo-600 hover:underline">Metriq</a> run (CC-BY-4.0), one snapshot per device per day.</li>
+    <li><b class="font-semibold text-slate-800">Context:</b> resource estimates and programme decisions are hand-curated with links, as of {{ ctx.as_of }}.</li>
+  </ul>
+  <p class="mt-4 text-sm text-slate-500">
+    The data is committed to the <a href="https://github.com/ben-gy/provenova/tree/main/datasets" class="text-indigo-600 hover:underline">open repository</a>,
+    so every change is reviewable. Found a problem? <a href="https://github.com/ben-gy/provenova/issues" class="text-indigo-600 hover:underline">Open an issue</a>.
+    Running your own experiments? <a href="/docs/getting-started" class="text-indigo-600 hover:underline">Record them with Provenova</a>
+    so your results carry the same receipts.
+  </p>
+</section>
+
+<script>
+(function () {
+  const charts = {{ m.charts | tojson }};
+  const colours = {{ m.platforms | tojson }};
+  const font = {family: 'ui-sans-serif, system-ui', size: 12, color: '#334155'};
+  const cfg = {displayModeBar: false, responsive: true};
+  const colour = p => colours[p] || '#94a3b8';
+  const ERR_TICKS = {tickvals: [1, 0.1, 0.01, 0.001, 0.0001, 0.00001],
+                     ticktext: ['every time', '1 in 10', '1 in 100', '1 in 1,000', '1 in 10,000', '1 in 100,000']};
+  const oneIn = p => { const n = 1 / p; return 'about 1 in ' + (n < 10 ? n.toFixed(1) : Math.round(n).toLocaleString()); };
+  const narrow = window.innerWidth < 640;
+  const layout = (extra) => Object.assign({
+    margin: {t: 40, r: narrow ? 8 : 16, b: 48, l: narrow ? 64 : 80}, font, hovermode: 'closest',
+    legend: {orientation: 'h', x: 0, y: 1.02, yanchor: 'bottom'}, paper_bgcolor: 'white', plot_bgcolor: 'white',
+  }, extra);
+  const openOnClick = (el, urlOf) => el.on('plotly_click', e => {
+    const url = urlOf(e.points[0]); if (url) window.open(url, url.startsWith('http') ? '_blank' : '_self');
+  });
+  const byPlatform = pts => pts.reduce((acc, p) => ((acc[p.platform] = acc[p.platform] || []).push(p), acc), {});
+
+  function experimentChart(id, data, yaxis, valueText) {
+    const groups = byPlatform(data.points);
+    const traces = [];
+    Object.keys(groups).forEach(plat => {
+      const pts = groups[plat];
+      traces.push({type: 'scatter', mode: 'markers', name: plat, legendgroup: plat,
+        x: pts.map(p => p.year), y: pts.map(p => p.value),
+        marker: {color: colour(plat), size: 9, opacity: 0.85, line: {color: 'white', width: 1}},
+        customdata: pts.map(p => [p.author, p.title, valueText(p.value), p.url, p.note]),
+        hovertemplate: '<b>%{customdata[0]} et al., %{x}</b><br>%{customdata[1]}<br>%{customdata[2]}<extra>' + plat + '</extra>'});
+      const best = (data.frontier || {})[plat];
+      if (best && best.length > 1) traces.push({type: 'scatter', mode: 'lines', legendgroup: plat, showlegend: false,
+        x: best.map(p => p.year), y: best.map(p => p.value), line: {color: colour(plat), width: 2, shape: 'hv'}, hoverinfo: 'skip'});
+    });
+    const el = document.getElementById(id);
+    Plotly.newPlot(el, traces, layout({xaxis: {title: 'Year', dtick: 5, gridcolor: '#f1f5f9'}, yaxis}), cfg);
+    openOnClick(el, pt => pt.customdata && pt.customdata[3]);
+  }
+
+  if (charts.gate_error) {
+    experimentChart('chart-gate', charts.gate_error,
+      Object.assign({type: 'log', title: 'Operations that fail', gridcolor: '#f1f5f9'}, ERR_TICKS),
+      v => 'fails ' + oneIn(v));
+    Plotly.relayout('chart-gate', {shapes: [{type: 'line', xref: 'paper', x0: 0, x1: 1, y0: charts.gate_error.threshold,
+      y1: charts.gate_error.threshold, line: {color: '#64748b', width: 1.5, dash: 'dash'}}],
+      annotations: [{xref: 'paper', x: 1, y: Math.log10(charts.gate_error.threshold), yanchor: 'bottom', xanchor: 'right',
+        text: 'error-correction threshold ≈ 1 in 100', showarrow: false, font: {size: 11, color: '#64748b'}}]});
+  }
+
+  if (charts.qubit_count) {
+    experimentChart('chart-qubits', charts.qubit_count,
+      {type: 'log', title: 'Qubits', gridcolor: '#f1f5f9'}, v => Math.round(v).toLocaleString() + ' qubits');
+  }
+
+  if (charts.qec) {
+    const isRep = p => /repetition/i.test(p.code);
+    const hover = '<b>%{customdata[0]} et al., %{customdata[4]}</b><br>%{customdata[1]}<br>%{customdata[2]}, distance %{y}<extra>%{customdata[5]}</extra>';
+    const custom = pts => pts.map(p => [p.author, p.title, p.code, p.url, Math.round(p.year), p.platform]);
+    const groups = byPlatform(charts.qec.points.filter(p => !isRep(p)));
+    const traces = Object.keys(groups).map((plat, i) => {
+      const pts = groups[plat];
+      return {type: 'scatter', mode: 'markers', name: plat,
+        // a small fixed offset per platform keeps same-year results from hiding each other
+        x: pts.map(p => p.year + (i - 2) * 0.08), y: pts.map(p => p.value),
+        marker: {color: colour(plat), size: pts.map(p => p.below_threshold ? 16 : 9),
+                 symbol: pts.map(p => p.below_threshold ? 'star' : 'circle'), opacity: 0.9, line: {color: 'white', width: 1}},
+        customdata: custom(pts), hovertemplate: hover};
+    });
+    const reps = charts.qec.points.filter(isRep);
+    traces.push({type: 'scatter', mode: 'markers', name: 'Repetition codes (one kind of error only)',
+      x: reps.map(p => p.year), y: reps.map(p => p.value),
+      marker: {color: '#94a3b8', size: reps.map(p => p.below_threshold ? 13 : 8),
+               symbol: reps.map(p => p.below_threshold ? 'star-open' : 'circle-open'), line: {width: 1.5}},
+      customdata: custom(reps), hovertemplate: hover});
+    const el = document.getElementById('chart-qec');
+    Plotly.newPlot(el, traces, layout({xaxis: {title: 'Year', dtick: 5, gridcolor: '#f1f5f9'},
+      yaxis: {title: 'Code distance', type: 'log', tickvals: [2, 3, 5, 7, 10, 15, 20, 30], gridcolor: '#f1f5f9'}}), cfg);
+    openOnClick(el, pt => pt.customdata && pt.customdata[3]);
+  }
+
+  if (charts.ibm_fleet) {
+    const f = charts.ibm_fleet;
+    const el = document.getElementById('chart-ibm');
+    Plotly.newPlot(el, [
+      {type: 'scatter', mode: 'markers', name: 'one device, one day',
+       x: f.points.map(p => p.date), y: f.points.map(p => p.median_2q_error),
+       marker: {color: colours['Superconducting'], size: 7, opacity: 0.45},
+       customdata: f.points.map(p => [p.backend, p.n_qubits, oneIn(p.median_2q_error)]),
+       hovertemplate: '<b>%{customdata[0]}</b> · %{customdata[1]} qubits<br>%{x}<br>typical two-qubit gate fails %{customdata[2]}<extra></extra>'},
+      {type: 'scatter', mode: 'lines+markers', name: 'typical device that year (median)',
+       x: f.yearly.map(y => y.date), y: f.yearly.map(y => y.median_2q_error),
+       line: {color: '#0f172a', width: 2.5}, marker: {size: 6, color: '#0f172a'},
+       customdata: f.yearly.map(y => [y.year, y.devices, oneIn(y.median_2q_error)]),
+       hovertemplate: '<b>%{customdata[0]}</b>: typical device fails %{customdata[2]}<br>median of %{customdata[1]} devices<extra></extra>'}
+    ], layout({xaxis: {type: 'date', gridcolor: '#f1f5f9'},
+               yaxis: Object.assign({type: 'log', title: 'Two-qubit operations that fail', gridcolor: '#f1f5f9',
+                                     range: [Math.log10(0.0005), Math.log10(0.1)]}, ERR_TICKS)}), cfg);
+    openOnClick(el, pt => pt.curveNumber === 0 ? '/hardware/ibm/' + pt.customdata[0].toLowerCase() : null);
+  }
+
+  if (charts.gap) {
+    const g = charts.gap;
+    const bars = [{label: narrow ? 'Largest IBM chip' : 'Largest IBM chip in this record', value: g.largest_cloud, colour: colours['Superconducting'], note: 'cloud machine'}];
+    if (g.largest_array) bars.push({label: (narrow ? 'Atom array ' : 'Largest atom array (') + g.largest_array.year + (narrow ? '' : ')'), value: g.largest_array.value,
+                                    colour: colours['Neutral atoms'], note: 'trapped atoms, not yet a full computer'});
+    g.estimates.slice().reverse().forEach(e => bars.push({label: narrow ? 'RSA-2048, ' + e.year : 'Needed for RSA-2048 (' + e.year + ' estimate)', value: e.physical_qubits,
+                                                          colour: '#94a3b8', note: e.bound + ' ' + e.physical_qubits.toLocaleString() + ' qubits'}));
+    bars.reverse();
+    Plotly.newPlot('chart-gap', [{type: 'bar', orientation: 'h', y: bars.map(b => b.label), x: bars.map(b => b.value),
+      marker: {color: bars.map(b => b.colour)}, text: bars.map(b => Math.round(b.value).toLocaleString()), textposition: 'outside',
+      customdata: bars.map(b => b.note), hovertemplate: '%{y}<br>%{customdata}<extra></extra>', cliponaxis: false}],
+      layout({margin: {t: 8, r: narrow ? 64 : 72, b: 40, l: narrow ? 8 : 230}, showlegend: false,
+              xaxis: {type: 'log', range: [1, 8], title: 'Physical qubits (log scale)', gridcolor: '#f1f5f9'}, yaxis: {automargin: true}}), cfg);
+  }
+})();
+</script>
+{% endblock %}

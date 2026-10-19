@@ -1,9 +1,9 @@
 # Product tour
 
 A screen-by-screen guide to the main pages of the web app and what each button does. The top navigation
-bar is always present: **Home · Records · Hardware · Leaderboard · Compliance · Trust Center · Docs** (plus
-**Admin** for superadmins), with your account on the right. The Leaderboard item
-opens the State of Quantum Hardware page.
+bar is always present: **Tracker · Hardware · Leaderboard · Records · Compliance · Docs** (plus
+**Admin** for superadmins), with your account on the right. The logo takes you home; the Trust Center
+is linked from the footer.
 
 ## Home / dashboard (`/`)
 
@@ -32,10 +32,17 @@ The full provenance of one run:
   public fleet, earning the **Benchmarked** badge.
 - **Publish** (button) — turn this run into a public [Result Card](/docs/result-cards-and-badges).
 
-## State of Quantum Hardware (`/leaderboard`)
+## Tracker (`/tracker`)
 
-The public cross-vendor leaderboard, ranking devices by a calibration or benchmark metric you can switch
-(median 2Q error, best 2Q fidelity, median T1/T2, Quantum Volume, CLOPS, EPLG and more). Backed by the
+Plain-English, long-run trends in quantum computing from public, cited data: published experiments, IBM's
+cloud fleet calibration history, independent benchmarks and resource estimates. Every figure carries an
+evidence label and links to its source; the data behind it is at `/api/v1/tracker`.
+
+## Hardware (`/hardware`) and leaderboard (`/leaderboard`)
+
+One page per device (a plain-English summary, every metric with its date, source and fleet comparison,
+and its history) and a cross-vendor ranking on a metric you can switch (median 2Q error, readout error,
+T1/T2, Quantum Volume, CLOPS, EPLG and more). Backed by the
 [public corpus](/docs/corpus-and-leaderboard).
 
 ## Compliance (`/app/compliance`)

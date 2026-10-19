@@ -1,64 +1,135 @@
 {
-  "schema": "qlprov/corpus-record/1.0",
-  "provider": "quantinuum",
-  "backend_id": "h2-2",
-  "captured_at": "2026-01-23T17:05:44.697182+00:00",
-  "source": "metriq",
-  "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-  "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
-  "redistributable_raw": true,
-  "note": "Metriq metriq-gym community benchmark records (CC-BY-4.0).",
-  "derived_metrics": {
-    "bseq": 56.0,
-    "eplg": 0.00179932,
-    "qaoa_ratio": 0.80175087,
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "quantinuum",
+ "backend_id": "h2-2",
+ "source": "metriq",
+ "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
+ "raw_ref": "https://github.com/unitaryfoundation/metriq-data/blob/main/LICENSE",
+ "redistributable_raw": true,
+ "note": "Metriq metriq-gym community benchmark runs (CC-BY-4.0); one snapshot per day a benchmark ran, holding only that day's measurements.",
+ "snapshots": [
+  {
+   "captured_at": "2025-12-08T10:03:08+00:00",
+   "derived_metrics": {
     "qft_accuracy": 0.967,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qft_accuracy",
+     "benchmark": "Quantum Fourier Transform",
+     "value": 0.967,
+     "timestamp": "2025-12-08T10:03:08+00:00",
+     "params": {
+      "benchmark_name": "Quantum Fourier Transform",
+      "max_circuits": 3,
+      "max_qubits": 12,
+      "method": 1,
+      "min_qubits": 4,
+      "shots": 1000,
+      "skip_qubits": 4,
+      "use_midcircuit_measurement": false
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-08_10-03-08_quantum_fourier_transform_7c1268e7.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2025-12-12T14:10:06+00:00",
+   "derived_metrics": {
+    "qaoa_ratio": 0.80175087,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "qaoa_ratio",
+     "benchmark": "Linear Ramp QAOA",
+     "value": 0.8017508672262815,
+     "timestamp": "2025-12-12T14:10:06+00:00",
+     "params": {
+      "benchmark_name": "Linear Ramp QAOA",
+      "confidence_level": 0.999,
+      "delta_beta": 0.3,
+      "delta_gamma": 0.6,
+      "graph_type": "1D",
+      "num_qubits": 50,
+      "num_random_trials": 25,
+      "qaoa_layers": [
+       10
+      ],
+      "seed": 123,
+      "shots": 1000,
+      "trials": 10
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-12_14-10-06_linear_ramp_qaoa_dc3970fe.json"
+    }
+   ]
+  },
+  {
+   "captured_at": "2025-12-18T07:58:05+00:00",
+   "derived_metrics": {
+    "bseq": 56.0,
     "n_qubits": 56,
     "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "bseq",
+     "benchmark": "BSEQ",
+     "value": 56.0,
+     "timestamp": "2025-12-18T07:58:05+00:00",
+     "params": {
+      "benchmark_name": "BSEQ",
+      "max_colors": 10,
+      "shots": 1000
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-18_07-58-05_bseq_d8a4a9cf.json"
+    }
+   ]
   },
-  "snapshot_json": {
-    "schema": "qlprov/corpus-record/1.0",
-    "backend": {
-      "vendor": "quantinuum",
-      "name": "h2-2",
-      "n_qubits": 56
-    },
-    "captured_at": "2026-01-23T17:05:44.697182+00:00",
-    "source": "metriq",
-    "provenance": {
-      "source": "metriq",
-      "license_ref": "CC-BY-4.0 \u00b7 metriq.info",
-      "repo": "unitaryfoundation/metriq-data"
-    },
-    "metric_provenance": [
-      {
-        "metric": "bseq",
-        "benchmark": "BSEQ",
-        "value": 56.0,
-        "timestamp": "2025-12-18T07:58:05.336906",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-18_07-58-05_bseq_d8a4a9cf.json"
-      },
-      {
-        "metric": "eplg",
-        "benchmark": "EPLG",
-        "value": 0.001799315217803632,
-        "timestamp": "2026-01-23T17:05:44.697182",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/quantinuum/h2-2/2026-01-23_17-05-44_eplg.json"
-      },
-      {
-        "metric": "qaoa_ratio",
-        "benchmark": "Linear Ramp QAOA",
-        "value": 0.8017508672262815,
-        "timestamp": "2025-12-12T14:10:06.387432",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-12_14-10-06_linear_ramp_qaoa_dc3970fe.json"
-      },
-      {
-        "metric": "qft_accuracy",
-        "benchmark": "Quantum Fourier Transform",
-        "value": 0.967,
-        "timestamp": "2025-12-08T10:03:08.711173",
-        "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.5/quantinuum/h2-2/2025-12-08_10-03-08_quantum_fourier_transform_7c1268e7.json"
-      }
-    ]
+  {
+   "captured_at": "2026-01-23T17:05:44+00:00",
+   "derived_metrics": {
+    "eplg": 0.00179932,
+    "n_qubits": 56,
+    "source": "metriq"
+   },
+   "metric_provenance": [
+    {
+     "metric": "eplg",
+     "benchmark": "EPLG",
+     "value": 0.001799315217803632,
+     "timestamp": "2026-01-23T17:05:44+00:00",
+     "params": {
+      "benchmark_name": "EPLG",
+      "decompose_cliffords": true,
+      "lengths": [
+       2,
+       4,
+       8,
+       16,
+       30,
+       50,
+       70,
+       100,
+       150,
+       200
+      ],
+      "num_qubits_in_chain": 50,
+      "num_samples": 1,
+      "one_qubit_basis_gates": [
+       "rz",
+       "rx",
+       "x"
+      ],
+      "seed": 42,
+      "shots": 200,
+      "two_qubit_gate": "cz",
+      "constrain_rb_offset_b": true
+     },
+     "source_url": "https://raw.githubusercontent.com/unitaryfoundation/metriq-data/main/metriq-gym/v0.6/quantinuum/h2-2/2026-01-23_17-05-44_eplg.json"
+    }
+   ]
   }
+ ]
 }

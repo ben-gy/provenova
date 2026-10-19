@@ -1,19 +1,30 @@
 {% extends "base.html" %}
 {% from "_helpers.html" import page_intro, term, source_badge %}
-{% block title %}State of Quantum Hardware — Provenova{% endblock %}
-{% block meta_description %}Live cross-vendor quantum hardware leaderboard: 2-qubit fidelity, EPLG, CLOPS, T1/T2 and benchmark rankings across IBM, IonQ, Quantinuum, IQM, Rigetti and Origin — every row labelled by source and licence.{% endblock %}
+{% block title %}Quantum Hardware Leaderboard — Provenova{% endblock %}
+{% block meta_description %}Cross-vendor quantum hardware leaderboard: two-qubit error, EPLG, CLOPS, T1/T2 and benchmark rankings across IBM, IonQ, Quantinuum, IQM, Rigetti and Origin — each value dated and labelled by source and licence.{% endblock %}
 
 {% block content %}
-{% set lb_desc %}A cross-vendor ranking of quantum devices, built from the {{ term("public corpus") }} of {{ term("calibration snapshot") }}s and openly-licensed benchmarks. Switch the ranking metric below. Rows are labelled by source & licence — <b>vendor-reported</b> rows are manufacturer claims, not independently reproduced here.{% endset %}
-{{ page_intro("State of Quantum Hardware", lb_desc, "/docs/corpus-and-leaderboard", "How the corpus works") }}
+{% set lb_desc %}Compare quantum devices on one measurement at a time, from the {{ term("public corpus") }}. Each row shows that device's latest measurement, its date and its source. <b>Vendor-reported</b> rows are manufacturer claims, not independently reproduced here. For the long-run picture, see the <a href="/tracker" class="font-medium text-indigo-600 hover:underline">tracker</a>.{% endset %}
+{{ page_intro("Quantum Hardware Leaderboard", lb_desc, "/docs/corpus-and-leaderboard", "How the corpus works") }}
 
 <div class="mb-4 flex flex-wrap gap-2 text-sm">
   {% for m in metrics %}
-  <a href="/leaderboard?metric={{ m.key }}"
+  <a href="/leaderboard?metric={{ m.key }}{% if historical %}&historical=true{% endif %}"
      class="rounded-full border px-3 py-1 {{ 'bg-indigo-600 text-white border-indigo-600' if metric == m.key else 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50' }}">
     {{ m.label }}
   </a>
   {% endfor %}
+</div>
+
+{% if metric_plain %}
+<div class="mb-4 rounded-lg border border-indigo-100 bg-indigo-50/60 px-4 py-3 text-sm text-slate-700">
+  <b class="font-semibold text-slate-900">{{ metric_label }}:</b> {{ metric_plain }}
+</div>
+{% endif %}
+
+<div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+  <span>{% if historical %}Showing every device ever recorded.{% else %}Showing devices with a measurement in the last two years{% if hidden %} ({{ hidden }} older hidden){% endif %}.{% endif %}</span>
+  <a href="/leaderboard?metric={{ metric }}{% if not historical %}&historical=true{% endif %}" class="font-medium text-indigo-600 hover:underline">{{ 'Show current devices only' if historical else 'Include older devices' }}</a>
 </div>
 
 <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -21,11 +32,11 @@
     <thead class="bg-slate-50 text-slate-500 text-left">
       <tr>
         <th class="px-4 py-2 font-medium">Rank</th>
-        <th class="px-4 py-2 font-medium">Provider</th>
-        <th class="px-4 py-2 font-medium">Backend</th>
+        <th class="px-4 py-2 font-medium">Maker</th>
+        <th class="px-4 py-2 font-medium">Device</th>
         <th class="px-4 py-2 font-medium">{{ metric_label }}</th>
         <th class="px-4 py-2 font-medium">Source / licence</th>
-        <th class="px-4 py-2 font-medium">Captured</th>
+        <th class="px-4 py-2 font-medium">Measured</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100">
@@ -34,12 +45,12 @@
         <td class="px-4 py-2 font-semibold text-slate-900">#{{ e.rank }}</td>
         <td class="px-4 py-2 capitalize">{{ e.provider }}</td>
         <td class="px-4 py-2 mono"><a href="/hardware/{{ e.provider | lower }}/{{ e.backend_id | lower }}" class="text-indigo-600 hover:underline">{{ e.backend_id }}</a></td>
-        <td class="px-4 py-2 font-medium">{{ e.value | round(4) if e.value is number else e.value }}</td>
+        <td class="px-4 py-2"><span class="font-medium">{{ e.value | round(4) if e.value is number else e.value }}</span>{% if e.reading %} <span class="text-xs text-slate-500">{{ e.reading }}</span>{% endif %}</td>
         <td class="px-4 py-2">{{ source_badge(e.source, e.license_ref) }}</td>
         <td class="px-4 py-2 text-slate-500">{{ e.captured_at[:10] if e.captured_at else '—' }}</td>
       </tr>
       {% else %}
-      <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">No corpus data yet — the crawler ingests calibration snapshots from <span class="mono">datasets/</span> or live vendor APIs. See the <a href="/docs/corpus-and-leaderboard" class="text-indigo-600 hover:underline">corpus guide</a>.</td></tr>
+      <tr><td colspan="6" class="px-4 py-6 text-center text-slate-400">No device has this measurement{% if not historical %} in the last two years — <a href="/leaderboard?metric={{ metric }}&historical=true" class="text-indigo-600 hover:underline">include older devices</a>{% endif %}.</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -47,10 +58,9 @@
 
 <div class="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-500">
   <b class="text-slate-600">Sources &amp; attribution.</b>
-  IBM rows are real device calibration snapshots from Qiskit's <span class="mono">fake_provider</span> (Apache-2.0).
-  <b>Metriq</b> rows are community benchmark submissions from <a href="https://metriq.info" class="text-indigo-600 hover:underline" rel="noopener">metriq.info</a> (CC-BY-4.0).
-  <b>Zenodo</b> rows are openly-licensed raw calibration datasets (CC-BY/CC0), cited per row.
-  <b>Vendor-reported</b> rows are specifications published by the manufacturer and are shown as claims, with the press/source link recorded in each snapshot's provenance.
+  IBM rows are real device calibration snapshots published in Qiskit's fake backends (Apache-2.0), each with its true date.
+  <b>Metriq</b> rows are community benchmark runs from <a href="https://metriq.info" class="text-indigo-600 hover:underline" rel="noopener">metriq.info</a> (CC-BY-4.0).
+  <b>Vendor-reported</b> rows are specifications published by the manufacturer and are shown as claims, with the source link recorded in each snapshot's provenance.
   Metrics differ in what they measure and how they're obtained, so compare within a metric and mind the source badge.
 </div>
 {% endblock %}

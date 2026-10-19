@@ -67,9 +67,13 @@ class Settings(BaseSettings):
     # Growth engine (autonomous content pipeline)
     indexnow_key: str = ""  # serves /<key>.txt + enables IndexNow pings when set
     growth_max_cards_per_day: int = 3
-    growth_max_reports_per_week: int = 2
     growth_refresh_min_hours: int = 6
     github_token: str = ""  # optional: raises GitHub API rate limit for corpus refresh
+
+    # Public corpus: on startup, reconcile corpus_snapshots with the committed
+    # datasets/ directory (see app.services.corpus_sync). "" -> <repo>/datasets.
+    datasets_dir: str = ""
+    corpus_autosync: bool = True
 
     @property
     def is_sqlite(self) -> bool:

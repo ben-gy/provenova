@@ -1,0 +1,86 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_essex",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-04-10T06:25:35+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0108137,
+    "best_2q_fidelity": 0.991227,
+    "median_t1_us": 98.259,
+    "median_t2_us": 99.96,
+    "median_readout_error": 0.0316667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/8332562191baf1a18ebe7bcb5ff9ea7e4ddb7ba8/qiskit/test/mock/backends/essex/props_essex.json",
+   "raw_sha256": "9d6d431550df64ee0e3cc07060edd1e0e07be4ef8724af4e115a1a7db49d17f0",
+   "commit_date": "2020-04-17T19:08:09Z"
+  },
+  {
+   "captured_at": "2020-04-28T06:18:32+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0159666,
+    "best_2q_fidelity": 0.988565,
+    "median_t1_us": 77.64,
+    "median_t2_us": 127.59,
+    "median_readout_error": 0.03,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/essex/props_essex.json",
+   "raw_sha256": "3ff15bc1f24166dba98997855984ee89704a78e97c28f9679da68009f3721af3",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-11T07:46:33+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0134779,
+    "best_2q_fidelity": 0.989684,
+    "median_t1_us": 104.83,
+    "median_t2_us": 137.89,
+    "median_readout_error": 0.0266667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/essex/props_essex.json",
+   "raw_sha256": "7a2792465def4bfa24148235150f21edae8a4708fbceabc9350585d780c3ba5c",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T06:23:58+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0125267,
+    "best_2q_fidelity": 0.990739,
+    "median_t1_us": 96.499,
+    "median_t2_us": 127.47,
+    "median_readout_error": 0.035,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/essex/props_essex.json",
+   "raw_sha256": "796103402eba64eb1451e2f30d0cdc191cab81b652376e7142bd3b391069c223",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T06:54:13+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.0226514,
+    "best_2q_fidelity": 0.988897,
+    "median_t1_us": 65.607,
+    "median_t2_us": 105.13,
+    "median_readout_error": 0.0363,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/essex/props_essex.json",
+   "raw_sha256": "70133e7c5f79ca3395e711ff36af827db31d883edcdfb818ca923feda7406442",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

@@ -1,0 +1,86 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_almaden",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2019-10-08T09:24:09+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0159172,
+    "best_2q_fidelity": 0.991399,
+    "median_t1_us": 100.62,
+    "median_t2_us": 85.652,
+    "median_readout_error": 0.0391667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/4fdf24d90e8fb3b95d8b24c7aa485dc888f368e6/qiskit/test/mock/backends/almaden/props_almaden.json",
+   "raw_sha256": "c668e5a5fa4c9f9d143c7699138758c157b81576e4b0c10e9a0da4138b08ccab",
+   "commit_date": "2019-11-12T17:04:17Z"
+  },
+  {
+   "captured_at": "2020-04-29T09:08:58+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0153676,
+    "best_2q_fidelity": 0.990232,
+    "median_t1_us": 95.863,
+    "median_t2_us": 69.314,
+    "median_readout_error": 0.03,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/almaden/props_almaden.json",
+   "raw_sha256": "693f1a5517c5680be717cec1279b87b71377e7ea573ff189c2fe2fdbe7a44e45",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-11T07:27:42+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0181089,
+    "best_2q_fidelity": 0.992051,
+    "median_t1_us": 84.212,
+    "median_t2_us": 39.938,
+    "median_readout_error": 0.0266667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/almaden/props_almaden.json",
+   "raw_sha256": "c1fd262139625398c6ed0f58837922920bd09932417ebf6cc2b4ffdbcb15684e",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T08:02:27+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0174802,
+    "best_2q_fidelity": 0.991301,
+    "median_t1_us": 79.32,
+    "median_t2_us": 40.187,
+    "median_readout_error": 0.0316667,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/almaden/props_almaden.json",
+   "raw_sha256": "e475555e98757686ad970de7954ad1627f5e9e8448a1f0412d600ff093a07c06",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T06:28:54+00:00",
+   "derived_metrics": {
+    "n_qubits": 20,
+    "median_2q_error": 0.0177327,
+    "best_2q_fidelity": 0.98894,
+    "median_t1_us": 83.891,
+    "median_t2_us": 34.064,
+    "median_readout_error": 0.0425,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/almaden/props_almaden.json",
+   "raw_sha256": "57e4307ab6bdb604f3cec2e2766aa049b8fb251152c5bc6c8d49ac86f86868ea",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

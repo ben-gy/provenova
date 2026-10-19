@@ -38,35 +38,74 @@
 
 <div class="mt-3 flex flex-wrap items-center gap-3">
   <h1 class="text-3xl font-bold text-slate-900">{{ pname }} <span class="mono">{{ d.backend_id }}</span></h1>
-  {{ source_badge(d.source, d.license_ref) }}
+  {% set srcs = (d.metric_sources.values() | unique | sort | list) if d.metric_sources else [d.source] %}
+  {% for src in srcs %}{{ source_badge(src, d.license_ref if src == d.source else '') }}{% endfor %}
   {% if stale %}<span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-500">last capture {{ (d.captured_at or '')[:10] }}</span>{% endif %}
 </div>
-<p class="mt-2 max-w-3xl text-sm text-slate-500">Latest {{ term("calibration snapshot") }} and benchmark values for this device from the public corpus, with full source &amp; licence provenance. {% if d.source == 'vendor-reported' %}<b>These figures are manufacturer-published claims</b>, not independently reproduced measurements.{% endif %}</p>
+<!-- Plain-language summary -->
+<div class="mt-4 max-w-3xl space-y-2 text-base leading-relaxed text-slate-700">
+  {% for line in summary %}<p>{{ line }}</p>{% endfor %}
+</div>
+<p class="mt-3 max-w-3xl text-sm text-slate-500">Every figure below is the device's latest measurement of that metric, with its own date and source. {% if d.source == 'vendor-reported' %}<b>These figures are manufacturer-published claims</b>, not independently reproduced measurements.{% endif %} <a href="/tracker" class="text-indigo-600 hover:underline">See how the whole field is progressing →</a></p>
 
-<!-- Headline metrics -->
-<div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+<!-- Metrics, in plain language -->
+<div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
   {% for m in metrics %}
-  <div class="rounded-xl border border-slate-200 bg-white p-4">
-    <div class="text-xs text-slate-500">{{ m.label }}</div>
-    <div class="mt-1 text-2xl font-bold text-slate-900 mono">{{ m.value }}</div>
-    <div class="mt-1 text-[11px] text-slate-400">{{ 'higher is better' if m.higher else 'lower is better' }}</div>
+  <div class="flex flex-col rounded-xl border border-slate-200 bg-white p-4">
+    <div class="flex items-start justify-between gap-2">
+      <div class="text-sm font-medium text-slate-700">{{ m.label }}</div>
+      {% if m.source %}{{ source_badge(m.source, d.license_ref) }}{% endif %}
+    </div>
+    <div class="mt-1 flex items-baseline gap-2">
+      <div class="mono text-2xl font-bold text-slate-900">{{ m.value }}</div>
+      {% if m.reading %}<div class="text-sm text-slate-500">{{ m.reading }}</div>{% endif %}
+    </div>
+    {% if m.plain %}<p class="mt-2 flex-1 text-xs leading-relaxed text-slate-500">{{ m.plain }}</p>{% endif %}
+    {% if m.percentile %}
+    <div class="mt-3">
+      <div class="h-1.5 rounded-full bg-slate-100"><div class="h-1.5 rounded-full bg-indigo-500" style="width: {{ m.percentile.pct }}%"></div></div>
+      <div class="mt-1 text-[11px] text-slate-500">Better than {{ m.percentile.pct }}% of {{ m.percentile.of }} other devices with this measurement</div>
+    </div>
+    {% endif %}
+    <div class="mt-2 text-[11px] text-slate-400">Measured {{ (m.date or d.captured_at or '')[:10] or '—' }}</div>
   </div>
   {% endfor %}
 </div>
 
-<!-- Trend chart -->
+<!-- History -->
 <h2 class="mt-10 text-lg font-semibold text-slate-900">History</h2>
 {% if trends %}
-<div id="trend-chart" class="mt-3 rounded-xl border border-slate-200 bg-white p-2" style="height:360px"></div>
+<p class="mt-1 text-sm text-slate-500">Each point is one dated measurement ({{ n_snapshots }} snapshot{{ 's' if n_snapshots != 1 }} in total).</p>
+<div class="mt-3 grid gap-3 lg:grid-cols-2">
+  {% for t in trends[:6] %}
+  <div class="rounded-xl border border-slate-200 bg-white p-3">
+    <div class="text-sm font-medium text-slate-700">{{ t.label }}</div>
+    <div id="trend-{{ loop.index }}" style="height:220px"></div>
+  </div>
+  {% endfor %}
+</div>
 <script>
-  const trends = {{ trends | tojson }};
-  Plotly.newPlot('trend-chart', trends.map(t => ({
-    x: t.x, y: t.y, name: t.label, mode: 'lines+markers', type: 'scatter'
-  })), {margin: {t: 24, r: 16, b: 48, l: 56}, legend: {orientation: 'h'}}, {displayModeBar: false, responsive: true});
+  (function () {
+    const trends = {{ trends[:6] | tojson }};
+    const errTicks = {tickvals: [0.1, 0.03, 0.01, 0.003, 0.001, 0.0003], ticktext: ['1 in 10', '1 in 33', '1 in 100', '1 in 330', '1 in 1,000', '1 in 3,300']};
+    const oneIn = p => 'fails about 1 in ' + Math.round(1 / p).toLocaleString();
+    trends.forEach((t, i) => {
+      // "1 in N" ticks only help when the series spans a real range of error rates.
+      const wide = t.kind === 'error' && Math.max(...t.y) / Math.min(...t.y) > 3;
+      const yaxis = wide ? Object.assign({type: 'log'}, errTicks) : {};
+      Plotly.newPlot('trend-' + (i + 1), [{x: t.x, y: t.y, mode: 'lines+markers', type: 'scatter',
+        line: {color: '#4f46e5'}, marker: {size: 7, color: '#4f46e5'},
+        text: t.kind === 'error' ? t.y.map(oneIn) : null,
+        hovertemplate: '%{x|%d %b %Y}: %{y}' + (t.kind === 'error' ? ' (%{text})' : '') + '<extra></extra>'}],
+        {margin: {t: 8, r: 12, b: 32, l: 64}, xaxis: {type: 'date'}, yaxis: Object.assign({gridcolor: '#f1f5f9'}, yaxis),
+         font: {family: 'ui-sans-serif, system-ui', size: 11}, showlegend: false},
+        {displayModeBar: false, responsive: true});
+    });
+  })();
 </script>
 {% else %}
 <p class="mt-2 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500">
-  {{ n_snapshots }} snapshot{{ 's' if n_snapshots != 1 }} so far — a longitudinal trend appears here once the corpus records calibration changes over time (snapshots are content-hash deduplicated, so the series only grows when the device actually changes).
+  {{ n_snapshots }} snapshot{{ 's' if n_snapshots != 1 }} so far. A trend appears here once a metric has been measured on two different days.
 </p>
 {% endif %}
 
@@ -78,6 +117,7 @@
     <div><dt class="text-xs text-slate-400">Licence</dt><dd>{{ d.license_ref or '—' }}</dd></div>
     <div><dt class="text-xs text-slate-400">Raw redistributable</dt><dd>{{ 'yes' if d.redistributable_raw else 'no (aggregates only)' }}</dd></div>
     <div><dt class="text-xs text-slate-400">Captured</dt><dd>{{ (d.captured_at or '')[:19] or '—' }}</dd></div>
+    {% if d.raw_ref %}<div class="sm:col-span-2"><dt class="text-xs text-slate-400">Raw source (latest snapshot)</dt><dd class="break-all"><a href="{{ d.raw_ref }}" rel="noopener" class="text-indigo-600 hover:underline">{{ d.raw_ref }}</a></dd></div>{% endif %}
   </dl>
 </div>
 
@@ -100,5 +140,5 @@
 </div>
 {% endif %}
 
-<p class="mt-8 text-xs text-slate-400">Data: {% if d.source == 'metriq' %}Metriq community benchmarks (<a href="https://metriq.info" rel="noopener" class="text-indigo-600 hover:underline">metriq.info</a>, CC-BY-4.0){% elif d.source == 'ibm' %}real device calibration from Qiskit's fake_provider (Apache-2.0){% elif d.source == 'vendor-reported' %}manufacturer-published specifications (see provenance){% else %}{{ d.license_ref or 'see provenance' }}{% endif %}. Rankings on the <a href="/leaderboard" class="text-indigo-600 hover:underline">live leaderboard</a>.</p>
+<p class="mt-8 text-xs text-slate-400">Data: {% if d.source == 'metriq' %}Metriq community benchmarks (<a href="https://metriq.info" rel="noopener" class="text-indigo-600 hover:underline">metriq.info</a>, CC-BY-4.0){% elif d.source == 'ibm' %}real IBM device calibration published in Qiskit's fake backends (Apache-2.0){% elif d.source == 'vendor-reported' %}manufacturer-published specifications (see provenance){% else %}{{ d.license_ref or 'see provenance' }}{% endif %}. Rankings on the <a href="/leaderboard" class="text-indigo-600 hover:underline">live leaderboard</a>.</p>
 {% endblock %}

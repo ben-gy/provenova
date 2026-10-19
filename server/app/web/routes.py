@@ -99,8 +99,14 @@ def landing(request: Request, db: Session = Depends(get_db),
         ) or 0
         stats = {"runs": runs_count, "reproductions": repro_count, "public_cards": cards_count}
     activation = _activation_state(db, p) if p else None
+    headlines = []
+    if not p:
+        from ..db import datasets_dir
+        from ..services import tracker as tracker_svc
+
+        headlines = tracker_svc.build(db, datasets_dir())["headlines"]
     return render(request, "landing.html", p, recent=recent, stats=stats, activation=activation,
-                  canonical_path="/")
+                  headlines=headlines, canonical_path="/")
 
 
 def _activation_state(db: Session, p: Principal) -> dict:
@@ -545,11 +551,17 @@ def public_card(slug: str, request: Request, db: Session = Depends(get_db),
 # -- leaderboard ------------------------------------------------------------
 
 @router.get("/leaderboard", response_class=HTMLResponse)
-def leaderboard(request: Request, metric: str = "median_2q_error", db: Session = Depends(get_db),
+def leaderboard(request: Request, metric: str = "median_2q_error", historical: bool = False,
+                db: Session = Depends(get_db),
                 p: Principal | None = Depends(current_principal)):
+    import datetime as _dt
+
+    from ..services import explain
+
     entries = []
     metrics = []
     metric_label = metric
+    hidden = 0
     try:
         from provenova_crawler.corpus import LEADERBOARD_METRICS, fleet_leaderboard
 
@@ -558,8 +570,21 @@ def leaderboard(request: Request, metric: str = "median_2q_error", db: Session =
         entries = fleet_leaderboard(db, metric=metric)
     except Exception:
         entries = []
+    if not historical:
+        # Rank today's machines by default: a 2019 chip beside a 2026 one
+        # answers a different question (see /tracker for the long view).
+        cutoff = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=730)).date().isoformat()
+        kept = [e for e in entries if (e["captured_at"] or "")[:10] >= cutoff]
+        hidden = len(entries) - len(kept)
+        entries = kept
+        for i, e in enumerate(entries, start=1):
+            e["rank"] = i
+    for e in entries:
+        e["reading"] = explain.reading(metric, e["value"])
     return render(request, "leaderboard.html", p, entries=entries, metric=metric,
-                  metrics=metrics, metric_label=metric_label, canonical_path="/leaderboard")
+                  metrics=metrics, metric_label=metric_label, historical=historical,
+                  hidden=hidden, metric_plain=explain.METRIC_INFO.get(metric, {}).get("plain"),
+                  canonical_path="/leaderboard")
 
 
 # -- docs -------------------------------------------------------------------

@@ -29,6 +29,7 @@ LEADERBOARD_METRICS: list[dict] = [
     {"key": "median_2q_error", "label": "Median 2Q error", "higher": False, "unit": ""},
     {"key": "median_t1_us", "label": "Median T1 (µs)", "higher": True, "unit": "µs"},
     {"key": "median_t2_us", "label": "Median T2 (µs)", "higher": True, "unit": "µs"},
+    {"key": "median_readout_error", "label": "Median readout error", "higher": False, "unit": ""},
     {"key": "algorithmic_qubits", "label": "Algorithmic qubits (#AQ)", "higher": True, "unit": ""},
     {"key": "quantum_volume", "label": "Quantum Volume", "higher": True, "unit": ""},
     {"key": "clops", "label": "CLOPS", "higher": True, "unit": ""},
@@ -144,10 +145,18 @@ def crawl_all(session, source) -> list[CorpusSnapshot]:
 # Analytics query helpers
 # ---------------------------------------------------------------------------
 
-def _latest_per_device(session, period: tuple | None = None) -> list[CorpusSnapshot]:
-    """Return the most-recent snapshot for each (provider, backend_id).
+def _iso(dt) -> str | None:
+    return dt.isoformat() if dt else None
 
-    ``period`` optionally restricts to ``(start, end)`` capture datetimes.
+
+def merged_devices(session, period: tuple | None = None) -> list[dict]:
+    """Every device's latest known value of each metric, with its own date.
+
+    Snapshots can carry partial metric sets (a benchmark run measures one
+    thing), so a device's current picture is built oldest → newest: each
+    metric takes its most recent measurement, and ``metric_dates`` records
+    when that was. Device-level ``captured_at`` / ``source`` / licence come
+    from the newest snapshot. ``period`` restricts to ``(start, end)``.
     """
     stmt = select(CorpusSnapshot)
     if period is not None:
@@ -160,24 +169,31 @@ def _latest_per_device(session, period: tuple | None = None) -> list[CorpusSnaps
 
     _MIN = _dt.datetime.min.replace(tzinfo=_dt.timezone.utc)
 
-    def _aware(dt):
-        if dt is None:
-            return _MIN
-        return dt if dt.tzinfo else dt.replace(tzinfo=_dt.timezone.utc)
+    def _key(r: CorpusSnapshot):
+        dt = r.captured_at
+        dt = _MIN if dt is None else (dt if dt.tzinfo else dt.replace(tzinfo=_dt.timezone.utc))
+        return (dt, len(r.derived_metrics or {}), r.id or "")
 
-    def _rank(r: CorpusSnapshot):
-        # Deterministic winner on equal capture time: prefer the richer metric
-        # set (so a deadline-truncated/partial row can't shadow a complete one),
-        # then the most-recently-inserted row (ULID ids are time-sortable).
-        return (_aware(r.captured_at), len(r.derived_metrics or {}), r.id or "")
-
-    latest: dict[tuple[str, str], CorpusSnapshot] = {}
-    for row in rows:
-        key = (row.provider, row.backend_id)
-        cur = latest.get(key)
-        if cur is None or _rank(row) > _rank(cur):
-            latest[key] = row
-    return list(latest.values())
+    devices: dict[tuple[str, str], dict] = {}
+    for row in sorted(rows, key=_key):
+        dm = row.derived_metrics or {}
+        d = devices.setdefault((row.provider, row.backend_id), {
+            "provider": row.provider, "backend_id": row.backend_id,
+            "derived_metrics": {}, "metric_dates": {}, "metric_sources": {},
+            "n_snapshots": 0, "first_captured_at": _iso(row.captured_at)})
+        source = dm.get("source") or row.provider
+        for k, v in dm.items():
+            if k == "source" or v is None:
+                continue
+            d["derived_metrics"][k] = v
+            d["metric_dates"][k] = _iso(row.captured_at)
+            d["metric_sources"][k] = source
+        d["derived_metrics"]["source"] = source
+        d.update(captured_at=_iso(row.captured_at), source=source,
+                 license_ref=row.license_ref, redistributable_raw=row.redistributable_raw,
+                 raw_ref=row.raw_ref)
+        d["n_snapshots"] += 1
+    return list(devices.values())
 
 
 def fleet_leaderboard(
@@ -185,30 +201,30 @@ def fleet_leaderboard(
     metric: str = "median_2q_error",
     period: tuple | None = None,
 ) -> list[dict]:
-    """Rank each device by ``metric`` using its latest snapshot in ``period``.
+    """Rank each device by its latest measurement of ``metric`` in ``period``.
 
     Lower-is-better metrics (errors) rank ascending; fidelity/coherence metrics
     (``best_2q_fidelity``, ``median_t1_us``, ``median_t2_us``) rank descending.
-    Devices missing the metric are dropped. Returns a list of ranked dicts.
+    Devices missing the metric are dropped. ``captured_at`` is the date of the
+    ranked measurement itself. Returns a list of ranked dicts.
     """
     higher_is_better = metric in HIGHER_IS_BETTER
     entries = []
-    for row in _latest_per_device(session, period=period):
-        dm = row.derived_metrics or {}
-        value = dm.get(metric)
+    for d in merged_devices(session, period=period):
+        value = d["derived_metrics"].get(metric)
         if value is None:
             continue
         entries.append(
             {
-                "provider": row.provider,
-                "backend_id": row.backend_id,
+                "provider": d["provider"],
+                "backend_id": d["backend_id"],
                 "metric": metric,
                 "value": value,
-                "captured_at": row.captured_at.isoformat() if row.captured_at else None,
-                "derived_metrics": row.derived_metrics,
-                "source": dm.get("source") or row.provider,
-                "license_ref": row.license_ref,
-                "redistributable_raw": row.redistributable_raw,
+                "captured_at": d["metric_dates"].get(metric) or d["captured_at"],
+                "derived_metrics": d["derived_metrics"],
+                "source": d["metric_sources"].get(metric) or d["source"],
+                "license_ref": d["license_ref"],
+                "redistributable_raw": d["redistributable_raw"],
             }
         )
     entries.sort(key=lambda e: e["value"], reverse=higher_is_better)
@@ -218,25 +234,13 @@ def fleet_leaderboard(
 
 
 def list_devices(session) -> list[dict]:
-    """Latest snapshot summary for every (provider, backend_id) — public pages.
+    """Current picture of every (provider, backend_id) — public pages.
 
-    One dict per device: provider, backend_id, captured_at, derived_metrics,
-    source, license_ref, redistributable_raw. Sorted by (provider, backend_id).
+    One dict per device (see :func:`merged_devices`): provider, backend_id,
+    captured_at, derived_metrics, metric_dates, source, license_ref,
+    redistributable_raw, n_snapshots. Sorted by (provider, backend_id).
     """
-    out = []
-    for row in _latest_per_device(session):
-        dm = row.derived_metrics or {}
-        out.append(
-            {
-                "provider": row.provider,
-                "backend_id": row.backend_id,
-                "captured_at": row.captured_at.isoformat() if row.captured_at else None,
-                "derived_metrics": dm,
-                "source": dm.get("source") or row.provider,
-                "license_ref": row.license_ref,
-                "redistributable_raw": row.redistributable_raw,
-            }
-        )
+    out = merged_devices(session)
     # Lowercase sort key: pair canonical ordering (compare pages use lowercase
     # URLs) must agree with this ordering for any letter-case of backend ids.
     out.sort(key=lambda d: (d["provider"].lower(), d["backend_id"].lower()))

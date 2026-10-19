@@ -1,0 +1,56 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibm_nairobi",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2021-12-09T19:02:06+00:00",
+   "derived_metrics": {
+    "n_qubits": 7,
+    "median_2q_error": 0.00784652,
+    "best_2q_fidelity": 0.993929,
+    "median_t1_us": 127.53,
+    "median_t2_us": 86.487,
+    "median_readout_error": 0.0283,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/7c8471adedad931515a81aad58d8b64c8e91bebc/qiskit_ibm_runtime/fake_provider/backends/nairobi/props_nairobi.json",
+   "raw_sha256": "df1be187cabbb44d856ec9c65a854dcfbccd73fbfce8c406a950e086528576f6",
+   "commit_date": "2024-05-07T16:55:10Z"
+  },
+  {
+   "captured_at": "2024-04-10T16:46:46+00:00",
+   "derived_metrics": {
+    "n_qubits": 7,
+    "median_2q_error": 0.0101721,
+    "best_2q_fidelity": 0.993679,
+    "median_t1_us": 80.56,
+    "median_t2_us": 36.95,
+    "median_readout_error": 0.4911,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/49b75f8abacf5c1d8ce8d4efab30ad001b04642c/qiskit_ibm_runtime/fake_provider/backends/nairobi/props_nairobi.json",
+   "raw_sha256": "3d7d844b2ff28c1719ee838cfd606bfcae7becbe3510c99015428323a248b7e6",
+   "commit_date": "2024-05-06T21:13:48Z"
+  },
+  {
+   "captured_at": "2024-05-27T18:45:40+00:00",
+   "derived_metrics": {
+    "n_qubits": 7,
+    "median_2q_error": 0.0077995,
+    "best_2q_fidelity": 0.993209,
+    "median_t1_us": 87.265,
+    "median_t2_us": 106.13,
+    "median_readout_error": 0.0223,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/7b9ecb722f55ecb3aea01d83e6d406a161efc770/qiskit_ibm_runtime/fake_provider/backends/nairobi/props_nairobi.json",
+   "raw_sha256": "92fc39e0c04e994d282e7494f7cc380d1a62907c00c3494a4fcae22c91f3fa75",
+   "commit_date": "2024-05-30T18:37:35Z"
+  }
+ ]
+}

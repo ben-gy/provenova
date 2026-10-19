@@ -1,0 +1,116 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_rome",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-04-28T08:16:39+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00995115,
+    "best_2q_fidelity": 0.992186,
+    "median_t1_us": 85.767,
+    "median_t2_us": 99.615,
+    "median_readout_error": 0.025,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/8c574a28e696d8c84afed7817dcf2dceb9031fc3/qiskit/test/mock/backends/rome/props_rome.json",
+   "raw_sha256": "8896f82b75a5e371a9a078fe54753b9bf10ac94a83e6f5ed9234a6871dff9442",
+   "commit_date": "2020-04-29T00:47:23Z"
+  },
+  {
+   "captured_at": "2020-06-11T09:37:42+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00939351,
+    "best_2q_fidelity": 0.991168,
+    "median_t1_us": 94.156,
+    "median_t2_us": 118.62,
+    "median_readout_error": 0.0333333,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/rome/props_rome.json",
+   "raw_sha256": "6db02fefdcb82100d3ee569ff4b06e92cb87b196027c288cd447bbee18783f86",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-07-16T08:34:01+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00860991,
+    "best_2q_fidelity": 0.992148,
+    "median_t1_us": 60.732,
+    "median_t2_us": 107.62,
+    "median_readout_error": 0.035,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/3e20d3c3671c4ec78b7e7b91651af38eeabab6f5/qiskit/test/mock/backends/rome/props_rome.json",
+   "raw_sha256": "4dc6d82f933107ac34b93f1c5cc9bcc4c244b921cf5c721970272ebf71d85b9b",
+   "commit_date": "2020-07-30T17:59:01Z"
+  },
+  {
+   "captured_at": "2020-08-10T07:59:19+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00744339,
+    "best_2q_fidelity": 0.993809,
+    "median_t1_us": 95.256,
+    "median_t2_us": 77.265,
+    "median_readout_error": 0.0193,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/0f7673eb1d6b7d242ae3665e67a1d3eab76efba1/qiskit/test/mock/backends/rome/props_rome.json",
+   "raw_sha256": "ba3bd29e77c4ca1851cc1e7c693d4777676105f68226d11d6745911fb7b1a8d9",
+   "commit_date": "2020-08-10T15:18:20Z"
+  },
+  {
+   "captured_at": "2020-11-25T05:53:18+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.012686,
+    "best_2q_fidelity": 0.992424,
+    "median_t1_us": 80.172,
+    "median_t2_us": 89.495,
+    "median_readout_error": 0.0226,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/rome/props_rome.json",
+   "raw_sha256": "34da4f32d347514b68a4724580247deb76ef81bae80badb3057077225a078382",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-14T13:54:07+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00875623,
+    "best_2q_fidelity": 0.994412,
+    "median_t1_us": 84.741,
+    "median_t2_us": 93.933,
+    "median_readout_error": 0.0253,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/rome/props_rome.json",
+   "raw_sha256": "8f6ed71cf138f368df32a8ab62fcfe79a6edb0275cfc2b82ff350f6f8bb47d49",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-03-15T18:29:39+00:00",
+   "derived_metrics": {
+    "n_qubits": 5,
+    "median_2q_error": 0.00829274,
+    "best_2q_fidelity": 0.993377,
+    "median_t1_us": 104.96,
+    "median_t2_us": 116.24,
+    "median_readout_error": 0.0237,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/rome/props_rome.json",
+   "raw_sha256": "f40deb752d81d3455e855f7a0336112e4fdc3a63d07eec70787de3d8ffbc99fd",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}

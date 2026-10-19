@@ -1,0 +1,102 @@
+{
+ "schema": "qlprov/corpus-series/1.0",
+ "provider": "ibm",
+ "backend_id": "ibmq_armonk",
+ "source": "ibm",
+ "license_ref": "Apache-2.0 \u00b7 Qiskit fake backend calibration snapshot",
+ "redistributable_raw": true,
+ "note": "Aggregates of real IBM Quantum calibration snapshots published in Qiskit's fake backends (Apache-2.0). raw_ref is the exact source file at its commit.",
+ "snapshots": [
+  {
+   "captured_at": "2020-04-09T21:16:16+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 129.51,
+    "median_t2_us": 174.57,
+    "median_readout_error": 0.066,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/8332562191baf1a18ebe7bcb5ff9ea7e4ddb7ba8/qiskit/test/mock/backends/armonk/props_armonk.json",
+   "raw_sha256": "548a733382da30da50768a53b75506b168762b008074b4240b64f496da7b0805",
+   "commit_date": "2020-04-17T19:08:09Z"
+  },
+  {
+   "captured_at": "2020-04-28T21:18:42+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 173.71,
+    "median_t2_us": 201.21,
+    "median_readout_error": 0.067,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/bf30f3551e0b163ebcb071a0d8186903703c5c8d/qiskit/test/mock/backends/armonk/props_armonk.json",
+   "raw_sha256": "7f1eef37c7b81fdd009707e904cfa02bf763adf635a99554f2f8059bb6c4a735",
+   "commit_date": "2020-04-30T17:20:07Z"
+  },
+  {
+   "captured_at": "2020-06-10T21:20:30+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 194.52,
+    "median_t2_us": 147.76,
+    "median_readout_error": 0.039,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/ca5e1388eb4fb3761e36826d5899a9bd400202f7/qiskit/test/mock/backends/armonk/props_armonk.json",
+   "raw_sha256": "8617aa9bc6a81976113678f54d16e04cdc477c32907913ff94faffc532a2e195",
+   "commit_date": "2020-06-13T14:22:23Z"
+  },
+  {
+   "captured_at": "2020-08-10T12:09:29+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 218.39,
+    "median_t2_us": 222.42,
+    "median_readout_error": 0.081,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/0f7673eb1d6b7d242ae3665e67a1d3eab76efba1/qiskit/test/mock/backends/armonk/props_armonk.json",
+   "raw_sha256": "e80c04f192ae8b34f084e5d8de3b7936bcdabebeb36283b10889dbd757b4a136",
+   "commit_date": "2020-08-10T15:18:20Z"
+  },
+  {
+   "captured_at": "2020-11-25T05:09:02+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 184.26,
+    "median_t2_us": 177.32,
+    "median_readout_error": 0.0881,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/a234c279ff0abf93ce291860884323ba199e6622/qiskit/test/mock/backends/armonk/props_armonk.json",
+   "raw_sha256": "1c6ff196d210f59193cc812b446850c0376f44eeff47adf597294562c9ae521f",
+   "commit_date": "2020-11-25T18:49:32Z"
+  },
+  {
+   "captured_at": "2020-12-11T21:42:53+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 184.74,
+    "median_t2_us": 195.44,
+    "median_readout_error": 0.0619,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit/blob/070f9e2360e37172d65eecc3d180bcac2ff576e5/qiskit/test/mock/backends/armonk/props_armonk.json",
+   "raw_sha256": "aa15ef70f88182f1e2383637049b11f26187e17a291802063b336a528e9c4150",
+   "commit_date": "2020-12-17T20:09:24Z"
+  },
+  {
+   "captured_at": "2021-03-15T04:40:24+00:00",
+   "derived_metrics": {
+    "n_qubits": 1,
+    "median_t1_us": 182.66,
+    "median_t2_us": 237.86,
+    "median_readout_error": 0.024,
+    "source": "ibm"
+   },
+   "raw_ref": "https://github.com/Qiskit/qiskit-ibm-runtime/blob/2a396172c25aa2971e99b434b430177745878a53/qiskit_ibm_runtime/fake_provider/backends/armonk/props_armonk.json",
+   "raw_sha256": "b82fae1e2050fbc1583dbf9884cce532f5bfbc50365d3d49ef029cf48a8eb211",
+   "commit_date": "2023-12-01T16:14:10Z"
+  }
+ ]
+}
